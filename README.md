@@ -11,6 +11,8 @@
 [![React](https://img.shields.io/badge/React-18.3-green)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Base](https://img.shields.io/badge/Base-Sepolia-0056FF)](https://base.org/)
+[![Celo](https://img.shields.io/badge/Celo-Alfajores-35D07F)](https://celo.org/)
+[![Polkadot](https://img.shields.io/badge/Polkadot-Hub-E6007A)](https://polkadot.network/)
 
 </div>
 
@@ -41,13 +43,24 @@ PeyDot's **Magic Claim Links** allow senders to create secure, time-limited link
 
 ## Features
 
-- **Magic Claim Links** - Send crypto via email, recipient claims with one click
-- **Multi-chain Support** - Deploy on Base, Celo, and Polkadot Asset Hub
-- **Escrow Security** - Funds held securely in smart contract until claimed
-- **Auto-expiry** - Unclaimed payments auto-refund after 7 days
-- **Email Notifications** - Recipients get notified when they receive funds
-- **Real-time Tracking** - Dashboard shows all sent/received payments
-- **Testnet Ready** - Fully tested on Base Sepolia, Celo Alfajores
+- 🌍 **Multi-Chain Support** - Send on Base, Celo, or Polkadot with one tap
+- 🔗 **Magic Claim Links** - Send crypto via email, recipient claims with one click
+- 🔐 **Escrow Security** - Funds held securely in smart contract until claimed
+- ⏰ **Auto-expiry** - Unclaimed payments auto-refund after 7 days
+- 📧 **Email Notifications** - Recipients get notified when they receive funds
+- 📊 **Real-time Tracking** - Dashboard shows all sent/received payments
+- 🎨 **Beautiful UX** - Intuitive network selector, color-coded chains
+- ✅ **Testnet Ready** - Fully tested on Base Sepolia, Celo Alfajores
+
+---
+
+## Supported Networks
+
+| Network | Chain ID | Status | USDC Token |
+|---------|----------|--------|-------------|
+| **Base Sepolia** | 84532 | ✅ Active | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
+| **Celo Alfajores** | 44787 | ✅ Active | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` |
+| **Polkadot Asset Hub** | 420420421 | ✅ Active | Asset ID 1337 |
 
 ---
 
@@ -61,6 +74,7 @@ PeyDot's **Magic Claim Links** allow senders to create secure, time-limited link
 - **Privy** - Embedded wallet & auth
 - **Tailwind CSS** - Styling
 - **Shadcn UI** - Component library
+- **Framer Motion** - Animations
 
 ### Backend
 - **Supabase** - Database & Edge Functions
@@ -80,6 +94,7 @@ PeyDot's **Magic Claim Links** allow senders to create secure, time-limited link
 - Node.js 18+
 - npm or yarn
 - MetaMask or other Web3 wallet
+- Supabase account (free tier)
 
 ### Installation
 
@@ -97,11 +112,26 @@ npm install
 ```bash
 # Copy environment file
 cp .env.example .env
+```
 
-# Update with your values:
-# - VITE_PRIVY_APP_ID from https://dashboard.privy.io
-# - SUPABASE_URL and keys from your Supabase project
-# - RPC URLs for your chosen networks
+Update `.env` with your values:
+
+```env
+# Supabase (get from https://supabase.com)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+
+# Privy (get from https://dashboard.privy.io)
+VITE_PRIVY_APP_ID=your_privy_app_id
+
+# RPC URLs
+VITE_RPC_URL_BASE_SEPOLIA=https://base-sepolia.g.alchemy.com/v2/your-api-key
+VITE_RPC_URL_CELO=https://alfajores-forno.celo-testnet.org
+VITE_RPC_URL_POLKADOT=https://eth-asset-hub-paseo.dotters.network
+
+# Contract Addresses
+VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA=***REMOVED***
+VITE_USDC_ADDRESS_BASE_SEPOLIA=0x036CbD53842c5426634e7929541eC2318f3dCF7e
 ```
 
 ### Run Development Server
@@ -111,6 +141,25 @@ npm run dev
 ```
 
 Open http://localhost:8080 to view the app.
+
+---
+
+## How It Works
+
+### For Senders
+
+1. **Connect Wallet** - Sign in with email or connect wallet
+2. **Select Network** - Choose Base, Celo, or Polkadot
+3. **Enter Details** - Amount, token (USDC/USDT), recipient email
+4. **Confirm & Send** - Approve transaction
+5. **Share Link** - Recipient gets email notification with claim link
+
+### For Recipients
+
+1. **Receive Email** - Click claim link in notification
+2. **Sign Up** - Create account with email (auto-wallet created)
+3. **Claim Funds** - One-click claim to your wallet
+4. **Withdraw** - Send to any address
 
 ---
 
@@ -124,16 +173,19 @@ cd contracts
 # Deploy to Base Sepolia (testnet)
 forge script script/DeployBaseSepolia.s.sol --rpc-url $BASE_SEPOLIA_RPC --broadcast
 
+# Deploy to Celo Alfajores
+forge script script/DeployCeloAlfajores.s.sol --rpc-url $CELO_ALFAJORES_RPC --broadcast
+
 # Deploy to Base Mainnet
 forge script script/DeployBase.s.sol --rpc-url $BASE_RPC --broadcast
 ```
 
 ### Contract Addresses
 
-| Network | Escrow Contract | USDC Token |
-|---------|---------------|------------|
-| Base Sepolia | `***REMOVED***` | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
-| Celo Alfajores | `0x0000000000000000000000000000000000000001` | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` |
+| Network | Escrow Contract | USDC Token | Explorer |
+|---------|---------------|------------|----------|
+| Base Sepolia | `***REMOVED***` | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | [Basescan](https://sepolia.basescan.org) |
+| Celo Alfajores | `0x0000000000000000000000000000000000000001` | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` | [CeloScan](https://alfajores.celoscan.io) |
 
 ---
 
@@ -153,16 +205,16 @@ forge script script/DeployBase.s.sol --rpc-url $BASE_RPC --broadcast
                            │
                            ▼
                     ┌─────────────┐
-                    │  Recipient  │
-                    │  (Claim)    │
+                    │  Recipient │
+                    │  (Claim)   │
                     └─────────────┘
 ```
 
 ### Flow
 
-1. **Sender** creates payment in frontend
+1. **Sender** creates payment in frontend, selects network
 2. **Frontend** calls Supabase edge function to create payment record
-3. **Smart Contract** locks funds in escrow
+3. **Smart Contract** locks funds in escrow on chosen network
 4. **Supabase** sends email with claim link to recipient
 5. **Recipient** clicks link, signs up via Privy
 6. **Recipient** claims payment - funds transferred to their wallet
@@ -181,6 +233,7 @@ forge script script/DeployBase.s.sol --rpc-url $BASE_RPC --broadcast
 | `get-payment` | Get payment details by claim link |
 | `get-user-payments` | List user's sent/received payments |
 | `send-payment-notification` | Send email notification to recipient |
+| `payment-assistant` | AI-powered payment assistance |
 
 ### Database Schema
 
@@ -199,7 +252,8 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. Run tests
+5. Submit a pull request
 
 ---
 
@@ -224,3 +278,11 @@ MIT License - see [LICENSE](./LICENSE) for details.
 - [Polkadot](https://polkadot.network/) - Multi-chain ecosystem
 - [Circle](https://circle.com/) - USDC stablecoin
 - [Privy](https://privy.io/) - Embedded wallets
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the future of payments**
+
+</div>
