@@ -261,7 +261,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 - **Discord**: [Join our community](https://discord.gg/peydot)
 - **Email**: peys.xyz@gmail.com
-- **Twitter**: [@peydot_io](https://twitter.com/peydot_io)
+- **X**: [@Peys_io](https://x.com/Peys_io)
 
 ---
 
