@@ -149,7 +149,7 @@ async function main() {
   <div class="container">
     <div class="header">
       <h1>You've received money!</h1>
-      <p>Someone sent you crypto on PeyDot Magic Links</p>
+      <p>Someone sent you crypto on Peys Magic Links</p>
     </div>
     <div class="content">
       <div class="amount">$${AMOUNT_USDC.toFixed(2)}</div>
@@ -164,7 +164,7 @@ async function main() {
       </p>
     </div>
     <div class="footer">
-      <p><strong>PeyDot Magic Links</strong> - Send crypto to anyone via email</p>
+      <p><strong>Peys Magic Links</strong> - Send crypto to anyone via email</p>
       <p>This payment expires in 7 days.</p>
     </div>
   </div>
@@ -179,9 +179,9 @@ async function main() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "PeyDot <onboarding@resend.dev>",
+      from: "Peys <onboarding@resend.dev>",
       to: [RECIPIENT_EMAIL],
-      subject: `You've received ${AMOUNT_USDC.toFixed(2)} USDC on PeyDot!`,
+      subject: `You've received ${AMOUNT_USDC.toFixed(2)} USDC on Peys!`,
       html: emailHtml,
     }),
   });

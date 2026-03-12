@@ -1,6 +1,4 @@
-# PeyDot - Stablecoin Payment Platform
-
-<div align="center">
+# Peys - Stablecoin Payment Platform
 
 ![PeyDot](./docs/images/peydot-logo.png)
 
@@ -17,9 +15,9 @@
 
 ---
 
-## What is PeyDot?
+## What is Peys?
 
-PeyDot is a **stablecoin payment platform** that enables anyone to send and receive USDC and USDT payments using **Magic Claim Links**. It's built on the Polkadot Asset Hub and supports multiple chains including Base, Celo, and Polkadot.
+Peys is a **stablecoin payment platform** that enables anyone to send and receive USDC and USDT payments using **Magic Claim Links**. It's built on the Polkadot Asset Hub and supports multiple chains including Base, Celo, and Polkadot.
 
 ### The Problem with Crypto Payments
 
@@ -32,7 +30,7 @@ Traditional cryptocurrency payments require:
 
 ### The Solution
 
-PeyDot's **Magic Claim Links** solve these issues by allowing senders to create secure, time-limited links where recipients can claim funds with:
+Peys's **Magic Claim Links** solve these issues by allowing senders to create secure, time-limited links where recipients can claim funds with:
 
 1. **No wallet required** - Recipients don't need a wallet to receive
 2. **One-click claiming** - Just click the link and claim
@@ -131,7 +129,7 @@ console.log(payment.link);
 ### Prerequisites
 
 - Node.js 18+ 
-- PeyDot account (free)
+- Peys account (free)
 - API key from dashboard
 
 ### Installation
