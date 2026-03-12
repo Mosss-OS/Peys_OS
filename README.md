@@ -1,56 +1,155 @@
-# PeyDot - Magic Claim Links for P2P Payments
+# PeyDot - Stablecoin Payment Platform
 
 <div align="center">
 
 ![PeyDot](./docs/images/peydot-logo.png)
 
-**Zero-friction stablecoin payments for everyone**
+**The stablecoin payment OS for the Polkadot ecosystem**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue)](https://docs.soliditylang.org/)
-[![React](https://img.shields.io/badge/React-18.3-green)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![Base](https://img.shields.io/badge/Base-Sepolia-0056FF)](https://base.org/)
-[![Celo](https://img.shields.io/badge/Celo-Alfajores-35D07F)](https://celo.org/)
-[![Polkadot](https://img.shields.io/badge/Polkadot-Hub-E6007A)](https://polkadot.network/)
+[![React](https://img.shields.io/badge/React-18.3-green)](https://react.dev/)
+[![Polkadot](https://img.shields.io/badge/Polkadot-E6007A)](https://polkadot.network/)
+
+[Website](https://peys.app) · [Documentation](https://peys.app/docs) · [X](https://x.com/Peys_io) · [GitHub](https://github.com/Moses-main/peydot-magic-links)
 
 </div>
 
 ---
 
-## Overview
+## What is PeyDot?
 
-PeyDot is a revolutionary P2P payments application that enables anyone to send and receive stablecoins (USDC/USDT) using **Magic Claim Links**. Recipients can claim funds via email without needing a pre-existing wallet or account.
+PeyDot is a **stablecoin payment platform** that enables anyone to send and receive USDC and USDT payments using **Magic Claim Links**. It's built on the Polkadot Asset Hub and supports multiple chains including Base, Celo, and Polkadot.
 
-### The Problem
+### The Problem with Crypto Payments
 
-Traditional crypto payments require:
-- Recipient must have a wallet
-- Recipient must understand seed phrases
-- Complex gas fee concepts
-- Multiple steps to receive funds
+Traditional cryptocurrency payments require:
+- Recipients must have a pre-existing wallet
+- Recipients must understand seed phrases and private keys
+- Complex gas fee concepts and terminology
+- Multiple steps just to receive funds
+- No way to request payment from someone
 
 ### The Solution
 
-PeyDot's **Magic Claim Links** allow senders to create secure, time-limited links where recipients can:
-1. Click the link to open PeyDot
-2. Sign up with email (via Privy)
-3. Auto-create an embedded wallet
-4. Claim funds with 1-click
-5. Withdraw to any address
+PeyDot's **Magic Claim Links** solve these issues by allowing senders to create secure, time-limited links where recipients can claim funds with:
+
+1. **No wallet required** - Recipients don't need a wallet to receive
+2. **One-click claiming** - Just click the link and claim
+3. **Auto wallet creation** - Embedded wallets created automatically via email
+4. **Multiple chains** - Send on Base, Celo, or Polkadot
 
 ---
 
-## Features
+## Use Cases
 
-- 🌍 **Multi-Chain Support** - Send on Base, Celo, or Polkadot with one tap
-- 🔗 **Magic Claim Links** - Send crypto via email, recipient claims with one click
-- 🔐 **Escrow Security** - Funds held securely in smart contract until claimed
-- ⏰ **Auto-expiry** - Unclaimed payments auto-refund after 7 days
-- 📧 **Email Notifications** - Recipients get notified when they receive funds
-- 📊 **Real-time Tracking** - Dashboard shows all sent/received payments
-- 🎨 **Beautiful UX** - Intuitive network selector, color-coded chains
-- ✅ **Testnet Ready** - Fully tested on Base Sepolia, Celo Alfajores
+### For Individuals
+- Send money to friends and family via email
+- Request payments from colleagues or clients
+- Split bills or reimburse expenses
+- Send gifts or allowances
+
+### For Businesses
+- **Freelance payments** - Pay contractors globally in stablecoins
+- **Payroll** - Batch payments to employees
+- **Streaming payments** - Stream salaries in real-time
+- **Invoice payments** - Send payment links to clients
+- **E-commerce** - Accept stablecoin payments online
+
+### For Platforms
+- **Marketplaces** - Accept crypto payments from users
+- **DeFi apps** - Integrate stablecoin transfers
+- **Wallet apps** - Add send/receive functionality
+- **Gaming** - In-game currency payouts
+
+---
+
+## Products & Features
+
+### Magic Claim Links
+Send crypto via email. Recipients claim funds with one click—no wallet needed.
+
+- **Time-limited links** - Auto-expiry after 7 days with automatic refunds
+- **Secure escrow** - Funds held safely in smart contracts
+- **Email notifications** - Recipients get instant notifications
+
+### REST API
+Programmatic access to all payment features.
+
+- Create and manage payments
+- Handle payment claims
+- Webhook integrations
+- Full transaction history
+
+### SDKs
+Official libraries for popular languages:
+
+- **JavaScript/TypeScript** - For web and Node.js applications
+- **Python** - For backend services and scripts
+- **Go** - For high-performance applications
+
+### Widgets
+Pre-built UI components for quick integration:
+
+- **Pay Button** - Simple payment button
+- **Payment Form** - Full-featured payment form
+
+### Dashboard
+Real-time analytics and management:
+
+- Track all sent/received payments
+- Monitor transaction history
+- Manage API keys
+- Analytics and reporting
+
+---
+
+## Getting Started
+
+### Quick Start (5 minutes)
+
+```bash
+# 1. Install the SDK
+npm install @peys/sdk
+
+# 2. Initialize with your API key
+import { Peys } from '@peys/sdk';
+
+const peys = new Peys({ apiKey: 'your_api_key' });
+
+# 3. Create a payment
+const payment = await peys.payments.create({
+  amount: 100,
+  token: 'USDC',
+  recipient: 'recipient@email.com'
+});
+
+console.log(payment.link);
+// https://peys.app/pay/abc123
+```
+
+### Prerequisites
+
+- Node.js 18+ 
+- PeyDot account (free)
+- API key from dashboard
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Moses-main/peydot-magic-links.git
+cd peydot-magic-links
+
+# Install dependencies
+npm install
+
+# Copy environment file
+cp .env.example .env
+
+# Start development server
+npm run dev
+```
 
 ---
 
@@ -58,9 +157,89 @@ PeyDot's **Magic Claim Links** allow senders to create secure, time-limited link
 
 | Network | Chain ID | Status | USDC Token |
 |---------|----------|--------|-------------|
-| **Base Sepolia** | 84532 | ✅ Active | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
-| **Celo Alfajores** | 44787 | ✅ Active | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` |
-| **Polkadot Asset Hub** | 420420421 | ✅ Active | Asset ID 1337 |
+| **Base Sepolia** (Testnet) | 84532 | ✅ Active | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
+| **Celo Alfajores** (Testnet) | 44787 | ✅ Active | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` |
+| **Polkadot Asset Hub** (Paseo) | 420420421 | ✅ Active | Asset ID 1337 |
+
+---
+
+## How It Works
+
+### Sending Payments
+
+```
+1. Sender connects wallet (email or Web3)
+2. Selects network (Base, Celo, or Polkadot)
+3. Enters amount, token (USDC/USDT), recipient email
+4. Confirms transaction - funds locked in escrow
+5. Recipient receives email with claim link
+6. Sender can track status in dashboard
+```
+
+### Receiving Payments
+
+```
+1. Recipient receives email notification
+2. Clicks claim link
+3. Signs up with email (auto-creates wallet)
+4. Claims funds with one click
+5. Funds transferred to their wallet
+6. Can withdraw to any address
+```
+
+### Claim Flow
+
+```typescript
+// Recipient claims payment
+const claim = await peys.payments.claim({
+  claimId: 'pay_abc123'
+});
+
+// Or check claim status
+const status = await peys.payments.getStatus({
+  claimId: 'pay_abc123'
+});
+```
+
+---
+
+## API Reference
+
+### Base URL
+
+```
+https://api.peys.app/v1
+```
+
+### Authentication
+
+All API requests require an API key in the header:
+
+```bash
+curl -H "Authorization: Bearer sk_live_..." \
+     https://api.peys.app/v1/payments
+```
+
+### Key Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/v1/payments` | Create a new payment |
+| GET | `/v1/payments/:id` | Get payment details |
+| POST | `/v1/payments/:id/claim` | Claim a payment |
+| GET | `/v1/payments` | List payments |
+| POST | `/v1/webhooks` | Register webhook |
+| GET | `/v1/accounts/:id` | Get account info |
+
+### Webhooks
+
+Receive real-time notifications for:
+
+- `payment.created` - New payment created
+- `payment.claimed` - Payment claimed by recipient
+- `payment.expired` - Payment link expired
+- `payment.cancelled` - Payment cancelled by sender
+- `payment.refunded` - Unclaimed payment refunded
 
 ---
 
@@ -74,7 +253,6 @@ PeyDot's **Magic Claim Links** allow senders to create secure, time-limited link
 - **Privy** - Embedded wallet & auth
 - **Tailwind CSS** - Styling
 - **Shadcn UI** - Component library
-- **Framer Motion** - Animations
 
 ### Backend
 - **Supabase** - Database & Edge Functions
@@ -84,108 +262,6 @@ PeyDot's **Magic Claim Links** allow senders to create secure, time-limited link
 ### Smart Contracts
 - **Solidity 0.8** - Smart contract language
 - **Foundry** - Testing & deployment
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-- MetaMask or other Web3 wallet
-- Supabase account (free tier)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Moses-main/peydot-magic-links.git
-cd peydot-magic-links
-
-# Install dependencies
-npm install
-```
-
-### Environment Setup
-
-```bash
-# Copy environment file
-cp .env.example .env
-```
-
-Update `.env` with your values:
-
-```env
-# Supabase (get from https://supabase.com)
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
-
-# Privy (get from https://dashboard.privy.io)
-VITE_PRIVY_APP_ID=your_privy_app_id
-
-# RPC URLs
-VITE_RPC_URL_BASE_SEPOLIA=https://base-sepolia.g.alchemy.com/v2/your-api-key
-VITE_RPC_URL_CELO=https://alfajores-forno.celo-testnet.org
-VITE_RPC_URL_POLKADOT=https://eth-asset-hub-paseo.dotters.network
-
-# Contract Addresses
-VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA=***REMOVED***
-VITE_USDC_ADDRESS_BASE_SEPOLIA=0x036CbD53842c5426634e7929541eC2318f3dCF7e
-```
-
-### Run Development Server
-
-```bash
-npm run dev
-```
-
-Open http://localhost:8080 to view the app.
-
----
-
-## How It Works
-
-### For Senders
-
-1. **Connect Wallet** - Sign in with email or connect wallet
-2. **Select Network** - Choose Base, Celo, or Polkadot
-3. **Enter Details** - Amount, token (USDC/USDT), recipient email
-4. **Confirm & Send** - Approve transaction
-5. **Share Link** - Recipient gets email notification with claim link
-
-### For Recipients
-
-1. **Receive Email** - Click claim link in notification
-2. **Sign Up** - Create account with email (auto-wallet created)
-3. **Claim Funds** - One-click claim to your wallet
-4. **Withdraw** - Send to any address
-
----
-
-## Smart Contract
-
-### Deployment
-
-```bash
-cd contracts
-
-# Deploy to Base Sepolia (testnet)
-forge script script/DeployBaseSepolia.s.sol --rpc-url $BASE_SEPOLIA_RPC --broadcast
-
-# Deploy to Celo Alfajores
-forge script script/DeployCeloAlfajores.s.sol --rpc-url $CELO_ALFAJORES_RPC --broadcast
-
-# Deploy to Base Mainnet
-forge script script/DeployBase.s.sol --rpc-url $BASE_RPC --broadcast
-```
-
-### Contract Addresses
-
-| Network | Escrow Contract | USDC Token | Explorer |
-|---------|---------------|------------|----------|
-| Base Sepolia | `***REMOVED***` | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | [Basescan](https://sepolia.basescan.org) |
-| Celo Alfajores | `0x0000000000000000000000000000000000000001` | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` | [CeloScan](https://alfajores.celoscan.io) |
 
 ---
 
@@ -210,36 +286,67 @@ forge script script/DeployBase.s.sol --rpc-url $BASE_RPC --broadcast
                     └─────────────┘
 ```
 
-### Flow
+---
 
-1. **Sender** creates payment in frontend, selects network
-2. **Frontend** calls Supabase edge function to create payment record
-3. **Smart Contract** locks funds in escrow on chosen network
-4. **Supabase** sends email with claim link to recipient
-5. **Recipient** clicks link, signs up via Privy
-6. **Recipient** claims payment - funds transferred to their wallet
-7. **Sender** notified when payment is claimed
+## SDK Examples
+
+### JavaScript
+
+```typescript
+import { Peys } from '@peys/sdk';
+
+const peys = new Peys({ apiKey: process.env.PEYS_API_KEY });
+
+// Create payment
+const payment = await peys.payments.create({
+  amount: 50,
+  token: 'USDC',
+  recipient: 'user@example.com',
+  description: 'Payment for services'
+});
+
+// Get payment status
+const status = await peys.payments.get(payment.id);
+```
+
+### Python
+
+```python
+from peys import Peys
+
+peys = Peys(api_key="your_api_key")
+
+# Create payment
+payment = peys.payments.create(
+    amount=50,
+    token="USDC",
+    recipient="user@example.com"
+)
+```
+
+### Go
+
+```go
+import "github.com/peys/sdk-go"
+
+peys := peys.New("your_api_key")
+
+payment, err := peys.Payments.Create(&peys.PaymentParams{
+    Amount: 50,
+    Token: "USDC",
+    Recipient: "user@example.com",
+})
+```
 
 ---
 
-## API Reference
+## Resources
 
-### Edge Functions
-
-| Function | Description |
-|----------|-------------|
-| `create-payment` | Create a new payment and escrow |
-| `claim-payment` | Claim a pending payment |
-| `get-payment` | Get payment details by claim link |
-| `get-user-payments` | List user's sent/received payments |
-| `send-payment-notification` | Send email notification to recipient |
-| `payment-assistant` | AI-powered payment assistance |
-
-### Database Schema
-
-- **profiles** - User wallet mappings
-- **payments** - Payment records with escrow info
-- **notifications** - In-app notifications
+- [Documentation](https://peys.app/docs) - Full developer docs
+- [API Reference](https://peys.app/docs/api/payments) - REST API endpoints
+- [SDK Guides](https://peys.app/docs/sdks/javascript) - Language-specific tutorials
+- [Widgets Guide](https://peys.app/docs/widgets/overview) - Embeddable UI components
+- [Pricing](https://peys.app/docs/sdks/pricing) - SDK pricing plans
 
 ---
 
@@ -259,9 +366,9 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## Support
 
-- **Discord**: [Join our community](https://discord.gg/peydot)
 - **Email**: peys.xyz@gmail.com
 - **X**: [@Peys_io](https://x.com/Peys_io)
+- **GitHub**: [Open an issue](https://github.com/Moses-main/peydot-magic-links/issues)
 
 ---
 
@@ -273,9 +380,9 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Acknowledgments
 
+- [Polkadot](https://polkadot.network/) - Multi-chain ecosystem
 - [Base](https://base.org/) - Ethereum L2 network
 - [Celo](https://celo.org/) - Mobile-first blockchain
-- [Polkadot](https://polkadot.network/) - Multi-chain ecosystem
 - [Circle](https://circle.com/) - USDC stablecoin
 - [Privy](https://privy.io/) - Embedded wallets
 
@@ -283,6 +390,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 <div align="center">
 
-**Built with ❤️ for the future of payments**
+**Built for the future of payments**
 
 </div>
