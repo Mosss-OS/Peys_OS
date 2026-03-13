@@ -1,14 +1,31 @@
 import { ethers } from "ethers";
 import { createClient } from "@supabase/supabase-js";
 
-const PRIVATE_KEY = "***REMOVED***";
-const RPC_URL = "https://base-sepolia.g.alchemy.com/v2/***REMOVED***";
-const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-const ESCROW_ADDRESS = "***REMOVED***";
+// Environment variables - never commit private keys to source code
+const PRIVATE_KEY = process.env.PRIVATE_KEY || process.env.PLATFORM_PRIVATE_KEY;
+const RPC_URL = process.env.RPC_URL || process.env.VITE_RPC_URL_BASE_SEPOLIA;
+const USDC_ADDRESS = process.env.USDC_ADDRESS || process.env.VITE_USDC_ADDRESS_BASE_SEPOLIA;
+const ESCROW_ADDRESS = process.env.ESCROW_ADDRESS || process.env.VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA;
 
-const SUPABASE_URL = "https://nhxjvhohfgihmrtiytix.supabase.co";
-const SUPABASE_SERVICE_KEY = "***REMOVED***";
-const RESEND_API_KEY = "***REMOVED***";
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+// Validate required environment variables
+if (!PRIVATE_KEY) {
+  console.error("ERROR: PRIVATE_KEY environment variable is required");
+  process.exit(1);
+}
+
+if (!RPC_URL) {
+  console.error("ERROR: RPC_URL environment variable is required");
+  process.exit(1);
+}
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error("ERROR: Supabase environment variables are required");
+  process.exit(1);
+}
 
 const USDC_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
@@ -20,7 +37,7 @@ const ESCROW_ABI = [
   "function createPaymentWithDefaultExpiry(address token, uint256 amount, bytes32 claimHash, string calldata memo) external returns (bytes32 paymentId)"
 ];
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!);
 
 async function main() {
   const RECIPIENT_EMAIL = "moses.main21@gmail.com";
@@ -30,11 +47,11 @@ async function main() {
   console.log(`Recipient: ${RECIPIENT_EMAIL}`);
   console.log(`Amount: ${AMOUNT_USDC} USDC`);
 
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+  const provider = new ethers.JsonRpcProvider(RPC_URL!);
+  const wallet = new ethers.Wallet(PRIVATE_KEY!, provider);
   
-  const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, wallet);
-  const escrow = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, wallet);
+  const usdc = new ethers.Contract(USDC_ADDRESS!, USDC_ABI, wallet);
+  const escrow = new ethers.Contract(ESCROW_ADDRESS!, ESCROW_ABI, wallet);
   
   const amount = ethers.parseUnits(AMOUNT_USDC.toString(), 6);
   

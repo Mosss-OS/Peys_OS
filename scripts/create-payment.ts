@@ -1,11 +1,29 @@
 import { ethers } from "ethers";
 
-const PRIVATE_KEY = "***REMOVED***";
-const RPC_URL = "https://base-sepolia.g.alchemy.com/v2/***REMOVED***";
-const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-const ESCROW_ADDRESS = "***REMOVED***";
-const RECIPIENT_EMAIL = "moses.main21@gmail.com";
-const AMOUNT_USDC = 2;
+// Environment variables - never commit private keys to source code
+const PRIVATE_KEY = process.env.PRIVATE_KEY || process.env.PLATFORM_PRIVATE_KEY;
+const RPC_URL = process.env.RPC_URL || process.env.VITE_RPC_URL_BASE_SEPOLIA;
+const USDC_ADDRESS = process.env.USDC_ADDRESS || process.env.VITE_USDC_ADDRESS_BASE_SEPOLIA;
+const ESCROW_ADDRESS = process.env.ESCROW_ADDRESS || process.env.VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA;
+
+// Validate required environment variables
+if (!PRIVATE_KEY) {
+  console.error("ERROR: PRIVATE_KEY environment variable is required");
+  process.exit(1);
+}
+
+if (!RPC_URL) {
+  console.error("ERROR: RPC_URL environment variable is required");
+  process.exit(1);
+}
+
+if (!USDC_ADDRESS || !ESCROW_ADDRESS) {
+  console.error("ERROR: Contract address environment variables are required");
+  process.exit(1);
+}
+
+const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL || "moses.main21@gmail.com";
+const AMOUNT_USDC = parseFloat(process.env.AMOUNT_USDC || "2");
 
 const ESCROW_ABI = [
   "function createPaymentExternal(address token, uint256 amount, bytes32 claimHash, uint256 expiry, string calldata memo) external returns (bytes32 paymentId)",
@@ -20,13 +38,13 @@ const USDC_ABI = [
 
 async function main() {
   console.log("Connecting to Base Sepolia...");
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+  const provider = new ethers.JsonRpcProvider(RPC_URL!);
+  const wallet = new ethers.Wallet(PRIVATE_KEY!, provider);
   
   console.log("Wallet address:", wallet.address);
   
-  const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, wallet);
-  const escrow = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, wallet);
+  const usdc = new ethers.Contract(USDC_ADDRESS!, USDC_ABI, wallet);
+  const escrow = new ethers.Contract(ESCROW_ADDRESS!, ESCROW_ABI, wallet);
   
   const amount = ethers.parseUnits(AMOUNT_USDC.toString(), 6);
   console.log(`Amount: ${AMOUNT_USDC} USDC (${amount} in wei)`);

@@ -17,25 +17,72 @@
 
 ## What is Peys?
 
-Peys is a **stablecoin payment platform** that enables anyone to send and receive USDC and USDT payments using **Magic Claim Links**. It's built on the Polkadot Asset Hub and supports multiple chains including Base, Celo, and Polkadot.
+Peys (formerly PeyDot) is a **stablecoin payment platform** that enables anyone to send and receive USDC and USDT payments using **Magic Claim Links**. It's built on the Polkadot Asset Hub and supports multiple chains including Base, Celo, and Polkadot.
 
-### The Problem with Crypto Payments
+### Core Functionality
 
-Traditional cryptocurrency payments require:
-- Recipients must have a pre-existing wallet
-- Recipients must understand seed phrases and private keys
-- Complex gas fee concepts and terminology
-- Multiple steps just to receive funds
-- No way to request payment from someone
+**Magic Claim Links** allow senders to send crypto via email. The flow works as follows:
 
-### The Solution
+1. **Sender** connects their wallet and creates a payment with recipient's email
+2. **Smart Contract** locks funds in escrow with a secure claim hash
+3. **Email** is sent to recipient via Resend with a unique claim link
+4. **Recipient** clicks the link, signs up with email (auto-creates embedded wallet via Privy)
+5. **Claim** executes the smart contract to transfer funds to recipient's wallet
 
-Peys's **Magic Claim Links** solve these issues by allowing senders to create secure, time-limited links where recipients can claim funds with:
+### Key Features
 
-1. **No wallet required** - Recipients don't need a wallet to receive
-2. **One-click claiming** - Just click the link and claim
-3. **Auto wallet creation** - Embedded wallets created automatically via email
-4. **Multiple chains** - Send on Base, Celo, or Polkadot
+- **No pre-existing wallet needed** - Recipients sign up via email
+- **Auto wallet creation** - Privy creates embedded wallets automatically
+- **Secure escrow** - Funds held in smart contracts until claimed
+- **Time-limited links** - 7-day expiry with automatic refunds
+- **Multi-chain support** - Base Sepolia, Celo Alfajores, Polkadot Asset Hub
+- **Email notifications** - Resend integration for claim links
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Frontend (React/Vite)                   │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
+│  │  Send Page  │  │  Claim Page │  │  Dashboard  │          │
+│  └─────────────┘  └─────────────┘  └─────────────┘          │
+│           │               │               │                 │
+│  ┌─────────────────────────────────────────────┐            │
+│  │         Wagmi + Viem (Blockchain)           │            │
+│  └─────────────────────────────────────────────┘            │
+└──────────────────┬──────────────────────────┬────────────────┘
+                   │                          │
+┌──────────────────▼──────────────────────────▼────────────────┐
+│              Backend (Supabase + Resend)                     │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
+│  │  Database   │  │ Edge Funcs  │  │  Email (R)  │          │
+│  └─────────────┘  └─────────────┘  └─────────────┘          │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### User Flow
+
+**For Senders:**
+1. Connect wallet via Privy (email or Web3 wallet)
+2. Select network (Base, Celo, or Polkadot)
+3. Enter amount, token (USDC/USDT), recipient email
+4. Confirm transaction - funds locked in escrow smart contract
+5. Recipient receives email with claim link
+6. Track status in dashboard
+
+**For Recipients:**
+1. Receive email notification with claim link
+2. Click link and sign up with email (auto-creates Privy embedded wallet)
+3. Claim funds with one click
+4. Funds transferred to their embedded wallet
+5. Can withdraw to external wallet or use for payments
+
+### Developer Platform
+
+- **REST API** - Programmatic access to all payment features
+- **SDKs** - JavaScript, Python, Go libraries
+- **Webhooks** - Real-time payment event notifications
+- **API Keys** - Secure access management
 
 ---
 
@@ -241,6 +288,78 @@ Receive real-time notifications for:
 
 ---
 
+## Architecture
+
+### System Components
+
+**1. Frontend (React/Vite)**
+- **Location**: `/src/`
+- **Purpose**: User interface for sending, claiming, and managing payments
+- **Key Components**:
+  - `SendPage.tsx` - Payment creation form
+  - `ClaimPage.tsx` - Payment claiming interface
+  - `Dashboard.tsx` - Transaction history and analytics
+  - `SendPaymentForm.tsx` - Main payment flow logic
+
+**2. Backend (Supabase)**
+- **Location**: `/supabase/`
+- **Purpose**: Database storage, Edge Functions, and email notifications
+- **Key Components**:
+  - Database Tables: `payments`, `profiles`, `notifications`, `api_keys`
+  - Edge Functions: `create-payment`, `claim-payment`, `send-payment-notification`
+  - Authentication: Supabase Auth + Privy integration
+
+**3. Smart Contracts (Ethereum)**
+- **Location**: `/contracts/`
+- **Purpose**: Escrow, streaming, and batch payment logic
+- **Key Contracts**:
+  - `PeysEscrow.sol` - Main escrow contract for magic link payments
+  - `PeyStreaming.sol` - Streaming payments contract
+  - `PeyBatchPayroll.sol` - Batch payments contract
+
+**4. Developer Platform**
+- **Location**: `/server/` and `/sdks/`
+- **Purpose**: REST API and SDKs for programmatic access
+- **Key Components**:
+  - Express.js REST API server
+  - JavaScript, Python, Go SDKs
+  - API key management
+
+### Data Flow
+
+**Magic Link Payment Flow:**
+1. Frontend → Supabase: Save preliminary payment record
+2. Frontend → Smart Contract: Create escrow payment on-chain
+3. Supabase → Resend: Send email notification with claim link
+4. Recipient → Frontend: Click claim link and sign up
+5. Frontend → Smart Contract: Claim payment on-chain
+6. Frontend → Supabase: Update payment status
+
+**User Authentication Flow:**
+1. User signs in via Privy (email or Web3 wallet)
+2. Privy creates embedded wallet if needed
+3. Frontend syncs with Supabase profiles
+4. User can send/receive payments using their wallet
+
+### Environment Configuration
+
+Each component has its own environment configuration:
+
+**Frontend** (`/.env`):
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_PUBLISHABLE_KEY` - Supabase anon key
+- `VITE_PRIVY_APP_ID` - Privy application ID
+- Chain-specific contract addresses
+
+**Backend** (`/supabase/.env`):
+- `SUPABASE_DB_URL` - Database connection string
+- `RESEND_API_KEY` - Resend email service key
+- `PRIVY_APP_ID` - Privy application ID
+
+**Smart Contracts** (`/contracts/.env`):
+- Private keys for deployment
+- RPC URLs for each network
+
 ## Tech Stack
 
 ### Frontend
@@ -250,6 +369,24 @@ Receive real-time notifications for:
 - **Wagmi + Viem** - Ethereum interactions
 - **Privy** - Embedded wallet & auth
 - **Tailwind CSS** - Styling
+- **React Router** - Navigation
+
+### Backend
+- **Supabase** - PostgreSQL database and Edge Functions
+- **Resend** - Email notifications
+- **Supabase Auth** - User authentication
+
+### Smart Contracts
+- **Solidity 0.8.20** - Contract language
+- **Foundry** - Development framework
+- **Escrow System** - PeysEscrow.sol for magic link payments
+- **Streaming** - PeyStreaming.sol for continuous payments
+- **Batch** - PeyBatchPayroll.sol for bulk payments
+
+### Infrastructure
+- **Multi-chain** - Base Sepolia, Celo Alfajores, Polkadot Asset Hub
+- **Privy** - Embedded wallet management
+- **Vercel** - Frontend hosting
 - **Shadcn UI** - Component library
 
 ### Backend
