@@ -79,10 +79,11 @@ async function main() {
     await createTx.wait();
     console.log("Success! Tx:", createTx.hash);
     console.log("Claim secret:", Buffer.from(claimSecret).toString("hex"));
-  } catch (err: any) {
-    console.error("Error:", err.message);
-    if (err.data) {
-      console.error("Error data:", err.data);
+  } catch (err: unknown) {
+    const error = err as { message?: string; data?: unknown };
+    console.error("Error:", error.message);
+    if (error.data) {
+      console.error("Error data:", error.data);
     }
   }
 }

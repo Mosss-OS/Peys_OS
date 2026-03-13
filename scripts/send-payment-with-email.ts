@@ -127,7 +127,9 @@ async function main() {
         blockchainPaymentId = parsed.args.paymentId;
         break;
       }
-    } catch (e) {}
+    } catch (e) {
+      // Ignore parsing errors
+    }
   }
   
   console.log(`   Blockchain Payment ID: ${blockchainPaymentId}`);
