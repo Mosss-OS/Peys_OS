@@ -371,10 +371,24 @@ Each component has its own environment configuration:
 - **Tailwind CSS** - Styling
 - **React Router** - Navigation
 
-### Backend
-- **Supabase** - PostgreSQL database and Edge Functions
-- **Resend** - Email notifications
-- **Supabase Auth** - User authentication
+### Backend (Hybrid Architecture)
+
+**Primary: Supabase (Serverless)**
+- PostgreSQL database
+- Edge Functions for payment APIs
+- Authentication (Supabase + Privy)
+- Email notifications via Resend
+- Webhook system for developers
+- **Cost**: Free tier (500K invocations) → $0-25/month
+
+**Secondary: WhatsApp Microservice (Dedicated VPS)**
+- WhatsApp Web automation (whatsapp-web.js)
+- QR code generation and scanning
+- Persistent session management
+- Event forwarding to Supabase
+- **Cost**: $5-10/month (small VPS)
+
+**Total Estimated Cost**: $5-35/month (vs $20-50 for monolithic server)
 
 ### Smart Contracts
 - **Solidity 0.8.20** - Contract language
