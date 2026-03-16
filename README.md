@@ -54,6 +54,97 @@ cd peydot-magic-links
 # Install dependencies
 npm install
 
+# Copy environment variables
+cp .env.example .env
+```
+
+### Environment Setup
+
+Update `.env` with your credentials:
+
+```env
+# Privy Authentication (Required)
+VITE_PRIVY_APP_ID=your-privy-app-id
+
+# Polkadot Asset Hub Configuration
+VITE_RPC_URL_POLKADOT=https://eth-asset-hub-paseo.dotters.network
+VITE_ESCROW_CONTRACT_ADDRESS_POLKADOT=***REMOVED***
+VITE_USDC_ADDRESS_POLKADOT=0x0000000000000000000000000000000000000D39
+VITE_PASS_ADDRESS_POLKADOT=0x00000001000000000000000000000000000007c0
+
+# Base Sepolia Configuration
+VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA=***REMOVED***
+VITE_USDC_ADDRESS_BASE_SEPOLIA=0x036CbD53842c5426634e7929541eC2318f3dCF7e
+
+# Supabase (Optional for features)
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-key
+```
+
+### Start Development Server
+
+```bash
+npm run dev
+```
+
+### Add Polkadot Asset Hub to MetaMask
+
+If using MetaMask, add this network:
+
+| Field | Value |
+|-------|-------|
+| **Network Name** | Polkadot Asset Hub Testnet |
+| **Chain ID** | 420420417 |
+| **RPC URL** | https://eth-asset-hub-paseo.dotters.network |
+| **Currency Symbol** | PAS |
+| **Block Explorer** | https://polkadot.testnet.routescan.io |
+
+---
+
+## Wallet Integration
+
+### Supported Wallets
+
+| Wallet | Status | Notes |
+|--------|--------|-------|
+| **Privy Embedded** | ✅ Full | Auto-created on email login |
+| **MetaMask** | ✅ Full | Add Polkadot network manually |
+| **Coinbase Wallet** | ✅ Full | Built-in Polkadot support |
+| **WalletConnect** | ✅ Full | Connect any wallet |
+
+### Login Methods
+
+1. **Email Magic Link** - No wallet needed initially
+2. **Google/Apple** - OAuth with embedded wallet
+3. **External Wallet** - MetaMask, Coinbase, etc.
+
+### User Flow
+
+```mermaid
+graph TD
+    A[User Opens App] --> B{Choose Login Method}
+    B -->|Email| C[Send Magic Link]
+    B -->|Google/Apple| D[OAuth Flow]
+    B -->|Wallet| E[Connect MetaMask]
+    C --> F[Embedded Wallet Created]
+    D --> F
+    E --> F
+    F --> G[Switch to Polkadot]
+    G --> H[Ready to Use]
+```
+
+---
+
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/Moses-main/peydot-magic-links.git
+cd peydot-magic-links
+
+# Install dependencies
+npm install
+
 # Copy environment file
 cp .env.example .env
 
