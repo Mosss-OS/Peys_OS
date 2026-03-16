@@ -85,203 +85,168 @@ console.log(payment.link);
 
 ### System Overview
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                                PEYS ARCHITECTURE                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                         FRONTEND (React + Vite)                       │   │
-│  │                                                                       │   │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐     │   │
-│  │  │   Send     │  │   Claim    │  │ Dashboard  │  │   AI       │     │   │
-│  │  │   Page     │  │   Page     │  │            │  │ Assistant  │     │   │
-│  │  └────────────┘  └────────────┘  └────────────┘  └────────────┘     │   │
-│  │                                                                       │   │
-│  │  ┌────────────────────────────────────────────────────────────────┐ │   │
-│  │  │              Wagmi + Viem (Ethereum Interactions)              │ │   │
-│  │  └────────────────────────────────────────────────────────────────┘ │   │
-│  └───────────────────────────────┬────────────────────────────────────────┘   │
-│                                  │                                              │
-│  ┌───────────────────────────────▼────────────────────────────────────────┐   │
-│  │                     BLOCKCHAIN LAYER                                     │   │
-│  │                                                                       │   │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │   │
-│  │  │  Polkadot   │  │    Base     │  │    Celo     │  │  Ethereum   │  │   │
-│  │  │ Asset Hub   │  │  Sepolia    │  │ Alfajores   │  │  Mainnet    │  │   │
-│  │  │(420420417)  │  │  (84532)    │  │  (44787)    │  │    (1)      │  │   │
-│  │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  │   │
-│  │         │                 │                 │                 │         │   │
-│  │         └─────────────────┼─────────────────┼─────────────────┘         │   │
-│  │                           │                 │                           │   │
-│  │                    ┌──────▼──────┐          │                           │   │
-│  │                    │ PeysEscrow │          │                           │   │
-│  │                    │   .sol     │◄─────────┘                           │   │
-│  │                    └─────────────┘                                      │   │
-│  └───────────────────────────────┬────────────────────────────────────────┘   │
-│                                  │                                              │
-│  ┌───────────────────────────────▼────────────────────────────────────────┐   │
-│  │                       BACKEND (Supabase)                                │   │
-│  │                                                                       │   │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │   │
-│  │  │  Database    │  │ Edge Funcs  │  │   Auth      │  │  Webhooks   │  │   │
-│  │  │ (PostgreSQL) │  │  (Deno)     │  │ (Supabase)  │  │             │  │   │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘  │   │
-│  │                                                                       │   │
-│  │  ┌─────────────────────────────────────────────────────────────────┐   │   │
-│  │  │                    External Services                           │   │   │
-│  │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐         │   │   │
-│  │  │  │ Resend  │  │ Privy   │  │ WhatsApp│  │  AI     │         │   │   │
-│  │  │  │ (Email) │  │ (Wallet)│  │  Bot    │  │Gateway  │         │   │   │
-│  │  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘         │   │   │
-│  │  └─────────────────────────────────────────────────────────────────┘   │   │
-│  └───────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Frontend["FRONTEND (React + Vite)"]
+        Send[Send Page]
+        Claim[Claim Page]
+        Dashboard[Dashboard]
+        AI[AI Assistant]
+        Wagmi[Wagmi + Viem]
+    end
+    
+    subgraph Blockchain["BLOCKCHAIN LAYER"]
+        Polkadot[Polkadot Asset Hub<br/>Chain: 420420417]
+        Base[Base Sepolia<br/>Chain: 84532]
+        Celo[Celo Alfajores<br/>Chain: 44787]
+        Escrow[PeysEscrow.sol]
+        Streaming[PeyStreaming.sol]
+        Batch[PeyBatchPayroll.sol]
+    end
+    
+    subgraph Backend["BACKEND (Supabase)"]
+        DB[(PostgreSQL)]
+        Edge[Edge Functions]
+        Auth[Auth]
+        Webhooks[Webhooks]
+    end
+    
+    subgraph External["EXTERNAL SERVICES"]
+        Resend[Resend<br/>Email]
+        Privy[Privy<br/>Embedded Wallets]
+        OpenAI[OpenAI<br/>AI Assistant]
+        WhatsApp[WhatsApp<br/>Notifications]
+    end
+    
+    Frontend -->|Transactions| Wagmi
+    Wagmi -->|EVM Calls| Polkadot
+    Wagmi -->|EVM Calls| Base
+    Wagmi -->|EVM Calls| Celo
+    
+    Polkadot --> Escrow
+    Polkadot --> Streaming
+    Polkadot --> Batch
+    
+    Frontend -->|API Calls| Edge
+    Edge --> DB
+    Edge --> Resend
+    Edge --> OpenAI
+    Edge --> WhatsApp
+    
+    Auth --> Privy
+    Webhooks --> External
 ```
 
-### Payment Flow Diagram
+### Payment Flow
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        MAGIC CLAIM LINK FLOW                                │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-  SENDER                              CONTRACT                         RECIPIENT
-    │                                     │                                 │
-    │  1. Connect Wallet                  │                                 │
-    │────────────────────────────────────>│                                 │
-    │                                     │                                 │
-    │  2. Create Payment                 │                                 │
-    │  (token, amount, email)            │                                 │
-    │────────────────────────────────────>│                                 │
-    │                                     │                                 │
-    │                              ┌──────▼──────┐                         │
-    │                              │  ESCROW     │                         │
-    │                              │  LOCKED     │                         │
-    │                              │  ✅         │                         │
-    │                              └──────┬──────┘                         │
-    │                                     │                                 │
-    │  3. Payment Record                 │                                 │
-    │◄────────────────────────────────────│                                 │
-    │                                     │                                 │
-    │                              ┌──────▼──────┐                         │
-    │                              │   RESEND    │                         │
-    │                              │  (Email)    │────4. Email + Link ────►
-    │                              └─────────────┘                         │
-    │                                                                       │
-    │                                                                       │
-    │                                    5. Click Claim Link                │
-    │◄──────────────────────────────────────────────────────────────────────│
-    │                                    (Sign up with email)                │
-    │                                                                       │
-    │  6. Claim Transaction                     │                         │
-    │───────────────────────────────────────────►                         │
-    │                                     │                                 │
-    │                              ┌──────▼──────┐                         │
-    │                              │   RELEASE   │                         │
-    │                              │   ESCROW    │                         │
-    │                              │    ✅       │                         │
-    │                              └──────┬──────┘                         │
-    │                                     │                                 │
-    │  7. Update Status                   │                                 │
-    │◄────────────────────────────────────│                                 │
-    │                                     │                                  │
-    │                             ┌──────▼──────┐                         │
-    │                             │  COMPLETE   │                         │
-    │                             │  🎉         │                         │
-    │                             └─────────────┘                         │
-
-
-EXPIRY FLOW (7 days):
-    │                                     │                                 │
-    │                              ┌──────▼──────┐                         │
-    │                              │   EXPIRED   │                         │
-    │                              │   ⏰        │                         │
-    │                              └──────┬──────┘                         │
-    │                                     │                                 │
-    │  8. Auto Refund                    │                                 │
-    │◄────────────────────────────────────│                                 │
-    │     (Funds return to sender)        │                                 │
+```mermaid
+sequenceDiagram
+    participant S as Sender
+    participant F as Frontend
+    participant C as Smart Contract
+    participant R as Resend
+    participant Re as Recipient
+    participant P as Privy
+    
+    S->>F: Connect Wallet
+    S->>F: Create Payment<br/>(token, amount, email)
+    F->>C: createPayment()<br/>Funds locked in escrow
+    C-->>F: Payment created<br/>Transaction hash
+    F->>R: Send email notification<br/>with claim link
+    R->>Re: Email with claim link
+    Re->>F: Click claim link
+    Re->>P: Sign up with email<br/>(auto-create wallet)
+    F->>C: claim()<br/>Transfer funds
+    C-->>Re: Funds released<br/>to recipient wallet
 ```
 
-### Smart Contract Architecture
+### Smart Contracts
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      SMART CONTRACT LAYER                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  PeysEscrow.sol (Main Escrow Contract)                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Features:                                                                 │
-│  ✓ Ownable - Owner can pause/unpause, set fees                           │
-│  ✓ ReentrancyGuard - Prevents reentrancy attacks                         │
-│  ✓ Platform Fees - Optional 0-5% fee collection                          │
-│  ✓ Emergency Rescue - Owner can rescue stuck tokens                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  External Interfaces:                                                      │
-│  ├── IERC20 (token interactions)                                          │
-│  ├── createPayment()                                                      │
-│  ├── claim()                                                              │
-│  ├── refundAfterExpiry()                                                  │
-│  └── getPayment()                                                         │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  PeyStreaming.sol (Streaming Payments)                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Features:                                                                 │
-│  ✓ Real-time token streaming                                               │
-│  ✓ Configurable flow rates                                                 │
-│  ✓ Start/stop streams                                                     │
-│  ✓ Withdraw available funds                                               │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  PeyBatchPayroll.sol (Batch Payments)                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Features:                                                                 │
-│  ✓ Batch payments to multiple recipients                                  │
-│  ✓ Merkle proof verification                                              │
-│  ✓ Scheduled payments                                                    │
-│  ✓ Payroll management                                                     │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+classDiagram
+    class PeysEscrow {
+        +address owner
+        +bool paused
+        +uint256 platformFee
+        +createPayment()
+        +claim()
+        +refundAfterExpiry()
+        +pause()
+        +unpause()
+    }
+    
+    class PeyStreaming {
+        +IERC20 TOKEN
+        +createStream()
+        +pauseStream()
+        +cancelStream()
+        +claimStream()
+    }
+    
+    class PeyBatchPayroll {
+        +IERC20 TOKEN
+        +address admin
+        +createBatch()
+        +executeBatch()
+        +createPayroll()
+        +processPayroll()
+    }
+    
+    PeysEscrow --|> Ownable
+    PeysEscrow --|> ReentrancyGuard
+    PeyStreaming --|> ReentrancyGuard
+    PeyBatchPayroll --|> ReentrancyGuard
 ```
 
 ### Database Schema
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        DATABASE SCHEMA                                     │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│    profiles     │     │    payments     │     │  notifications  │
-├─────────────────┤     ├─────────────────┤     ├─────────────────┤
-│ id (PK)         │     │ id (PK)         │     │ id (PK)         │
-│ user_id (FK)    │────▶│ payment_id     │     │ user_id (FK)    │
-│ email           │     │ sender_id (FK) │────▶│ type            │
-│ wallet_address  │     │ recipient_email │     │ status          │
-│ created_at      │     │ token           │     │ sent_at         │
-│ updated_at      │     │ amount          │     │ delivered_at    │
-└─────────────────┘     │ chain_id        │     └─────────────────┘
-                       │ status          │
-                       │ tx_hash         │
-                       │ claim_link      │
-                       │ expires_at      │     ┌─────────────────┐
-                       │ created_at      │     │   api_keys      │
-                       └─────────────────┘     ├─────────────────┤
-                                                │ id (PK)         │
-                                                │ user_id (FK)    │
-                                                │ key_hash        │
-                                                │ name            │
-                                                │ last_used       │
-                                                │ created_at      │
-                                                └─────────────────┘
+```mermaid
+erDiagram
+    profiles {
+        uuid id
+        uuid user_id
+        string email
+        string wallet_address
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    payments {
+        uuid id
+        string payment_id
+        uuid sender_id
+        string recipient_email
+        string token
+        decimal amount
+        integer chain_id
+        string status
+        string tx_hash
+        string claim_link
+        timestamp expires_at
+        timestamp created_at
+    }
+    
+    notifications {
+        uuid id
+        uuid user_id
+        string type
+        string status
+        timestamp sent_at
+        timestamp delivered_at
+    }
+    
+    api_keys {
+        uuid id
+        uuid user_id
+        string key_hash
+        string name
+        timestamp last_used
+        timestamp created_at
+    }
+    
+    profiles ||--o{ payments : "creates"
+    profiles ||--o{ notifications : "receives"
+    profiles ||--o{ api_keys : "owns"
 ```
 
 ---
