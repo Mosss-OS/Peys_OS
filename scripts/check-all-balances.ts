@@ -12,6 +12,15 @@ const USDC_ABI = [
   'function symbol() view returns (string)'
 ];
 
+interface NetworkConfig {
+  name: string;
+  rpc: string;
+  chainId: number;
+  nativeSymbol: string;
+  fallbackRpcs?: string[];
+  tokens: { address: string; symbol: string; isNative: boolean }[];
+}
+
 interface TokenBalance {
   symbol: string;
   balance: number;
@@ -26,6 +35,10 @@ const networks = [
     rpc: process.env.POLKADOT_RPC || "https://eth-asset-hub-paseo.dotters.network",
     chainId: 420420417,
     nativeSymbol: "DOT",
+    fallbackRpcs: [
+      "https://paseo-rpc.dotters.network",
+      "https://westend-asset-hub-eth-rpc.polkadot.io"
+    ],
     tokens: [
       { address: "0x0000000000000000000000000000000000000001", symbol: "PASS", isNative: false }
     ]
@@ -35,6 +48,9 @@ const networks = [
     rpc: process.env.BASE_SEPOLIA_RPC || "https://base-sepolia.g.alchemy.com/v2/***REMOVED***",
     chainId: 84532,
     nativeSymbol: "ETH",
+    fallbackRpcs: [
+      "https://sepolia.base.org"
+    ],
     tokens: [
       { address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", symbol: "USDC", isNative: false }
     ]
@@ -44,6 +60,9 @@ const networks = [
     rpc: process.env.CELO_ALFAJORES_RPC || "https://celo-sepolia.g.alchemy.com/v2/***REMOVED***",
     chainId: 44787,
     nativeSymbol: "CELO",
+    fallbackRpcs: [
+      "https://rpc.alfajores.celo.org"
+    ],
     tokens: [
       { address: "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B", symbol: "USDC", isNative: false },
       { address: "0x0000000000000000000000000000000000000001", symbol: "USDT", isNative: false }
@@ -83,9 +102,34 @@ async function checkAllBalances() {
 
   for (const network of networks) {
     console.log(`\n📡 Connecting to ${network.name}...`);
+    
+    let provider: ethers.JsonRpcProvider | null = null;
+    let rpcUsed = network.rpc;
+    
+    // Try primary RPC first, then fallbacks
+    const rpcsToTry = [network.rpc, ...(network.fallbackRpcs || [])];
+    
+    for (const rpc of rpcsToTry) {
+      try {
+        console.log(`   Trying RPC: ${rpc}`);
+        provider = new ethers.JsonRpcProvider(rpc);
+        // Test connection with a simple call
+        await provider.getBlockNumber();
+        rpcUsed = rpc;
+        console.log(`   ✅ Connected successfully!`);
+        break;
+      } catch (error) {
+        console.log(`   ⚠️ RPC failed: ${rpc}`);
+        provider = null;
+      }
+    }
+    
+    if (!provider) {
+      console.log(`   ❌ All RPCs failed for ${network.name}`);
+      continue;
+    }
+    
     try {
-      const provider = new ethers.JsonRpcProvider(network.rpc);
-      
       const nativeBalance = await provider.getBalance(wallet.address);
       const nativeBal = Number(ethers.formatEther(nativeBalance));
       
