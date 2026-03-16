@@ -1,9 +1,15 @@
 import { ethers } from "ethers";
 
-const PRIVATE_KEY = "***REMOVED***";
-const RPC_URL = "https://base-sepolia.g.alchemy.com/v2/***REMOVED***";
-const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-const ESCROW_ADDRESS = "***REMOVED***";
+const PRIVATE_KEY = process.env.PRIVATE_KEY || process.env.PLATFORM_PRIVATE_KEY;
+if (!PRIVATE_KEY) {
+  console.error("Error: PRIVATE_KEY or PLATFORM_PRIVATE_KEY environment variable is required");
+  console.log("Usage: PRIVATE_KEY=0x... npx tsx scripts/create-payment-debug.ts");
+  process.exit(1);
+}
+
+const RPC_URL = process.env.RPC_URL || process.env.BASE_SEPOLIA_RPC || "https://base-sepolia.g.alchemy.com/v2/your-api-key";
+const USDC_ADDRESS = process.env.USDC_ADDRESS || "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+const ESCROW_ADDRESS = process.env.ESCROW_ADDRESS || "***REMOVED***";
 
 const USDC_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
@@ -18,7 +24,7 @@ const ESCROW_ABI = [
 
 async function main() {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+  const wallet = new ethers.Wallet(PRIVATE_KEY as string, provider);
   
   const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, wallet);
   const escrow = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, wallet);

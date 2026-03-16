@@ -1,6 +1,11 @@
 const { ethers } = require('ethers');
 
-const PRIVATE_KEY = '***REMOVED***';
+const PRIVATE_KEY = process.env.PRIVATE_KEY || process.env.PLATFORM_PRIVATE_KEY;
+if (!PRIVATE_KEY) {
+  console.error("Error: PRIVATE_KEY or PLATFORM_PRIVATE_KEY environment variable is required");
+  console.log("Usage: PRIVATE_KEY=0x... node check_balances.cjs");
+  process.exit(1);
+}
 
 // USDC contract ABI (just the balanceOf function)
 const USDC_ABI = [
