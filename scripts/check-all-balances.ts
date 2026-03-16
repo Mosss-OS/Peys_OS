@@ -23,7 +23,7 @@ interface TokenBalance {
 const networks = [
   {
     name: "Polkadot Asset Hub (Paseo)",
-    rpc: process.env.POLKADOT_RPC || "https://rpc.polkadot.io",
+    rpc: process.env.POLKADOT_RPC || "https://eth-asset-hub-paseo.dotters.network",
     chainId: 420420417,
     nativeSymbol: "DOT",
     tokens: [
@@ -32,7 +32,7 @@ const networks = [
   },
   {
     name: "Base Sepolia",
-    rpc: process.env.BASE_SEPOLIA_RPC || "https://sepolia.base.org",
+    rpc: process.env.BASE_SEPOLIA_RPC || "https://base-sepolia.g.alchemy.com/v2/***REMOVED***",
     chainId: 84532,
     nativeSymbol: "ETH",
     tokens: [
@@ -41,7 +41,7 @@ const networks = [
   },
   {
     name: "Celo Alfajores",
-    rpc: process.env.CELO_ALFAJORES_RPC || "https://rpc.alfajores.celo.org",
+    rpc: process.env.CELO_ALFAJORES_RPC || "https://celo-sepolia.g.alchemy.com/v2/***REMOVED***",
     chainId: 44787,
     nativeSymbol: "CELO",
     tokens: [
