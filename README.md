@@ -469,6 +469,9 @@ Watch our demo: [Peys Demo Video](./docs/demo-video.md)
 |---------|-----------------|
 | Polkadot (Paseo) | `***REMOVED***` |
 | Base Sepolia | `***REMOVED***` |
+| Celo Alfajores | `***REMOVED***` |
+
+> Note: PeyStreaming and PeyBatchPayroll contracts pending deployment.
 
 ---
 
