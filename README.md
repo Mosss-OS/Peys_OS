@@ -389,9 +389,9 @@ forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --bro
 | Variable | Description | Example |
 |---|---|---|
 | `VITE_SUPABASE_URL` | Supabase project URL | `https://xxx.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon key | `eyJhbGciOiJIUzI1NiIs...` |
-| `VITE_PRIVY_APP_ID` | Privy app ID | `cmlpmbwgn00cb0dicbfwdkz40` |
-| `PRIVATE_KEY` | Wallet private key | `***REMOVED***` |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key | `YOUR_SUPABASE_ANON_KEY_HERE` |
+| `VITE_PRIVY_APP_ID` | Privy app ID | `YOUR_PRIVY_APP_ID_HERE` |
+| `PRIVATE_KEY` | Wallet private key | `YOUR_PRIVATE_KEY_HERE` |
 
 ### Network Configuration
 
