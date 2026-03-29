@@ -287,9 +287,9 @@ peydot-magic-links/
 │   ├── functions/            # Edge Function implementations
 │   └── migrations/           # Database schema migrations
 ├── 📚 sdks/                   # JS, Python, Go SDKs
-│   ├── javascript/
-│   ├── python/
-│   └── go/
+│   ├── javascript/           # @peys-os/sdk
+│   ├── python/              # peys-sdk
+│   └── go/                 # github.com/Peys-OS/Peys_OS/sdks/go
 ├── 📖 docs/                   # API reference and documentation
 │   ├── api-reference.md
 │   └── architecture.md
@@ -334,6 +334,70 @@ peydot-magic-links/
 - **Railway/Render** - Backend hosting
 - **Supabase** - Database and serverless functions
 - **Resend** - Email delivery service
+
+## 📦 SDKs
+
+We provide official SDKs for multiple programming languages to integrate with Peys:
+
+| Language | Package | Registry | Install |
+|----------|---------|----------|---------|
+| JavaScript/TypeScript | `@peys-os/sdk` | npm | `npm install @peys-os/sdk` |
+| Python | `peys-sdk` | PyPI | `pip install peys-sdk` |
+| Go | `github.com/Peys-OS/Peys_OS/sdks/go` | GitHub | `go get github.com/Peys-OS/Peys_OS/sdks/go` |
+
+### JavaScript/TypeScript
+
+```bash
+npm install @peys-os/sdk
+```
+
+```typescript
+import { PeysClient } from '@peys-os/sdk';
+
+const client = new PeysClient({ apiKey: 'your-api-key' });
+
+const payment = await client.payments.create({
+  recipient: 'user@example.com',
+  amount: 1000000,
+  token: 'USDC'
+});
+```
+
+### Python
+
+```bash
+pip install peys-sdk
+```
+
+```python
+from peys import PeysClient
+
+client = PeysClient(api_key='your-api-key')
+
+payment = client.payments.create(
+    recipient='user@example.com',
+    amount=1000000,
+    token='USDC'
+)
+```
+
+### Go
+
+```bash
+go get github.com/Peys-OS/Peys_OS/sdks/go
+```
+
+```go
+import "github.com/Peys-OS/Peys_OS/sdks/go/peys"
+
+client := peys.NewClient("your-api-key")
+
+payment, err := client.Payments.Create(peys.CreatePaymentParams{
+    Recipient: "user@example.com",
+    Amount:   1000000,
+    Token:    "USDC",
+})
+```
 
 ## 🚀 Quick Start
 
