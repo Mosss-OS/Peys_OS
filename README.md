@@ -462,11 +462,11 @@ forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --bro
 | Network | Chain ID | RPC URL | Escrow Contract |
 |---|---|---|---|
 | Polkadot Asset Hub | 420420417 | `https://eth-asset-hub-paseo.dotters.network` | `***REMOVED***` |
-| Base Sepolia | 84532 | `https://base-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x7bcf32C1ef45aFfd38e2A11E48b6d373bDdfb7af` |
+| Base Sepolia | 84532 | `https://base-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x5afbbf7ac3008ce064178b42fe0fc8e87f82f514dd9bb3fc116c5e2ab091c8e0` |
 | Polygon Amoy | 80002 | `https://polygon-amoy.g.alchemy.com/v2/***REMOVED***` | `0xbe3ace4f8ce1ded010123d927a752c7ade17eaba1da07bdc078c5eba494478b7` |
 | Celo Alfajores | 44787 | `https://celo-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x0b4e459faa79a52a28e9776bc5a0402fc0328544480b4ca4257f7f10973e5562` |
 
-> **Verified**: [Base Sepolia Contract](https://sepolia.basescan.org/address/0x7bcf32C1ef45aFfd38e2A11E48b6d373bDdfb7af) - Includes SEC-027 safety checks
+> **Note**: Contracts deployed with gas optimization improvements (2026-03-28). See SECURITY.md for recent security fixes.
 
 ### Token Addresses
 
