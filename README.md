@@ -462,9 +462,11 @@ forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --bro
 | Network | Chain ID | RPC URL | Escrow Contract |
 |---|---|---|---|
 | Polkadot Asset Hub | 420420417 | `https://eth-asset-hub-paseo.dotters.network` | `***REMOVED***` |
-| Base Sepolia | 84532 | `https://base-sepolia.g.alchemy.com/v2/***REMOVED***` | `0xb5e4A3130D774A8F3Bc0c081800b304A12a07aD1` |
-| Polygon Amoy | 80002 | `https://polygon-amoy.g.alchemy.com/v2/***REMOVED***` | `0xeb2923503953c5Ed2772917771b850315D030f24` |
-| Celo Alfajores | 44787 | `https://celo-sepolia.g.alchemy.com/v2/***REMOVED***` | `0xcDe14d966e546D70F9B0b646c203cFC1BdC2a961` |
+| Base Sepolia | 84532 | `https://base-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x5afbbf7ac3008ce064178b42fe0fc8e87f82f514dd9bb3fc116c5e2ab091c8e0` |
+| Polygon Amoy | 80002 | `https://polygon-amoy.g.alchemy.com/v2/***REMOVED***` | `0xbe3ace4f8ce1ded010123d927a752c7ade17eaba1da07bdc078c5eba494478b7` |
+| Celo Alfajores | 44787 | `https://celo-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x0b4e459faa79a52a28e9776bc5a0402fc0328544480b4ca4257f7f10973e5562` |
+
+> **Note**: Contracts deployed with gas optimization improvements (2026-03-28). See SECURITY.md for recent security fixes.
 
 ### Token Addresses
 
