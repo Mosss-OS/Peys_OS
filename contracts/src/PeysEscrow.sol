@@ -1,19 +1,75 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title PeysEscrow
- * @notice Escrow contract for Peys payment platform
- * @dev Allows users to create payment intents, claim funds, and request refunds
- * @dev Uses Solidity 0.8.20 for built-in overflow/underflow protection
- * @dev All state-changing functions use ReentrancyGuard
- * @dev Implements commit-reveal scheme to prevent front-running attacks
+ * @notice Upgradeable escrow contract for Peys payment platform
+ *
+ * @dev === ARCHITECTURE OVERVIEW ===
+ *
+ * This contract uses the UUPS (Universal Upgradeable Proxy Standard) proxy pattern:
+ *   - The PROXY contract (ERC1967Proxy) stores all state and forwards calls via delegatecall
+ *   - The IMPLEMENTATION contract (this code) holds the logic but zero state
+ *   - Upgrades deploy a new implementation and point the proxy to it via upgradeToAndCall()
+ *   - Only the owner can authorize upgrades (see _authorizeUpgrade)
+ *
+ * @dev === STORAGE LAYOUT ===
+ *
+ * All state variables are declared sequentially below and MUST NOT be reordered.
+ * Adding new variables must only append at the END to preserve storage compatibility
+ * across upgrades. The reentrancy guard uses a fixed hash-based storage slot
+ * (0x9b7...) to avoid interfering with sequential variable layout.
+ *
+ * @dev === SECURITY ===
+ *
+ * All state-changing functions use reentrancy protection via a custom storage-slot
+ * implementation (identical to OpenZeppelin's ReentrancyGuard slot at 0x9b7...).
+ * The commit-reveal scheme prevents front-running attacks on payment claims.
+ * Emergency withdrawal has a 48-hour timelock to protect against compromised owner.
  */
-contract PeysEscrow is ReentrancyGuard {
+contract PeysEscrow is Initializable, UUPSUpgradeable {
     using SafeERC20 for IERC20;
+
+    // ──────────────────────────────────────────────
+    //  Custom Reentrancy Guard (fixed storage slot)
+    // ──────────────────────────────────────────────
+    // Uses the exact same storage slot as OpenZeppelin's ReentrancyGuard:
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
+    // This ensures no collision with sequential state variable storage slots.
+    // ──────────────────────────────────────────────
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    /// @dev Revert when a reentrant call is detected
+    error ReentrancyGuardReentrantCall();
+
+    /// @dev Prevents reentrant calls to functions marked with this modifier
+    modifier nonReentrant() {
+        uint256 slot;
+        assembly {
+            slot := sload(
+                0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00
+            )
+        }
+        if (slot == _ENTERED) revert ReentrancyGuardReentrantCall();
+        assembly {
+            sstore(
+                0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00,
+                _ENTERED
+            )
+        }
+        _;
+        assembly {
+            sstore(
+                0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00,
+                _NOT_ENTERED
+            )
+        }
+    }
 
     /// @notice Payment status enum
     enum PaymentStatus { Pending, Committed, Claimed, Refunded, Expired }
@@ -144,15 +200,25 @@ contract PeysEscrow is ReentrancyGuard {
         address token
     );
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
-     * @notice Constructor
+     * @notice Initialize the contract (replaces constructor for proxy pattern)
      * @param _usdc USDC token address
      */
-    constructor(address _usdc) {
+    function initialize(address _usdc) external initializer {
         require(_usdc != address(0), "Invalid USDC address");
         usdc = IERC20(_usdc);
         owner = msg.sender;
     }
+
+    /**
+     * @notice UUPS: authorize upgrades (owner only)
+     */
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /**
      * @notice Modifier to restrict access to owner only
