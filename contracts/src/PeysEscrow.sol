@@ -2,6 +2,7 @@
 pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
@@ -269,6 +270,71 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
         recipientPendingCount[_recipient]++;
 
         emit PaymentCreated(paymentId, msg.sender, _recipient, _amount, _token, expiresAt);
+
+        return paymentId;
+    }
+
+    /**
+     * @notice Create a payment via EIP-2612 permit (gasless for the sender)
+     * @param _sender The address that owns the USDC (signer of the permit)
+     * @param _recipient Recipient address
+     * @param _amount Amount to escrow
+     * @param _secretHash Hash of the secret for claiming
+     * @param _duration Lock duration in seconds
+     * @param _deadline Permit deadline
+     * @param _v EIP-2612 permit signature component
+     * @param _r EIP-2612 permit signature component
+     * @param _s EIP-2612 permit signature component
+     * @dev The relayer (msg.sender) pays gas. The USDC is pulled from _sender
+     *      via the signed permit. The payment is attributed to _sender.
+     */
+    function createPaymentWithPermit(
+        address _sender,
+        address _recipient,
+        uint256 _amount,
+        bytes32 _secretHash,
+        uint256 _duration,
+        uint256 _deadline,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) external nonReentrant returns (uint256) {
+        require(_sender != address(0), "Invalid sender");
+        require(_recipient != address(0), "Invalid recipient");
+        require(_recipient != _sender, "Cannot pay yourself");
+        require(_amount >= MIN_PAYMENT_AMOUNT, "Amount too small");
+        require(_amount <= MAX_PAYMENT_AMOUNT, "Amount too large");
+        require(_secretHash != bytes32(0), "Invalid secret hash");
+
+        uint256 duration = _duration > 0 ? _duration : DEFAULT_EXPIRATION;
+        require(duration <= MAX_EXPIRATION, "Duration too long");
+        uint256 expiresAt = block.timestamp + duration;
+
+        IERC20Permit(address(usdc)).permit(_sender, address(this), _amount, _deadline, _v, _r, _s);
+
+        usdc.safeTransferFrom(_sender, address(this), _amount);
+
+        paymentCount++;
+        uint256 paymentId = paymentCount;
+
+        payments[paymentId] = Payment({
+            sender: _sender,
+            recipient: _recipient,
+            amount: _amount,
+            token: address(usdc),
+            secretHash: _secretHash,
+            status: PaymentStatus.Pending,
+            createdAt: block.timestamp,
+            expiresAt: expiresAt,
+            claimedAt: 0
+        });
+
+        userPayments[_sender].push(paymentId);
+
+        recipientPendingPayments[_recipient].push(paymentId);
+        recipientPendingCount[_recipient]++;
+
+        emit PaymentCreated(paymentId, _sender, _recipient, _amount, address(usdc), expiresAt);
 
         return paymentId;
     }

@@ -6,6 +6,7 @@ import { ESCROW_ABI, getRpcUrl, getEscrowContractAddress } from "../_shared/bloc
 
 enum Action {
   Claim = "claim",
+  CreateWithPermit = "createWithPermit",
 }
 
 interface ClaimRequest {
@@ -15,7 +16,21 @@ interface ClaimRequest {
   chainId?: number;
 }
 
-type SignerRequest = ClaimRequest;
+interface CreateWithPermitRequest {
+  action: Action.CreateWithPermit;
+  sender: string;
+  recipient: string;
+  amount: string;
+  secret: string;
+  duration?: number;
+  deadline: number;
+  v: number;
+  r: string;
+  s: string;
+  chainId?: number;
+}
+
+type SignerRequest = ClaimRequest | CreateWithPermitRequest;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -90,6 +105,47 @@ Deno.serve(async (req) => {
             transactionHash: txHash,
             action: Action.Claim,
             paymentId,
+          }),
+          { status: 200, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
+        );
+      }
+
+      case Action.CreateWithPermit: {
+        const { sender, recipient, amount, secret, duration, deadline, v, r, s } = body;
+
+        if (!sender || !recipient || !amount || !secret || !deadline || v === undefined || !r || !s) {
+          return new Response(
+            JSON.stringify({ error: "Missing required fields for createWithPermit" }),
+            { status: 400, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
+          );
+        }
+
+        const secretHash = keccak256(stringToHex(secret));
+
+        const txHash = await walletClient.writeContract({
+          address: contractAddress as `0x${string}`,
+          abi: ESCROW_ABI,
+          functionName: "createPaymentWithPermit",
+          args: [
+            sender as `0x${string}`,
+            recipient as `0x${string}`,
+            BigInt(amount),
+            secretHash,
+            BigInt(duration || 0),
+            BigInt(deadline),
+            v,
+            r as `0x${string}`,
+            s as `0x${string}`,
+          ],
+          chain: null,
+        } as any);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            transactionHash: txHash,
+            action: Action.CreateWithPermit,
+            secretHash,
           }),
           { status: 200, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
         );

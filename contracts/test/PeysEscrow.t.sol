@@ -44,6 +44,14 @@ contract MockERC20 {
         balanceOf[to] += amount;
         return true;
     }
+
+    function nonces(address) external pure returns (uint256) {
+        return 0;
+    }
+
+    function permit(address owner, address spender, uint256 value, uint256, uint8, bytes32, bytes32) external {
+        allowance[owner][spender] = value;
+    }
 }
 
 /**
@@ -174,5 +182,90 @@ contract PeysEscrowTest is Test {
         vm.prank(sender);
         vm.expectRevert("Cannot refund claimed or expired");
         escrow.refundPayment(1);
+    }
+
+    /// @notice Test gasless payment creation via EIP-2612 permit
+    function testCreatePaymentWithPermit() public {
+        string memory secret = "relayer-secret";
+        bytes32 secretHash = keccak256(abi.encodePacked(secret));
+
+        uint256 balanceBefore = usdc.balanceOf(sender);
+
+        // Relayer (attacker address acting as relayer) calls createPaymentWithPermit
+        // The sender signed a permit off-chain approving the escrow contract
+        vm.prank(attacker);
+        uint256 paymentId = escrow.createPaymentWithPermit(
+            sender,
+            recipient,
+            100e6,
+            secretHash,
+            0,
+            block.timestamp + 1 hours,
+            0,
+            bytes32(0),
+            bytes32(0)
+        );
+
+        assertEq(paymentId, 1);
+        assertEq(usdc.balanceOf(address(escrow)), 100e6);
+        assertEq(usdc.balanceOf(sender), balanceBefore - 100e6);
+
+        PeysEscrow.Payment memory payment = escrow.getPayment(1);
+        assertEq(payment.sender, sender);
+        assertEq(payment.recipient, recipient);
+        assertEq(uint8(payment.status), 0);
+    }
+
+    /// @notice Test that permit-based payment can be claimed normally
+    function testClaimPermitPayment() public {
+        string memory secret = "relayer-secret";
+        bytes32 secretHash = keccak256(abi.encodePacked(secret));
+
+        vm.prank(attacker);
+        escrow.createPaymentWithPermit(
+            sender,
+            recipient,
+            100e6,
+            secretHash,
+            0,
+            block.timestamp + 1 hours,
+            0,
+            bytes32(0),
+            bytes32(0)
+        );
+
+        vm.prank(recipient);
+        escrow.claimPayment(1, secret);
+
+        assertEq(usdc.balanceOf(recipient), 200e6);
+        assertEq(usdc.balanceOf(address(escrow)), 0);
+    }
+
+    /// @notice Test refund of permit-based payment by the original sender
+    function testRefundPermitPayment() public {
+        string memory secret = "relayer-secret";
+        bytes32 secretHash = keccak256(abi.encodePacked(secret));
+
+        vm.prank(attacker);
+        escrow.createPaymentWithPermit(
+            sender,
+            recipient,
+            100e6,
+            secretHash,
+            1 minutes,
+            block.timestamp + 1 hours,
+            0,
+            bytes32(0),
+            bytes32(0)
+        );
+
+        vm.warp(block.timestamp + 2 minutes);
+
+        uint256 balanceBefore = usdc.balanceOf(sender);
+        vm.prank(sender);
+        escrow.refundPayment(1);
+
+        assertEq(usdc.balanceOf(sender), balanceBefore + 100e6);
+        assertEq(usdc.balanceOf(address(escrow)), 0);
     }
 }

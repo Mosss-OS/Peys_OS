@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fireBurst } from "@/utils/confetti";
 import { useEscrow, getChainConfig } from "@/hooks/useEscrow";
+import { useGaslessClaim } from "@/hooks/useGaslessClaim";
 import { useAccount } from "wagmi";
 import { sanitizeString } from "@/utils/sanitize";
 
@@ -42,6 +43,8 @@ export default function ClaimPage() {
   const [existingUser, setExistingUser] = useState<boolean | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
+
+  const { claimGaslessly } = useGaslessClaim();
 
   const fetchPayment = useCallback(async () => {
     if (!id) {
@@ -167,8 +170,18 @@ export default function ClaimPage() {
         throw new Error("Payment not found on blockchain.");
       }
 
-      const txHash = await claimPayment(payment.blockchain_payment_id as `0x${string}`, payment.claim_secret || "");
-      
+      const onChainId = parseInt(payment.blockchain_payment_id, 10);
+      let txHash: string | undefined;
+
+      try {
+        const result = await claimGaslessly(onChainId, payment.claim_secret || "", payment.chain_id);
+        txHash = result.transactionHash;
+        console.log("Gasless claim successful, tx:", txHash);
+      } catch (gaslessErr) {
+        console.warn("Gasless claim failed, falling back to client-side claim:", gaslessErr);
+        txHash = await claimPayment(payment.blockchain_payment_id as `0x${string}`, payment.claim_secret || "");
+      }
+
       if (!txHash) throw new Error("Failed to claim transaction");
 
       console.log("Claim successful, tx:", txHash);

@@ -15,6 +15,23 @@ export const ESCROW_ABI = [
   },
   {
     type: "function",
+    name: "createPaymentWithPermit",
+    inputs: [
+      { name: "_sender", type: "address", internalType: "address" },
+      { name: "_recipient", type: "address", internalType: "address" },
+      { name: "_amount", type: "uint256", internalType: "uint256" },
+      { name: "_secretHash", type: "bytes32", internalType: "bytes32" },
+      { name: "_duration", type: "uint256", internalType: "uint256" },
+      { name: "_deadline", type: "uint256", internalType: "uint256" },
+      { name: "_v", type: "uint8", internalType: "uint8" },
+      { name: "_r", type: "bytes32", internalType: "bytes32" },
+      { name: "_s", type: "bytes32", internalType: "bytes32" },
+    ],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "claimPayment",
     inputs: [
       { name: "_paymentId", type: "uint256", internalType: "uint256" },
