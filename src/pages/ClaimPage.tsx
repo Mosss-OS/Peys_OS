@@ -159,7 +159,7 @@ export default function ClaimPage() {
         throw new Error("Payment not found on blockchain. It may have been created on a different network.");
       }
 
-      if (onChainPayment.claimed) {
+      if (onChainPayment.status === 1) {
         throw new Error("This payment has already been claimed.");
       }
 

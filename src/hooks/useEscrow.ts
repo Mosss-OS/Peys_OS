@@ -8,12 +8,14 @@ import { usePrivyAuth } from '@/contexts/PrivyContext';
 
 export interface Payment {
   sender: string;
-  token: string;
+  recipient: string;
   amount: bigint;
-  expiry: bigint;
-  claimed: boolean;
-  refunded: boolean;
-  memo: string;
+  token: string;
+  secretHash: string;
+  status: number;
+  createdAt: bigint;
+  expiresAt: bigint;
+  claimedAt: bigint;
 }
 
 export { getChainConfig };
@@ -262,8 +264,8 @@ export function useEscrow() {
     try {
       const createPaymentData = encodeFunctionData({
         abi: ESCROW_ABI,
-        functionName: 'createPaymentExternal',
-        args: [tokenAddress, amount, claimHash, expiry, memo],
+        functionName: 'createPayment',
+        args: [address, amount, tokenAddress, claimHash, expiry],
       });
       
       const result = await sendViaTx(activeWallet, address, {
@@ -311,16 +313,18 @@ export function useEscrow() {
         abi: ESCROW_ABI,
         functionName: 'getPayment',
         args: [paymentId],
-      }) as [string, string, bigint, bigint, boolean, boolean, string];
+      }) as [string, string, bigint, string, string, number, bigint, bigint, bigint];
       
       return {
         sender: result[0],
-        token: result[1],
+        recipient: result[1],
         amount: result[2],
-        expiry: result[3],
-        claimed: result[4],
-        refunded: result[5],
-        memo: result[6],
+        token: result[3],
+        secretHash: result[4],
+        status: result[5],
+        createdAt: result[6],
+        expiresAt: result[7],
+        claimedAt: result[8],
       };
     } catch (error) {
       console.error("Error fetching payment:", error);
@@ -336,13 +340,12 @@ export function useEscrow() {
     if (!publicClient) throw new Error("Public client not available");
 
     const { escrowContract } = getContractAddresses();
-    const secretHash = keccak256(toBytes(secret));
 
     try {
       const claimData = encodeFunctionData({
         abi: ESCROW_ABI,
-        functionName: 'claim',
-        args: [paymentId, secretHash, address as Address],
+        functionName: 'claimPayment',
+        args: [paymentId, secret],
       });
       
       const result = await sendViaTx(activeWallet, address, {
@@ -365,7 +368,7 @@ export function useEscrow() {
     try {
       const refundData = encodeFunctionData({
         abi: ESCROW_ABI,
-        functionName: 'refundAfterExpiry',
+        functionName: 'refundPayment',
         args: [paymentId],
       });
       
@@ -397,8 +400,8 @@ export function useEscrow() {
       return await (publicClient as any).estimateContractGas({
         address: escrowContract,
         abi: ESCROW_ABI,
-        functionName: 'createPaymentExternal',
-        args: [tokenAddress, amount, claimHash, expiry, memo],
+        functionName: 'createPayment',
+        args: [address, amount, tokenAddress, claimHash, expiry],
         account: address,
       });
     } catch (error: unknown) {
