@@ -27,12 +27,11 @@
 ```
 peydot-magic-links/
 ├── src/                    # React frontend
-├── supabase/functions/     # Edge Functions (19 functions)
-│   ├── _shared/           # Shared utilities (cors.ts, rateLimit.ts)
+├── supabase/functions/     # Edge Functions (20 functions)
+│   ├── _shared/           # Shared utilities (cors.ts, rateLimit.ts, blockchain.ts)
 │   └── */index.ts         # Individual endpoints
 ├── contracts/             # Solidity smart contracts (Foundry)
 ├── whatsapp/              # WhatsApp bot microservice
-├── peys-api/             # Express API server
 └── sdks/                  # Client SDKs (JS, Python, Go)
 ```
 

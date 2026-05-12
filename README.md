@@ -25,9 +25,7 @@ flowchart TB
         end
         
         subgraph WhatsApp["WhatsApp Microservice"]
-            QR[QR Generator]
-            WA_Web[WhatsApp Web]
-            Session[Session Mgmt]
+            Cloud_API[Cloud API]
         end
     end
 
@@ -55,9 +53,7 @@ flowchart TB
     EdgeFuncs --> Storage
     EdgeFuncs --> Email
     EdgeFuncs --> WhatsApp
-    QR --> WA_Web
-    WA_Web --> Session
-    Session --> EdgeFuncs
+    Cloud_API --> EdgeFuncs
     Email --> Privy
 ```
 
@@ -266,10 +262,7 @@ peydot-magic-links/
 │   │   └── polkadotPvm.ts
 │   └── utils/                # Helper functions
 │       └── confetti.ts
-├── 🔧 server/                 # Express backend (shared API)
-│   ├── routes/               # API endpoints
-│   └── middleware/           # Express middleware
-├── 📱 bot/                    # WhatsApp bot (Baileys) — deploy separately
+├── 📱 whatsapp/               # WhatsApp bot (Meta Cloud API) — deploy separately
 │   ├── server/               # Bot server entry point
 │   ├── migrations/           # SQL migrations
 │   ├── .env.example
@@ -318,8 +311,7 @@ peydot-magic-links/
   - Real-time subscriptions
   - Authentication
   - File storage
-- **Express.js** - Traditional API endpoints
-- **WhatsApp Bot** - Baileys library for WhatsApp Web
+- **WhatsApp Bot** - Meta Cloud API
 
 ### Blockchain
 - **Solidity** - Smart contract language
@@ -429,11 +421,11 @@ npm run dev
 The bot runs separately on a persistent server (Railway, Render, VPS).
 
 ```bash
-cd bot
+cd whatsapp
 npm install
 cp .env.example .env
 # Edit .env with your configurations
-npm start              # scan the QR code on first run
+npm start
 ```
 
 ### Smart Contract Deployment
@@ -485,7 +477,7 @@ forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --bro
 |---|---|---|---|
 | Frontend | Vercel | Free tier | Auto-deploy from main branch |
 | Backend | Supabase Edge Functions | $0-25/month | 500K invocations/month |
-| WhatsApp Bot | Railway/Render | $5-10/month | Must be persistent for sessions |
+| WhatsApp Bot | Railway/Render | $5-10/month | Handles webhooks and message processing |
 | Database | Supabase PostgreSQL | Free tier | 500MB storage, 2GB bandwidth |
 | Email | Resend | $0-10/month | 3K free emails/month |
 
@@ -657,7 +649,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **Privy** - Embedded wallet infrastructure
 - **OpenZeppelin** - Secure smart contract library
 - **Wagmi/Viem** - Modern Ethereum/Polkadot libraries
-- **Baileys** - WhatsApp Web library
+- **Meta Cloud API** - WhatsApp messaging API
 - **Foundry** - Smart contract development framework
 
 ---

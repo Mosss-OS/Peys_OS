@@ -19,13 +19,12 @@ flowchart TB
             DB[(PostgreSQL)]
             Auth_Supabase[Auth]
             EdgeFuncs[Edge Functions]
+            Blockchain_Signer[blockchain-signer]
             Storage[Storage]
         end
         
         subgraph WhatsApp["WhatsApp Microservice"]
-            QR[QR Generator]
-            WA_Web[WhatsApp Web]
-            Session[Session Mgmt]
+            Cloud_API[Cloud API]
         end
     end
 
@@ -53,9 +52,7 @@ flowchart TB
     EdgeFuncs --> Storage
     EdgeFuncs --> Email
     EdgeFuncs --> WhatsApp
-    QR --> WA_Web
-    WA_Web --> Session
-    Session --> EdgeFuncs
+    Cloud_API --> EdgeFuncs
     Email --> Privy
 ```
 
@@ -117,10 +114,10 @@ sequenceDiagram
 │  │  │   Supabase   │       │       │   WhatsApp       │  │    │
 │  │  │  (Primary)   │       │       │   Microservice   │  │    │
 │  │  │              │       │       │                  │  │    │
-│  │  │ • Database   │◄──────┼──────►│ • QR Code Auth   │  │    │
-│  │  │ • Auth       │  Webhooks    │ • WhatsApp Web    │  │    │
-│  │  │ • Edge Funcs │       │       │ • Session Mgmt   │  │    │
-│  │  │ • Storage    │       │       │ • Forward Events │  │    │
+│  │  │ • Database   │◄──────┼──────►│ • Cloud API      │  │    │
+│  │  │ • Auth       │  Webhooks    │                  │  │    │
+│  │  │ • Edge Funcs │       │       │                  │  │    │
+│  │  │ • Storage    │       │       │                  │  │    │
 │  │  └──────────────┘       │       └──────────────────┘  │    │
 │  │                         │                              │    │
 │  └─────────────────────────┼──────────────────────────────┘    │
@@ -128,7 +125,7 @@ sequenceDiagram
 │  ┌─────────────────────────┴──────────────────────────────┐    │
 │  │                  External Services                     │    │
 │  │  • Resend (Email)      • Infura/Alchemy (RPC)         │    │
-│  │  • Privy (Auth)        • WhatsApp Web                  │    │
+│  │  • Privy (Auth)        • WhatsApp Cloud API            │    │
 │  └─────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -157,21 +154,17 @@ sequenceDiagram
 **Cost**: $5-10/month (small VPS)
 
 **Responsibilities:**
-- **QR Code Generation**: Scan to authenticate WhatsApp
-- **WhatsApp Automation**: Using `@whiskeysockets/baileys`
-- **Session Management**: Persistent WhatsApp sessions
+- **WhatsApp Automation**: Meta's official Cloud API
 - **Event Forwarding**: Send WhatsApp events to Supabase
 
 **Why it needs its own server:**
-- WhatsApp Web requires persistent WebSocket connection
-- QR code scanning needs browser interaction
-- Sessions must stay alive 24/7
+- Manages webhook verification and message processing
+- Handles rate limiting and retry logic
 - Can't run reliably in stateless Edge Functions
 
 **Endpoints:**
-- `POST /whatsapp/login` - Generate QR code for authentication
-- `POST /whatsapp/webhook` - Receive WhatsApp messages
-- `POST /whatsapp/send` - Send messages via WhatsApp
+- `POST /whatsapp/webhook` - Receive WhatsApp messages via Cloud API
+- `POST /whatsapp/send` - Send messages via WhatsApp Cloud API
 
 ### 3. Frontend
 **Cost**: Free (Vercel/Netlify)
@@ -233,7 +226,7 @@ sequenceDiagram
 ### Phase 1: Separate Services (Current)
 - ✅ WhatsApp service already separate
 - ✅ Supabase Edge Functions exist
-- Need: Migrate remaining Express endpoints to Supabase
+- ✅ Migrated remaining Express endpoints to Supabase
 
 ### Phase 2: Documentation & Monitoring
 - Document dual-backend architecture
@@ -265,8 +258,10 @@ VITE_USDC_ADDRESS=0x...
 
 ### WhatsApp Service (.env)
 ```
-# WhatsApp Session
-WHATSAPP_SESSION_PATH=.baileys_auth
+# WhatsApp Cloud API
+WHATSAPP_TOKEN=EAAT...
+WHATSAPP_PHONE_NUMBER_ID=123...
+WHATSAPP_VERIFY_TOKEN=xxx
 
 # Supabase Integration
 SUPABASE_URL=https://xxx.supabase.co

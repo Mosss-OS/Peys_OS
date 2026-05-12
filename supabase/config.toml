@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.send-payment-notification]
 verify_jwt = false
+
+[functions.blockchain-signer]
+verify_jwt = false
