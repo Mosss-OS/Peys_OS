@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { checkRateLimit, getClientIp, rateLimitResponse } from "../_shared/rateLimit.ts";
+import { dispatchWebhookEvent } from "../_shared/webhook.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGINS") || "*",
@@ -15,20 +16,20 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    
+
     const rateLimit = await checkRateLimit(
       supabaseUrl,
       serviceRoleKey,
       getClientIp(req),
       { maxRequests: 30 }
     );
-    
+
     if (!rateLimit.allowed) {
       return rateLimitResponse(rateLimit.resetAt);
     }
 
     const authHeader = req.headers.get("Authorization");
-    
+
     const supabaseClient = createClient(
       supabaseUrl,
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -39,7 +40,6 @@ Deno.serve(async (req) => {
       }
     );
 
-    // Get authenticated user
     const {
       data: { user },
       error: authError,
@@ -67,7 +67,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get payment
     const { data: payment, error: fetchError } = await supabaseClient
       .from("payments")
       .select("*")
@@ -84,7 +83,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if already claimed
     if (payment.status === "claimed") {
       return new Response(
         JSON.stringify({ error: "Payment already claimed" }),
@@ -95,7 +93,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if expired
     if (new Date(payment.expires_at) < new Date()) {
       return new Response(
         JSON.stringify({ error: "Payment expired" }),
@@ -106,7 +103,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update payment status
     const { error: updateError } = await supabaseClient
       .from("payments")
       .update({
@@ -128,14 +124,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get claimer profile
     const { data: claimerProfile } = await supabaseClient
       .from("profiles")
       .select("email")
       .eq("user_id", user.id)
       .single();
 
-    // Notify sender
     const { data: senderProfile } = await supabaseClient
       .from("profiles")
       .select("user_id")
@@ -146,42 +140,25 @@ Deno.serve(async (req) => {
       await supabaseClient.from("notifications").insert({
         user_id: senderProfile.user_id,
         type: "payment_claimed",
-        title: `✅ Payment of ${payment.amount} ${payment.token} claimed!`,
+        title: `Payment of ${payment.amount} ${payment.token} claimed!`,
         message: `${claimerProfile?.email || user.email || "Someone"} claimed your payment of ${payment.amount} ${payment.token}.`,
         payment_id: payment.id,
       });
     }
 
-    // Dispatch webhook event for payment.claimed
-    try {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-      if (supabaseUrl && serviceRoleKey) {
-        await fetch(`${supabaseUrl}/functions/v1/webhook-dispatcher`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${serviceRoleKey}`,
-          },
-          body: JSON.stringify({
-            event_type: "payment.claimed",
-            payment_id: payment.payment_id,
-            payload: {
-              id: payment.id,
-              payment_id: payment.payment_id,
-              amount: payment.amount,
-              token: payment.token,
-              sender_email: payment.sender_email,
-              claimer_email: claimerProfile?.email || user.email,
-              claimed_at: new Date().toISOString(),
-            },
-          }),
-        });
-      }
-    } catch (webhookError) {
-      console.error("Error dispatching webhook:", webhookError);
-    }
+    await dispatchWebhookEvent(supabaseUrl, serviceRoleKey, {
+      event_type: "payment.claimed",
+      payment_id: payment.payment_id,
+      payload: {
+        id: payment.id,
+        payment_id: payment.payment_id,
+        amount: payment.amount,
+        token: payment.token,
+        sender_email: payment.sender_email,
+        claimer_email: claimerProfile?.email || user.email,
+        claimed_at: new Date().toISOString(),
+      },
+    });
 
     return new Response(
       JSON.stringify({
