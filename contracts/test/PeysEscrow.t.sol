@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import "forge-std/Test.sol";
 import "../src/PeysEscrow.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract MockERC20 {
     mapping(address => uint256) public balanceOf;
@@ -43,16 +44,30 @@ contract MockERC20 {
 
 contract PeysEscrowTest is Test {
     PeysEscrow public escrow;
+    PeysEscrow public implementation;
     MockERC20 public usdc;
     
     address public sender = address(0x1);
     address public recipient = address(0x2);
     address public attacker = address(0x3);
     
+    /// @notice Deploy a fresh UUPS proxy + implementation before each test
+    /// @dev Deployment sequence:
+    ///      1. Deploy implementation contract (constructor calls _disableInitializers())
+    ///      2. Deploy ERC1967Proxy with initialize(usdc) as initialization data
+    ///      3. Cast proxy address to PeysEscrow type for ABI encoding
     function setUp() public {
         usdc = new MockERC20();
-        escrow = new PeysEscrow(address(usdc));
-        
+
+        implementation = new PeysEscrow();
+
+        ERC1967Proxy proxy = new ERC1967Proxy(
+            address(implementation),
+            abi.encodeCall(PeysEscrow.initialize, (address(usdc)))
+        );
+
+        escrow = PeysEscrow(address(proxy));
+
         usdc.mint(sender, 1000e6);
         usdc.mint(recipient, 100e6);
         usdc.mint(attacker, 100e6);
