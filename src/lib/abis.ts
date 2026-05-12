@@ -1,148 +1,149 @@
+/// Generated ABI matching contracts/src/PeysEscrow.sol (UUPS + simplified claim)
 export const ESCROW_ABI = [
   {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "bytes32", "name": "claimHash", "type": "bytes32" },
-      { "internalType": "uint256", "name": "expiry", "type": "uint256" },
-      { "internalType": "string", "name": "memo", "type": "string" }
+    type: "function",
+    name: "createPayment",
+    inputs: [
+      { name: "_recipient", type: "address", internalType: "address" },
+      { name: "_amount", type: "uint256", internalType: "uint256" },
+      { name: "_token", type: "address", internalType: "address" },
+      { name: "_secretHash", type: "bytes32", internalType: "bytes32" },
+      { name: "_duration", type: "uint256", internalType: "uint256" },
     ],
-    "name": "createPaymentExternal",
-    "outputs": [{ "internalType": "bytes32", "name": "paymentId", "type": "bytes32" }],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "nonpayable",
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "bytes32", "name": "claimHash", "type": "bytes32" },
-      { "internalType": "string", "name": "memo", "type": "string" }
+    type: "function",
+    name: "claimPayment",
+    inputs: [
+      { name: "_paymentId", type: "uint256", internalType: "uint256" },
+      { name: "_secret", type: "string", internalType: "string" },
     ],
-    "name": "createPaymentWithDefaultExpiry",
-    "outputs": [{ "internalType": "bytes32", "name": "paymentId", "type": "bytes32" }],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
-    "inputs": [
-      { "internalType": "bytes32", "name": "paymentId", "type": "bytes32" },
-      { "internalType": "bytes32", "name": "secretHash", "type": "bytes32" },
-      { "internalType": "address", "name": "recipient", "type": "address" }
+    type: "function",
+    name: "refundPayment",
+    inputs: [{ name: "_paymentId", type: "uint256", internalType: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "getPayment",
+    inputs: [{ name: "_paymentId", type: "uint256", internalType: "uint256" }],
+    outputs: [
+      { name: "sender", type: "address", internalType: "address" },
+      { name: "recipient", type: "address", internalType: "address" },
+      { name: "amount", type: "uint256", internalType: "uint256" },
+      { name: "token", type: "address", internalType: "address" },
+      { name: "secretHash", type: "bytes32", internalType: "bytes32" },
+      { name: "status", type: "uint8", internalType: "PeysEscrow.PaymentStatus" },
+      { name: "createdAt", type: "uint256", internalType: "uint256" },
+      { name: "expiresAt", type: "uint256", internalType: "uint256" },
+      { name: "claimedAt", type: "uint256", internalType: "uint256" },
     ],
-    "name": "claim",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    stateMutability: "view",
   },
   {
-    "inputs": [{ "internalType": "bytes32", "name": "paymentId", "type": "bytes32" }],
-    "name": "refundAfterExpiry",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    type: "function",
+    name: "paymentExists",
+    inputs: [{ name: "_paymentId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
   },
   {
-    "inputs": [{ "internalType": "bytes32", "name": "paymentId", "type": "bytes32" }],
-    "name": "getPayment",
-    "outputs": [
-      { "internalType": "address", "name": "sender", "type": "address" },
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "uint256", "name": "expiry", "type": "uint256" },
-      { "internalType": "bool", "name": "claimed", "type": "bool" },
-      { "internalType": "bool", "name": "refunded", "type": "bool" },
-      { "internalType": "string", "name": "memo", "type": "string" }
+    type: "function",
+    name: "getContractBalance",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getPendingPaymentsForRecipient",
+    inputs: [
+      { name: "_recipient", type: "address", internalType: "address" },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+    stateMutability: "view",
   },
   {
-    "inputs": [{ "internalType": "bytes32", "name": "paymentId", "type": "bytes32" }],
-    "name": "isPaymentExpired",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
-    "name": "getContractTokenBalance",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "bytes32", "name": "paymentId", "type": "bytes32" },
-      { "indexed": true, "internalType": "address", "name": "sender", "type": "address" },
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "uint256", "name": "expiry", "type": "uint256" },
-      { "internalType": "string", "name": "memo", "type": "string" }
+    type: "event",
+    name: "PaymentCreated",
+    inputs: [
+      { name: "paymentId", type: "uint256", indexed: true, internalType: "uint256" },
+      { name: "sender", type: "address", indexed: true, internalType: "address" },
+      { name: "recipient", type: "address", indexed: true, internalType: "address" },
+      { name: "amount", type: "uint256", indexed: false, internalType: "uint256" },
+      { name: "token", type: "address", indexed: false, internalType: "address" },
+      { name: "expiresAt", type: "uint256", indexed: false, internalType: "uint256" },
     ],
-    "name": "PaymentCreated",
-    "type": "event"
+    anonymous: false,
   },
   {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "bytes32", "name": "paymentId", "type": "bytes32" },
-      { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    type: "event",
+    name: "PaymentClaimed",
+    inputs: [
+      { name: "paymentId", type: "uint256", indexed: true, internalType: "uint256" },
+      { name: "recipient", type: "address", indexed: true, internalType: "address" },
+      { name: "amount", type: "uint256", indexed: false, internalType: "uint256" },
+      { name: "token", type: "address", indexed: false, internalType: "address" },
     ],
-    "name": "PaymentClaimed",
-    "type": "event"
+    anonymous: false,
   },
   {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "bytes32", "name": "paymentId", "type": "bytes32" },
-      { "indexed": true, "internalType": "address", "name": "sender", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    type: "event",
+    name: "PaymentRefunded",
+    inputs: [
+      { name: "paymentId", type: "uint256", indexed: true, internalType: "uint256" },
+      { name: "sender", type: "address", indexed: true, internalType: "address" },
+      { name: "amount", type: "uint256", indexed: false, internalType: "uint256" },
+      { name: "token", type: "address", indexed: false, internalType: "address" },
     ],
-    "name": "PaymentRefunded",
-    "type": "event"
-  }
+    anonymous: false,
+  },
 ] as const;
 
 export const ERC20_ABI = [
   {
-    "inputs": [
-      { "internalType": "address", "name": "spender", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    type: "function",
+    name: "approve",
+    inputs: [
+      { name: "spender", type: "address", internalType: "address" },
+      { name: "amount", type: "uint256", internalType: "uint256" },
     ],
-    "name": "approve",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "nonpayable",
   },
   {
-    "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
-    "name": "balanceOf",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
+    type: "function",
+    name: "balanceOf",
+    inputs: [{ name: "account", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "from", "type": "address" },
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    type: "function",
+    name: "transferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "amount", type: "uint256", internalType: "uint256" },
     ],
-    "name": "transferFrom",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "nonpayable",
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" },
-      { "internalType": "address", "name": "spender", "type": "address" }
+    type: "function",
+    name: "allowance",
+    inputs: [
+      { name: "owner", type: "address", internalType: "address" },
+      { name: "spender", type: "address", internalType: "address" },
     ],
-    "name": "allowance",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  }
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
 ] as const;

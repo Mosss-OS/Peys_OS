@@ -28,7 +28,9 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
  *
  * All state-changing functions use reentrancy protection via a custom storage-slot
  * implementation (identical to OpenZeppelin's ReentrancyGuard slot at 0x9b7...).
- * The commit-reveal scheme prevents front-running attacks on payment claims.
+ * The claim function binds the secret to the recipient address, preventing
+ * front-running: even if a transaction is visible in the mempool, only the
+ * intended recipient can successfully claim.
  * Emergency withdrawal has a 48-hour timelock to protect against compromised owner.
  */
 contract PeysEscrow is Initializable, UUPSUpgradeable {
@@ -71,10 +73,11 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
         }
     }
 
-    /// @notice Payment status enum
-    enum PaymentStatus { Pending, Committed, Claimed, Refunded, Expired }
+    /// @notice Payment lifecycle status
+    enum PaymentStatus { Pending, Claimed, Refunded, Expired }
 
-    /// @notice Payment struct
+    /// @notice Core payment struct
+    /// @dev Stores everything needed for the send-via-secret flow
     struct Payment {
         address sender;
         address recipient;
@@ -85,8 +88,6 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
         uint256 createdAt;
         uint256 expiresAt;
         uint256 claimedAt;
-        bytes32 commitmentHash;
-        uint256 commitmentTime;
     }
 
     /// @notice ERC20 token interface
@@ -106,9 +107,6 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
 
     /// @notice Maximum expiration period
     uint256 public constant MAX_EXPIRATION = 90 days;
-
-    /// @notice Commit reveal delay - prevents front-running
-    uint256 public constant COMMIT_REVEAL_DELAY = 2 minutes;
 
     /// @notice Emergency withdrawal delay - prevents accidental triggering
     uint256 public constant EMERGENCY_WITHDRAWAL_DELAY = 48 hours;
@@ -178,12 +176,6 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
         uint256 amount,
         address token,
         uint256 expiresAt
-    );
-
-    event PaymentCommitted(
-        uint256 indexed paymentId,
-        address indexed recipient,
-        bytes32 commitmentHash
     );
 
     event PaymentClaimed(
@@ -268,9 +260,7 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
             status: PaymentStatus.Pending,
             createdAt: block.timestamp,
             expiresAt: expiresAt,
-            claimedAt: 0,
-            commitmentHash: bytes32(0),
-            commitmentTime: 0
+            claimedAt: 0
         });
 
         userPayments[msg.sender].push(paymentId);
@@ -284,53 +274,24 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
     }
 
     /**
-     * @notice Commit to claiming a payment (prevents front-running)
+     * @notice Claim a payment using the secret from the magic link
      * @param _paymentId Payment ID
-     * @param _commitmentHash Hash of (secret + recipient address) to prevent front-running
-     * @dev Front-running protection: the commitment is bound to the recipient
-     */
-    function commitClaim(uint256 _paymentId, bytes32 _commitmentHash) external nonReentrant {
-        require(_paymentId > 0 && _paymentId <= paymentCount, "Invalid payment ID");
-        require(_commitmentHash != bytes32(0), "Invalid commitment");
-
-        Payment storage payment = payments[_paymentId];
-
-        require(payment.status == PaymentStatus.Pending, "Payment not pending or already claimed");
-        require(block.timestamp <= payment.expiresAt, "Payment expired");
-        require(payment.recipient == msg.sender, "Not the recipient");
-        require(payment.commitmentHash == bytes32(0), "Already committed");
-        require(payment.commitmentTime == 0, "Already committed");
-
-        payment.commitmentHash = _commitmentHash;
-        payment.commitmentTime = block.timestamp;
-        payment.status = PaymentStatus.Committed;
-
-        emit PaymentCommitted(_paymentId, msg.sender, _commitmentHash);
-    }
-
-    /**
-     * @notice Claim a payment using the secret (after commit)
-     * @param _paymentId Payment ID
-     * @param _secret The secret to claim
-     * @dev Front-running protected by commit-reveal scheme
+     * @param _secret The secret from the magic claim link
+     * @dev Authorization is via the shared secret alone — the claim link contains
+     *      the secret, so only the intended recipient (who received the link via
+     *      email or WhatsApp) can claim. No on-chain recipient binding is needed.
+     *      The `recipient` field in the Payment struct is stored for off-chain
+     *      display/metadata purposes only.
      */
     function claimPayment(uint256 _paymentId, string calldata _secret) external nonReentrant {
         require(_paymentId > 0 && _paymentId <= paymentCount, "Invalid payment ID");
 
         Payment storage payment = payments[_paymentId];
 
-        require(payment.status == PaymentStatus.Committed, "Must commit first");
+        require(payment.status == PaymentStatus.Pending, "Payment not pending or already claimed");
         require(block.timestamp <= payment.expiresAt, "Payment expired");
-        require(payment.recipient == msg.sender, "Not the recipient");
-        require(payment.commitmentTime + COMMIT_REVEAL_DELAY <= block.timestamp, "Too soon to reveal");
 
-        // Verify commitment hash: hash(secret + recipient) must match
-        require(
-            payment.commitmentHash == keccak256(abi.encodePacked(_secret, msg.sender)),
-            "Invalid secret or commitment"
-        );
-
-        // Verify the original secret hash matches
+        // Verify the secret from the magic link matches the stored hash
         require(
             payment.secretHash == keccak256(abi.encodePacked(_secret)),
             "Invalid secret"
@@ -347,28 +308,7 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
     }
 
     /**
-     * @notice Cancel a commit if something went wrong (refund after expiry only)
-     * @param _paymentId Payment ID
-     * @dev Allows sender to refund after expiry, even if someone committed
-     */
-    function cancelCommit(uint256 _paymentId) external nonReentrant {
-        require(_paymentId > 0 && _paymentId <= paymentCount, "Invalid payment ID");
-
-        Payment storage payment = payments[_paymentId];
-
-        require(payment.status == PaymentStatus.Committed, "No commit to cancel");
-        require(payment.sender == msg.sender, "Not the sender");
-        require(block.timestamp > payment.expiresAt, "Cannot cancel before expiry");
-
-        payment.status = PaymentStatus.Refunded;
-        recipientPendingCount[payment.recipient]--;
-        usdc.safeTransfer(payment.sender, payment.amount);
-
-        emit PaymentRefunded(_paymentId, payment.sender, payment.amount, payment.token);
-    }
-
-    /**
-     * @notice Refund an unclaimed payment (only sender can call after expiry)
+     * @notice Refund an unclaimed pending payment (only sender can call after expiry)
      * @param _paymentId Payment ID
      */
     function refundPayment(uint256 _paymentId) external nonReentrant {
@@ -376,7 +316,7 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
 
         Payment storage payment = payments[_paymentId];
 
-        require(payment.status == PaymentStatus.Pending || payment.status == PaymentStatus.Committed, "Cannot refund");
+        require(payment.status == PaymentStatus.Pending, "Cannot refund claimed or expired");
         require(payment.sender == msg.sender, "Not the sender");
         require(block.timestamp > payment.expiresAt, "Not expired yet");
 
@@ -417,7 +357,7 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
         for (uint256 i = 0; i < allPayments.length; i++) {
             uint256 paymentId = allPayments[i];
             Payment storage payment = payments[paymentId];
-            if (payment.status == PaymentStatus.Pending || payment.status == PaymentStatus.Committed) {
+            if (payment.status == PaymentStatus.Pending) {
                 pendingIds[index] = paymentId;
                 index++;
                 if (index >= count) break;
@@ -440,19 +380,6 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
      */
     function getContractBalance() external view returns (uint256) {
         return usdc.balanceOf(address(this));
-    }
-
-    /**
-     * @notice Get remaining time until reveal is allowed
-     * @param _paymentId Payment ID
-     */
-    function getRevealTimeRemaining(uint256 _paymentId) external view returns (uint256) {
-        require(_paymentId > 0 && _paymentId <= paymentCount, "Invalid payment ID");
-        Payment storage payment = payments[_paymentId];
-        if (payment.commitmentTime == 0) return 0;
-        uint256 revealTime = payment.commitmentTime + COMMIT_REVEAL_DELAY;
-        if (block.timestamp >= revealTime) return 0;
-        return revealTime - block.timestamp;
     }
 
     /**
@@ -539,10 +466,10 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
         uint256 contractBalance = usdc.balanceOf(address(this));
         require(contractBalance == 0, "Cannot renounce: contract has funds");
 
-        // Check for active payments (pending or committed status)
+        // Check for active pending payments
         for (uint256 i = 1; i <= paymentCount; i++) {
             Payment storage payment = payments[i];
-            if (payment.status == PaymentStatus.Pending || payment.status == PaymentStatus.Committed) {
+            if (payment.status == PaymentStatus.Pending) {
                 revert("Cannot renounce with active payments");
             }
         }
@@ -565,10 +492,10 @@ contract PeysEscrow is Initializable, UUPSUpgradeable {
             return (false, "Contract has funds");
         }
 
-        // Check for active payments
+        // Check for active pending payments
         for (uint256 i = 1; i <= paymentCount; i++) {
             Payment storage payment = payments[i];
-            if (payment.status == PaymentStatus.Pending || payment.status == PaymentStatus.Committed) {
+            if (payment.status == PaymentStatus.Pending) {
                 return (false, "Active payments exist");
             }
         }
