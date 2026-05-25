@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Building2, Save, Loader2, ArrowLeft, Fingerprint, Shield, CheckCircle, X, Volume2, VolumeX } from "lucide-react";
+import { User, Building2, Save, Loader2, ArrowLeft, Fingerprint, Shield, CheckCircle, X, Volume2, VolumeX, Link as LinkIcon, Copy, Check, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import AppHeader from "@/components/AppHeader";
@@ -178,6 +178,9 @@ export default function ProfilePage() {
               </button>
             </div>
 
+            {/* Payment Link */}
+            <PaymentLinkSection displayName={profile.display_name} />
+
             {/* Security Settings */}
             <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
               <div className="mb-4 flex items-center gap-3">
@@ -350,6 +353,242 @@ export default function ProfilePage() {
         onSuccess={() => setBiometricEnabled(true)}
         reason="Manage your authentication settings"
       />
+    </div>
+  );
+}
+
+function PaymentLinkSection({ displayName }: { displayName: string }) {
+  const [links, setLinks] = useState<Array<{ id: string; slug: string; title: string; amount: number | null; amount_type: string; token: string; use_count: number; status: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const [slug, setSlug] = useState("");
+  const [linkTitle, setLinkTitle] = useState("");
+  const [linkDescription, setLinkDescription] = useState("");
+  const [linkAmount, setLinkAmount] = useState("");
+  const [linkAmountType, setLinkAmountType] = useState<"fixed" | "custom">("fixed");
+
+  const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+
+  useEffect(() => {
+    if (displayName) {
+      setSlug(displayName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+      setLinkTitle(displayName);
+    }
+  }, [displayName]);
+
+  useEffect(() => {
+    loadLinks();
+  }, []);
+
+  const loadLinks = async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); return; }
+    const { data } = await supabase
+      .from("payment_links")
+      .select("id, slug, title, amount, amount_type, token, use_count, status")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    if (data) setLinks(data);
+    setLoading(false);
+  };
+
+  const createLink = async () => {
+    if (!slug) { toast.error("Please enter a slug"); return; }
+    setCreating(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setCreating(false); return; }
+
+    const { error } = await supabase.from("payment_links").insert({
+      user_id: user.id,
+      title: linkTitle || displayName || "Pay Me",
+      description: linkDescription || null,
+      amount: linkAmount ? Math.round(Number(linkAmount) * 1000000) : null,
+      amount_type: linkAmountType,
+      token: "USDC",
+      slug: slug,
+      status: "active",
+    });
+
+    setCreating(false);
+    if (error) {
+      if (error.code === "23505") {
+        toast.error("This slug is already taken. Try a different one.");
+      } else {
+        toast.error("Failed to create payment link");
+      }
+      return;
+    }
+
+    toast.success("Payment link created!");
+    setShowForm(false);
+    setLinkAmount("");
+    setLinkDescription("");
+    loadLinks();
+  };
+
+  const copyLink = (slug: string) => {
+    const link = `${appUrl}/pay/${slug}`;
+    navigator.clipboard.writeText(link);
+    setCopied(slug);
+    toast.success("Link copied!");
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const deleteLink = async (id: string) => {
+    const { error } = await supabase.from("payment_links").delete().eq("id", id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Link deleted");
+    loadLinks();
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+          <LinkIcon className="h-5 w-5 text-primary" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-display text-lg text-foreground">Payment Link</h3>
+          <p className="text-xs text-muted-foreground">Create a shareable pay link for clients</p>
+        </div>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+        >
+          {showForm ? "Cancel" : "Create"}
+        </button>
+      </div>
+
+      {showForm && (
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mb-4 space-y-3 rounded-lg border border-border bg-background p-4">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Slug (your unique URL)</label>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+              <span>{appUrl}/pay/</span>
+            </div>
+            <input
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+              placeholder="your-name"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Title</label>
+            <input
+              value={linkTitle}
+              onChange={(e) => setLinkTitle(e.target.value)}
+              placeholder="Design Consultation"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Description (optional)</label>
+            <input
+              value={linkDescription}
+              onChange={(e) => setLinkDescription(e.target.value)}
+              placeholder="Payment for services"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Amount Type</label>
+            <div className="flex gap-2">
+              {(["fixed", "custom"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setLinkAmountType(t)}
+                  className={`flex-1 rounded-lg py-2 text-xs font-medium transition-colors ${
+                    linkAmountType === t
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border text-muted-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {t === "fixed" ? "Fixed Amount" : "Open Amount"}
+                </button>
+              ))}
+            </div>
+          </div>
+          {linkAmountType === "fixed" && (
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Amount (USD)</label>
+              <input
+                type="number"
+                value={linkAmount}
+                onChange={(e) => setLinkAmount(e.target.value)}
+                placeholder="50.00"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          )}
+          <button
+            onClick={createLink}
+            disabled={creating || !slug}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
+          >
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LinkIcon className="h-4 w-4" />}
+            {creating ? "Creating..." : "Generate Link"}
+          </button>
+        </motion.div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : links.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-border p-4 text-center">
+          <p className="text-xs text-muted-foreground">No payment links yet. Create one to share with clients.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {links.map((link) => (
+            <div key={link.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">{link.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {appUrl}/pay/{link.slug}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {link.amount_type === "fixed" && link.amount
+                    ? `$${(link.amount / 1000000).toFixed(2)} ${link.token}`
+                    : "Open amount"}{" "}
+                  &middot; {link.use_count} uses
+                </p>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => copyLink(link.slug)}
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                  title="Copy link"
+                >
+                  {copied === link.slug ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </button>
+                <a
+                  href={`${appUrl}/pay/${link.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                  title="Open link"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+                <button
+                  onClick={() => deleteLink(link.id)}
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  title="Delete link"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

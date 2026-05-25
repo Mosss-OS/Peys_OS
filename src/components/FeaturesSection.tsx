@@ -39,7 +39,7 @@ const individualFeatures: Feature[] = [
   {
     icon: Globe,
     title: "Global Transfers",
-    desc: "Send USDC to anyone in the world on Polkadot Asset Hub with near-zero fees. USDT support coming soon.",
+        desc: "Send USDC to anyone in the world on Base with near-zero fees. USDT support coming soon.",
     image: featureGlobal,
     link: "/send",
   },

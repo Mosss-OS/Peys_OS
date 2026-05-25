@@ -15,18 +15,6 @@ export interface ChainConfig {
 }
 
 export const chainConfigs: Record<number, ChainConfig> = {
-  // Celo Alfajores (Testnet)
-  44787: {
-    id: 44787,
-    name: "Celo Alfajores Testnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO || "") as Address,
-    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO || "") as Address,
-    usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_CELO || "") as Address,
-    passAddress: "" as Address,
-    rpcUrl: import.meta.env.VITE_RPC_URL_CELO || "https://alfajores-forno.celo-testnet.org",
-    blockExplorer: "https://alfajores-blockscout.celo-testnet.org",
-    nativeSymbol: "CELO",
-  },
   // Base Sepolia (Testnet)
   84532: {
     id: 84532,
@@ -38,42 +26,6 @@ export const chainConfigs: Record<number, ChainConfig> = {
     rpcUrl: import.meta.env.VITE_RPC_URL_BASE_SEPOLIA || "https://sepolia.base.org",
     blockExplorer: "https://sepolia.basescan.org",
     nativeSymbol: "ETH",
-  },
-  // Celo Mainnet
-  42220: {
-    id: 42220,
-    name: "Celo Mainnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO || "") as Address,
-    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO || "") as Address,
-    usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_CELO || "") as Address,
-    passAddress: "" as Address,
-    rpcUrl: import.meta.env.VITE_RPC_URL_CELO || "https://forno.celo.org",
-    blockExplorer: "https://explorer.celo.org",
-    nativeSymbol: "CELO",
-  },
-  // Base Mainnet
-  8453: {
-    id: 8453,
-    name: "Base Mainnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_BASE || "") as Address,
-    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_BASE || "") as Address,
-    usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_BASE || "") as Address,
-    passAddress: "" as Address,
-    rpcUrl: import.meta.env.VITE_RPC_URL_BASE || "https://mainnet.base.org",
-    blockExplorer: "https://basescan.org",
-    nativeSymbol: "ETH",
-  },
-  // Polygon Amoy Testnet (Chain ID: 80002)
-  80002: {
-    id: 80002,
-    name: "Polygon Amoy Testnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_POLYGON || "0xeb2923503953c5Ed2772917771b850315D030f24") as Address,
-    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_POLYGON || "0x41E94EB09554da6d1DE6384F89b8c2C5B2c7f3f7") as Address,
-    usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_POLYGON || "") as Address,
-    passAddress: "" as Address,
-    rpcUrl: import.meta.env.VITE_RPC_URL_POLYGON || "https://polygon-amoy.g.alchemy.com/v2/demo",
-    blockExplorer: "https://amoy.polygonscan.com",
-    nativeSymbol: "MATIC",
   },
 };
 

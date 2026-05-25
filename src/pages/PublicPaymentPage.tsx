@@ -25,8 +25,6 @@ interface NetworkOption {
 
 const networks: NetworkOption[] = [
   { id: 84532, name: "Base Sepolia", shortName: "Base", color: "#0056FF", blockExplorer: "https://sepolia.basescan.org" },
-  { id: 44787, name: "Celo Alfajores", shortName: "Celo", color: "#35D07F", blockExplorer: "https://alfajores-blockscout.celo-testnet.org" },
-  { id: 80002, name: "Polygon Amoy", shortName: "Polygon", color: "#8247E5", blockExplorer: "https://amoy.polygonscan.com" },
 ];
 
 export default function PublicPaymentPage() {
@@ -341,69 +339,23 @@ export default function PublicPaymentPage() {
 
                   {isLoggedIn && (
                     <>
-                      <div className="relative" ref={networkRef}>
-                        <button
-                          type="button"
-                          onClick={() => setShowNetworkSelector(!showNetworkSelector)}
-                          className="flex w-full items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3"
+                      <div className="flex w-full items-center gap-3 rounded-xl border border-border bg-secondary/50 px-4 py-3">
+                        <div 
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                          style={{ backgroundColor: currentNetwork.color }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div 
-                              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-                              style={{ backgroundColor: currentNetwork.color }}
-                            >
-                              {currentNetwork.shortName.slice(0, 2)}
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Network</p>
-                              <p className="font-medium text-foreground">{currentNetwork.name}</p>
-                            </div>
-                          </div>
-                          <ChevronDown className={`h-5 w-5 text-muted-foreground ${showNetworkSelector ? 'rotate-180' : ''}`} />
-                        </button>
-                        
-                        <AnimatePresence>
-                          {showNetworkSelector && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -8 }}
-                              className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-border bg-card shadow-elevated"
-                            >
-                              {networks.map((network) => (
-                                <button
-                                  key={network.id}
-                                  type="button"
-                                  onClick={() => handleNetworkChange(network.id)}
-                                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/60 ${selectedNetwork === network.id ? 'bg-primary/10' : ''}`}
-                                >
-                                  <div 
-                                    className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-                                    style={{ backgroundColor: network.color }}
-                                  >
-                                    {network.shortName.slice(0, 2)}
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-foreground">{network.name}</p>
-                                  </div>
-                                  {selectedNetwork === network.id && (
-                                    <Check className="ml-auto h-4 w-4 text-primary" />
-                                  )}
-                                </button>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                          {currentNetwork.shortName.slice(0, 2)}
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Network</p>
+                          <p className="font-medium text-foreground">{currentNetwork.name}</p>
+                        </div>
                       </div>
 
                       <div className="flex gap-2">
-                        {(["USDC", "USDT", "PASS"] as Token[]).filter((t) => {
-                          const chainConfig = getChainConfig(selectedNetwork);
+                        {(["USDC", "USDT"] as Token[]).filter((t) => {
                           if (t === "USDT") {
                             return false; // USDT coming soon
-                          }
-                          if (t === "PASS") {
-                            return selectedNetwork === 420420417;
                           }
                           return true;
                         }).map((t) => (

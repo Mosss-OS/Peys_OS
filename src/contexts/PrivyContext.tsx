@@ -1,23 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { PrivyProvider as PrivyReactProvider, usePrivy, useWallets } from '@privy-io/react-auth';
 import { defineChain } from 'viem';
-import { baseSepolia, celoAlfajores, polygonAmoy } from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 
 // Base Sepolia chain definition
 const baseSepoliaChain = defineChain({
   ...baseSepolia,
-  testnet: true,
-});
-
-// Celo Alfajores chain definition  
-const celoAlfajoresChain = defineChain({
-  ...celoAlfajores,
-  testnet: true,
-});
-
-// Polygon Amoy chain definition
-const polygonAmoyChain = defineChain({
-  ...polygonAmoy,
   testnet: true,
 });
 
@@ -137,7 +125,7 @@ export function PrivyAppProvider({ children }: { children: ReactNode }) {
           },
         },
         defaultChain: baseSepoliaChain,
-        supportedChains: [baseSepoliaChain, celoAlfajoresChain, polygonAmoyChain],
+        supportedChains: [baseSepoliaChain],
       }}
     >
       <PrivyAuthInner>{children}</PrivyAuthInner>

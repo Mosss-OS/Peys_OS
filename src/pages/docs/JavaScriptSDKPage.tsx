@@ -63,7 +63,7 @@ const peys = new Peys({
   apiKey: process.env.PEYS_API_KEY,
   
   // Optional configuration
-  network: 'base-sepolia',  // 'base-sepolia' | 'celo-alfajores' | 'polkadot'
+          network: 'base-sepolia',
   baseUrl: 'https://api.peys.io',  // Custom API URL (for testing)
   timeout: 30000,  // Request timeout in ms
 });`}

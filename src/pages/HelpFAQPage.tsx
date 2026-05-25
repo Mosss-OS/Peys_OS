@@ -64,7 +64,7 @@ const mockFAQs: FAQItem[] = [
     id: "3",
     question: "How long do transactions take?",
     answer:
-      "Transaction times vary by network. Base transactions typically confirm in 2-5 seconds, Ethereum in 1-5 minutes, and Celo in 3-10 seconds. Network congestion can affect these times.",
+      "Transaction times vary by network. Base transactions typically confirm in 2-5 seconds. Network congestion can affect these times.",
     category: "Payments",
     helpful: 312,
   },
@@ -88,7 +88,7 @@ const mockFAQs: FAQItem[] = [
     id: "6",
     question: "What networks does Peys support?",
     answer:
-      "Peys currently supports Base, Ethereum Mainnet, and Celo. We are working on adding more chains in the future. You can switch networks from the network selector in the header.",
+      "Peys currently supports Base Sepolia (testnet). We are working on adding more chains in the future.",
     category: "General",
     helpful: 178,
   },
@@ -104,7 +104,7 @@ const mockFAQs: FAQItem[] = [
     id: "8",
     question: "What are the transaction fees?",
     answer:
-      "Transaction fees vary by network. Base typically costs $0.01-0.10, Ethereum $1-10, and Celo $0.001-0.01 per transaction. Peys does not charge additional fees beyond network gas costs.",
+      "Transaction fees on Base typically cost $0.01-0.10 per transaction. Peys does not charge additional fees beyond network gas costs.",
     category: "Payments",
     helpful: 367,
   },

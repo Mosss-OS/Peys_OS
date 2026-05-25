@@ -270,17 +270,10 @@ export default function SmartContractsPage() {
           <div className="mt-6">
             <h3 className="text-lg font-semibold text-foreground">Planned Networks</h3>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { name: "Ethereum", symbol: "ETH" },
-                { name: "Base", symbol: "USDC" },
-                { name: "Arbitrum", symbol: "USDC" },
-                { name: "Optimism", symbol: "USDC" },
-                { name: "Polygon", symbol: "USDT" },
-                { name: "Avalanche", symbol: "USDC" },
-                { name: "Solana", symbol: "USDC" },
-                { name: "Celo", symbol: "cUSD" },
-                { name: "Polkadot", symbol: "USDC" },
-              ].map((chain) => (
+          {[
+            { name: "Base Sepolia", symbol: "USDC" },
+            { name: "Base", symbol: "USDC" },
+          ].map((chain) => (
                 <div key={chain.name} className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
                   <span className="font-medium text-foreground">{chain.name}</span>
                   <span className="text-sm text-muted-foreground">{chain.symbol}</span>

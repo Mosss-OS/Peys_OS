@@ -76,9 +76,7 @@ export default function BlockExplorerPage() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const getExplorerUrl = (type: "tx" | "address", hash: string, network: string) => {
-    if (network.includes("Celo")) return `https://alfajores-blockscout.celo-testnet.org/${type}/${hash}`;
-    if (network.includes("Polygon")) return `https://amoy.polygonscan.com/${type}/${hash}`;
+  const getExplorerUrl = (type: "tx" | "address", hash: string, _network: string) => {
     return `https://sepolia.basescan.org/${type}/${hash}`;
   };
 
@@ -309,11 +307,9 @@ export default function BlockExplorerPage() {
         >
           <h2 className="mb-4 font-display text-lg text-foreground">Quick Links</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { name: "Polkadot Testnet Explorer", url: "https://polkadot.testnet.routescan.io", chain: "Polkadot" },
-              { name: "Base Sepolia Explorer", url: "https://sepolia.basescan.org", chain: "Base" },
-              { name: "Celo Alfajores Explorer", url: "https://alfajores-blockscout.celo-testnet.org", chain: "Celo" },
-            ].map((explorer) => (
+        {[
+          { name: "Base Sepolia Explorer", url: "https://sepolia.basescan.org", chain: "Base" },
+        ].map((explorer) => (
               <a
                 key={explorer.url}
                 href={explorer.url}

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { usePrivyAuth } from "@/contexts/PrivyContext";
 import { createPublicClient, http, formatUnits, type Address, type PublicClient } from "viem";
+import { baseSepolia } from "viem/chains";
 import { ERC20_ABI } from "@/constants/blockchain";
 import { chainConfigs } from "@/lib/chains";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,41 +39,12 @@ interface AppContextType {
   setSelectedNetwork: (network: number | null) => void;
 }
 
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-
 const AppContext = createContext<AppContextType | null>(null);
 
-function getCeloRpcUrl(): string {
-  return import.meta.env.VITE_RPC_URL_CELO || "https://celo-sepolia.g.alchemy.com/v2/demo";
-}
-
-function getCeloFallbackRpcs(): string[] {
-  return [
-    import.meta.env.VITE_RPC_URL_CELO_1 || "https://alfajores-forno.celo-testnet.org",
-    import.meta.env.VITE_RPC_URL_CELO_2 || "https://rpc.alfajores.celo.org",
-    import.meta.env.VITE_RPC_URL_CELO_3 || "https://celo-alfajores-rpc.publicnode.com",
-  ];
-}
-
 const publicClients = Object.entries(chainConfigs).reduce((acc, [chainId, config]) => {
-  let rpcUrl = config.rpcUrl;
-  
-  if (Number(chainId) === 44787) {
-    rpcUrl = getCeloRpcUrl();
-  }
-  
   acc[Number(chainId)] = createPublicClient({
-    chain: {
-      id: config.id,
-      name: config.name,
-      nativeCurrency: { 
-        name: config.name.includes("Celo") ? "CELO" : "ETH",
-        symbol: config.name.includes("Celo") ? "CELO" : "ETH",
-        decimals: 18 
-      },
-      rpcUrls: { default: { http: [rpcUrl] } },
-    },
-    transport: http(rpcUrl),
+    chain: baseSepolia,
+    transport: http(config.rpcUrl),
   });
   return acc;
 }, {} as Record<number, ReturnType<typeof createPublicClient>>);

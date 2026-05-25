@@ -1,7 +1,7 @@
 // Send Payment Form — wired to Supabase
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Copy, Check, ArrowLeft, Download, X, Share2, Users, Loader2, Network, ChevronDown, AlertCircle, Mail, Phone, Wallet, MessageCircle, CreditCard, Zap } from "lucide-react";
+import { Send, Copy, Check, ArrowLeft, Download, X, Share2, Users, Loader2, Network, AlertCircle, Mail, Phone, Wallet, MessageCircle, CreditCard, Zap } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useApp } from "@/contexts/AppContext";
 import { fireBurst } from "@/utils/confetti";
@@ -39,8 +39,6 @@ interface NetworkOption {
 
 const networks: NetworkOption[] = [
   { id: 84532, name: "Base Sepolia", shortName: "Base", color: "#0056FF", blockExplorer: "https://sepolia.basescan.org" },
-  { id: 44787, name: "Celo Alfajores", shortName: "Celo", color: "#35D07F", blockExplorer: "https://alfajores-blockscout.celo-testnet.org" },
-  { id: 80002, name: "Polygon Amoy", shortName: "Polygon", color: "#8247E5", blockExplorer: "https://www.oklink.com/amoy" },
 ];
 
 export default function SendPaymentForm() {
@@ -61,7 +59,6 @@ export default function SendPaymentForm() {
   const [showQR, setShowQR] = useState(false);
   const [showCard, setShowCard] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
-  const [showNetworkSelector, setShowNetworkSelector] = useState(false);
   const [showAddChainModal, setShowAddChainModal] = useState(false);
   const [recentRecipients, setRecentRecipients] = useState<Contact[]>([]);
   const [loadingRecipients, setLoadingRecipients] = useState(false);
@@ -87,8 +84,6 @@ export default function SendPaymentForm() {
     "Rent",
   ];
   const qrRef = useRef<HTMLDivElement>(null);
-  const networkRef = useRef<HTMLDivElement>(null);
-
   const { createPayment, estimateGas, switchNetwork } = useEscrow();
   const publicClient = usePublicClient();
   const { chain: connectedChain } = useAccount();
@@ -165,9 +160,6 @@ export default function SendPaymentForm() {
     const handler = (e: MouseEvent) => {
       if (recipientRef.current && !recipientRef.current.contains(e.target as Node)) {
         setShowContacts(false);
-      }
-      if (networkRef.current && !networkRef.current.contains(e.target as Node)) {
-        setShowNetworkSelector(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -623,89 +615,22 @@ export default function SendPaymentForm() {
             {step === "form" && (
               <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3 sm:space-y-4">
                 
-                {/* Network Selector */}
-                <div className="relative" ref={networkRef}>
-                  <button
-                    type="button"
-                    onClick={() => setShowNetworkSelector(!showNetworkSelector)}
-                    className="flex w-full items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 transition-colors hover:bg-secondary"
+                {/* Network Info */}
+                <div className="flex w-full items-center gap-3 rounded-xl border border-border bg-secondary/50 px-4 py-3">
+                  <div 
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white relative"
+                    style={{ backgroundColor: currentNetwork.color }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white relative"
-                        style={{ backgroundColor: currentNetwork.color }}
-                      >
-                        {currentNetwork.shortName.slice(0, 2)}
-                        <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-card" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs text-muted-foreground">Network</p>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-foreground">{currentNetwork.name}</p>
-                          <span className="text-xs text-green-600 font-medium">Online</span>
-                        </div>
-                      </div>
+                    {currentNetwork.shortName.slice(0, 2)}
+                    <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-card" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs text-muted-foreground">Network</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">{currentNetwork.name}</p>
+                      <span className="text-xs text-green-600 font-medium">Online</span>
                     </div>
-                    <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${showNetworkSelector ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  <AnimatePresence>
-                    {showNetworkSelector && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-border bg-card shadow-elevated"
-                      >
-                        {networks.map((network) => {
-                          const networkBalance = wallet.networkBalances?.find(nb => nb.chainId === network.id);
-                          const totalBalance = networkBalance ? (networkBalance.usdc + networkBalance.usdt) : 0;
-                          
-                          return (
-                            <button
-                              key={network.id}
-                              type="button"
-                              onClick={() => handleNetworkChange(network.id)}
-                              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/60 ${selectedNetwork === network.id ? 'bg-primary/10' : ''}`}
-                            >
-                              <div 
-                                className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white relative"
-                                style={{ backgroundColor: network.color }}
-                              >
-                                {network.shortName.slice(0, 2)}
-                                <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-card" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="font-medium text-foreground">{network.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {totalBalance > 0 ? `$${totalBalance.toFixed(2)}` : 'No balance'}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-xs text-green-600 font-medium">Online</p>
-                              </div>
-                              {selectedNetwork === network.id && (
-                                <Check className="h-4 w-4 text-primary" />
-                              )}
-                            </button>
-                          );
-                        })}
-                        <button
-                          type="button"
-                          onClick={() => setShowAddChainModal(true)}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
-                        >
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/50 text-xs">
-                            +
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium">Add Custom Chain</p>
-                            <p className="text-xs text-muted-foreground">Enter RPC URL and chain ID</p>
-                          </div>
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  </div>
                 </div>
 
                 {/* Token Selector */}

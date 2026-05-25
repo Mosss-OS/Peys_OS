@@ -22,7 +22,7 @@ const products = [
     id: "business",
     label: "Business",
     tagline: "Scale payments for your organization",
-    description: "Payroll, vendor payments, and treasury management — all powered by stablecoins on Polkadot with enterprise-grade tools.",
+          description: "Payroll, vendor payments, and treasury management — all powered by stablecoins on Base with enterprise-grade tools.",
     icon: Building2,
     color: "accent",
     link: "/batch",

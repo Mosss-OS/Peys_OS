@@ -72,7 +72,7 @@ export default function PaymentCard({ payment, sender, amount, token, memo, clai
         {/* Footer */}
         <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
           <span>Secured by escrow</span>
-          <span>Built on Polkadot</span>
+            <span>Built on Base</span>
         </div>
       </div>
     </motion.div>

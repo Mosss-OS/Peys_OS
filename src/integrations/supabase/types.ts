@@ -505,6 +505,7 @@ export type Database = {
       payment_links: {
         Row: {
           id: string
+          user_id: string | null
           organization_id: string | null
           store_id: string | null
           title: string
@@ -528,6 +529,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          user_id?: string | null
           organization_id?: string | null
           store_id?: string | null
           title: string
@@ -551,6 +553,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          user_id?: string | null
           organization_id?: string | null
           store_id?: string | null
           title?: string

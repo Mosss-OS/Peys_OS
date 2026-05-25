@@ -5,7 +5,7 @@ import { Plus, Minus } from "lucide-react";
 const faqs = [
   {
     q: "What is Peys?",
-    a: "Peys is a peer-to-peer stablecoin payments app built on Polkadot. Send USDC to anyone via a shareable link — no wallet or crypto knowledge required. USDT support coming soon.",
+    a: "Peys is a peer-to-peer stablecoin payments app built on Base (Ethereum L2). Send USDC to anyone via a shareable link — no wallet or crypto knowledge required. USDT support coming soon.",
   },
   {
     q: "How do Magic Claim Links work?",
@@ -21,11 +21,11 @@ const faqs = [
   },
   {
     q: "Which stablecoins are supported?",
-    a: "Peys supports USDC on Polkadot Asset Hub, transferred via XCM precompiles. USDT support coming soon.",
+    a: "Peys supports USDC on Base Sepolia. USDT support coming soon.",
   },
   {
     q: "What are the fees?",
-    a: "Transaction fees on Polkadot are minimal — typically less than $0.01. Peys charges no additional fees during the hackathon.",
+    a: "Transaction fees on Base are minimal — typically less than $0.01. Peys charges no additional fees.",
   },
 ];
 

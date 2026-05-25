@@ -19,6 +19,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import Index from "./pages/Index";
 import SendPage from "./pages/SendPage";
 import PublicPaymentPage from "./pages/PublicPaymentPage";
+import MerchantPayPage from "./pages/MerchantPayPage";
 import ClaimPage from "./pages/ClaimPage";
 import DashboardPage from "./pages/DashboardPage";
 import AssetsPage from "./pages/AssetsPage";
@@ -133,6 +134,7 @@ export default function App() {
                             <Route path="/" element={<Index />} />
                             <Route path="/send" element={<SendPage />} />
                             <Route path="/public" element={<PublicPaymentPage />} />
+                            <Route path="/pay/:slug" element={<MerchantPayPage />} />
                             <Route path="/pay" element={<PublicPaymentPage />} />
                             <Route path="/claim/:id" element={<ClaimPage />} />
                             <Route path="/dashboard" element={<DashboardPage />} />

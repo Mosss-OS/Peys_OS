@@ -186,15 +186,11 @@ export default function DocsPage() {
             Peys supports multiple blockchain networks. Start with testnets, then go to mainnet.
           </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { name: "Base Sepolia", symbol: "USDC", network: "Testnet", status: "Active" },
-              { name: "Celo Alfajores", symbol: "cUSD", network: "Testnet", status: "Active" },
-              { name: "Polkadot (Paseo)", symbol: "USDC", network: "Testnet", status: "Active" },
-              { name: "Polygon Amoy", symbol: "USDC", network: "Testnet", status: "Active" },
-              { name: "Base", symbol: "USDC", network: "Mainnet", status: "Coming Soon" },
-              { name: "Ethereum", symbol: "USDC", network: "Mainnet", status: "Coming Soon" },
-              { name: "USDT", symbol: "USDT", network: "All Networks", status: "Coming Soon" },
-            ].map((chain) => (
+          {[
+            { name: "Base Sepolia", symbol: "USDC", network: "Testnet", status: "Active" },
+            { name: "Base", symbol: "USDC", network: "Mainnet", status: "Coming Soon" },
+            { name: "USDT", symbol: "USDT", network: "All Networks", status: "Coming Soon" },
+          ].map((chain) => (
               <div key={chain.name} className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
                 <div>
                   <p className="font-medium text-foreground">{chain.name}</p>

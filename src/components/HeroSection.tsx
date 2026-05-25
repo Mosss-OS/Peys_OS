@@ -34,7 +34,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-7 sm:text-base">
-            Products built on open infrastructure to deliver better stablecoin payments to every individual, business, and developer on Polkadot.
+            Products built on open infrastructure to deliver better stablecoin payments to every individual, business, and developer.
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center">

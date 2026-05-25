@@ -71,27 +71,6 @@ function NetworkCard({ network, totalUSD }: NetworkCardProps) {
         icon: "🔵",
         shortName: "Base",
       };
-    } else if (name.includes("Celo")) {
-      return {
-        color: "#FCFF52",
-        gradient: "from-yellow-500/10 to-yellow-600/10",
-        icon: "🟡",
-        shortName: "Celo",
-      };
-    } else if (name.includes("Polkadot")) {
-      return {
-        color: "#E6007A",
-        gradient: "from-pink-500/10 to-pink-600/10",
-        icon: "🟣",
-        shortName: "Polkadot",
-      };
-    } else if (name.includes("Polygon")) {
-      return {
-        color: "#8247E5",
-        gradient: "from-purple-500/10 to-purple-600/10",
-        icon: "🟣",
-        shortName: "Polygon",
-      };
     }
     return { color: "#666", gradient: "from-gray-500/10 to-gray-600/10", icon: "⚪", shortName: name };
   };
@@ -338,12 +317,7 @@ export default function AssetsPage() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                   🔵 Base (Ethereum L2)
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-1 text-xs text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  🟡 Celo
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-pink-100 px-2 py-1 text-xs text-pink-700 dark:bg-pink-900/30 dark:text-pink-300">
-                  🟣 Polkadot Asset Hub
-                </span>
+
               </div>
             </div>
           </div>

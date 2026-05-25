@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Copy, Check, QrCode, Mail, Wallet, Building2, ExternalLink, Loader2, ChevronDown } from "lucide-react";
+import { X, Copy, Check, QrCode, Mail, Wallet, Building2, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { flutterwaveService, SUPPORTED_COUNTRIES } from "@/services/flutterwaveService";
@@ -49,8 +49,6 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
 
   const networks = [
     { id: "base-sepolia", name: "Base Sepolia", icon: "🔵", color: "blue" },
-    { id: "polygon-amoy", name: "Polygon Amoy", icon: "🟣", color: "purple" },
-    { id: "celo-alfajores", name: "Celo Alfajores", icon: "🟢", color: "green" },
   ];
 
   useEffect(() => {
@@ -301,19 +299,8 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
                 <div className="space-y-4">
                   <div className="mb-4">
                     <label className="mb-2 block text-sm font-medium">Network</label>
-                    <div className="relative">
-                      <select
-                        value={selectedNetwork}
-                        onChange={(e) => setSelectedNetwork(e.target.value)}
-                        className="w-full rounded-lg border border-border bg-background px-4 py-3 appearance-none"
-                      >
-                        {networks.map((network) => (
-                          <option key={network.id} value={network.id}>
-                            {network.icon} {network.name}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <div className="w-full rounded-lg border border-border bg-background px-4 py-3 text-muted-foreground">
+                      {networks[0].icon} {networks[0].name}
                     </div>
                   </div>
 

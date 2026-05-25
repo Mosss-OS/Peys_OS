@@ -44,16 +44,11 @@ interface BridgeRoute {
 const chains: Chain[] = [
   { id: "base", name: "Base", symbol: "ETH", icon: "🔵", color: "bg-blue-500", status: "active", gasPrice: "$0.10", avgTime: "2-5 min" },
   { id: "ethereum", name: "Ethereum", symbol: "ETH", icon: "🔷", color: "bg-purple-500", status: "active", gasPrice: "$3.50", avgTime: "10-30 min" },
-  { id: "celo", name: "Celo", symbol: "CELO", icon: "🟢", color: "bg-green-500", status: "active", gasPrice: "$0.01", avgTime: "5-15 sec" },
-  { id: "polkadot", name: "Polkadot", symbol: "DOT", icon: "🔴", color: "bg-pink-500", status: "coming_soon", gasPrice: "$0.50", avgTime: "1-2 min" },
   { id: "solana", name: "Solana", symbol: "SOL", icon: "🌊", color: "bg-gradient-to-r from-purple-500 to-blue-500", status: "beta", gasPrice: "$0.25", avgTime: "3-10 sec" },
-  { id: "polygon", name: "Polygon", symbol: "MATIC", icon: "🟣", color: "bg-purple-600", status: "coming_soon", gasPrice: "$0.10", avgTime: "5-15 min" },
 ];
 
 const bridgeRoutes: BridgeRoute[] = [
   { from: "Ethereum", to: "Base", fee: "0.1%", time: "10-30 min", minAmount: "$10", maxAmount: "$50,000" },
-  { from: "Base", to: "Celo", fee: "0.2%", time: "5-10 min", minAmount: "$5", maxAmount: "$25,000" },
-  { from: "Ethereum", to: "Celo", fee: "0.3%", time: "15-45 min", minAmount: "$20", maxAmount: "$100,000" },
 ];
 
 export default function CrossChainPage() {

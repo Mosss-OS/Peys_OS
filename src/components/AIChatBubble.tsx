@@ -46,7 +46,6 @@ export default function AIChatBubble() {
   const buildContext = useCallback(() => ({
     isLoggedIn,
     walletAddress,
-    balancePASS: wallet.balancePASS,
     balanceUSDC: wallet.balanceUSDC,
     balanceUSDT: wallet.balanceUSDT,
     networkBalances: wallet.networkBalances,
@@ -56,35 +55,30 @@ export default function AIChatBubble() {
       token: tx.token,
       counterparty: tx.counterparty,
       memo: tx.memo,
-      chain: tx.chain,
       timestamp: tx.timestamp.toISOString(),
     })),
   }), [isLoggedIn, walletAddress, wallet, transactions]);
 
   // Build system prompt for Ollama (dev mode)
   const buildOllamaSystemPrompt = useCallback((context: ReturnType<typeof buildContext>) => {
-    let prompt = `You are Peys AI, a friendly and helpful payment assistant for the Peys app — a stablecoin payment platform built on Polkadot Asset Hub.
+    let prompt = `You are Peys AI, a friendly and helpful payment assistant for the Peys app — a stablecoin payment platform built on Base (Ethereum L2).
 
 ## What Peys Does
-- Users send USDC, USDT, or PASS (Polkadot's native token) to anyone via email using magic claim links
+- Users send USDC to anyone via email using magic claim links
 - Funds are held in an on-chain escrow smart contract until claimed
 - Recipients sign in (email/Google via Privy) and get an auto-created embedded wallet
 - Unclaimed payments auto-refund after 7 days
-- Near-zero fees (~$0.01 per transaction on Polkadot)
+- Near-zero fees (~$0.01 per transaction on Base)
 
-## Supported Networks
-- **Polkadot Asset Hub** (Chain ID: 420420417) - Native token PASS, lowest fees
+## Supported Network
 - **Base Sepolia** (Chain ID: 84532) - USDC available
-- **Celo Alfajores** (Chain ID: 44787) - USDC available
-- **Polygon Amoy** (Chain ID: 80002) - USDC available
 - USDT support coming soon!
 
 ## Your Capabilities
 1. **Payment Creation** - Parse natural language like "send 10 USDC to john@email.com" and extract: amount, token, recipient
-2. **Chain Recommendations** - Suggest best chain based on: fees, token availability, speed
-3. **Balance Analysis** - Show real balances across all chains
-4. **Transaction History** - Display and explain past transactions
-5. **Crypto Education** - Explain concepts in simple terms
+2. **Balance Analysis** - Show real balances
+3. **Transaction History** - Display and explain past transactions
+4. **Crypto Education** - Explain concepts in simple terms
 
 ## Guidelines
 - Be concise (2-3 sentences max unless explaining a concept)
@@ -93,19 +87,16 @@ export default function AIChatBubble() {
 - If user is not logged in, encourage them to sign in
 - Be helpful about crypto concepts but keep it simple
 - Use emoji sparingly for personality
-- Recommend Polkadot for new users (lowest fees, PASS token)
-- Always show chain info when discussing payments
 
 ## Current User Context:
 `;
     if (context.isLoggedIn) {
       prompt += `- **Logged in**: Yes\n`;
       prompt += `- **Wallet address**: ${context.walletAddress || "Not connected"}\n`;
-      prompt += `- **PASS Balance** (Polkadot): ${context.balancePASS?.toFixed(4) || "0.0000"} PASS\n`;
       prompt += `- **USDC Balance**: $${context.balanceUSDC?.toFixed(2) || "0.00"}\n`;
       prompt += `- **USDT Balance**: $${context.balanceUSDT?.toFixed(2) || "0.00"}\n`;
       
-      const total = ((context.balanceUSDC || 0) + (context.balanceUSDT || 0) + (context.balancePASS || 0));
+      const total = ((context.balanceUSDC || 0) + (context.balanceUSDT || 0));
       prompt += `- **Total Balance**: $${total.toFixed(2)}\n`;
       
       if (context.transactions && context.transactions.length > 0) {
