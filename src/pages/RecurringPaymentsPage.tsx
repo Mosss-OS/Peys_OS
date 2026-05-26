@@ -1,130 +1,115 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, DollarSign, Users, Pause, Play, Trash2, ArrowLeft, RefreshCw, Check } from "lucide-react";
+import { Calendar, Clock, DollarSign, RefreshCw, Pause, Play, Trash2, ArrowLeft, Mail, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-type Frequency = "daily" | "weekly" | "biweekly" | "monthly" | "quarterly";
-type Token = "USDC" | "USDT" | "PASS";
+const FREQUENCY_LABELS: Record<string, string> = {
+  weekly: "Weekly",
+  biweekly: "Bi-weekly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+};
 
-interface RecurringPayment {
+interface Subscription {
   id: string;
-  recipient: string;
-  recipientName?: string;
+  payment_link_id: string;
+  payer_email: string;
   amount: number;
-  token: Token;
-  frequency: Frequency;
-  startDate: Date;
-  endDate?: Date;
-  occurrences?: number;
-  nextPayment: Date;
-  status: "active" | "paused" | "completed";
-  totalPaid: number;
-  totalSent: number;
-}
-
-const FREQUENCIES: { value: Frequency; label: string; days: number }[] = [
-  { value: "daily", label: "Daily", days: 1 },
-  { value: "weekly", label: "Weekly", days: 7 },
-  { value: "biweekly", label: "Bi-weekly", days: 14 },
-  { value: "monthly", label: "Monthly", days: 30 },
-  { value: "quarterly", label: "Quarterly", days: 90 },
-];
-
-function getNextPaymentDate(startDate: Date, frequency: Frequency, occurrences: number): Date {
-  const freq = FREQUENCIES.find((f) => f.value === frequency)!;
-  const next = new Date(startDate);
-  next.setDate(next.getDate() + freq.days * (occurrences - 1));
-  return next;
+  token: string;
+  frequency: string;
+  status: "active" | "paused" | "cancelled" | "completed";
+  next_payment_date: string;
+  last_payment_date: string | null;
+  occurrences_completed: number;
+  max_occurrences: number | null;
+  memo: string | null;
+  link_title?: string;
+  created_at: string;
 }
 
 export default function RecurringPaymentsPage() {
-  const { isLoggedIn, login, wallet } = useApp();
-  const [showCreate, setShowCreate] = useState(false);
-  const [payments, setPayments] = useState<RecurringPayment[]>([]);
+  const { isLoggedIn, login } = useApp();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Form state
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
-  const [token, setToken] = useState<Token>("USDC");
-  const [frequency, setFrequency] = useState<Frequency>("monthly");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [hasEndDate, setHasEndDate] = useState(false);
-  const [endDate, setEndDate] = useState("");
-  const [hasOccurrences, setHasOccurrences] = useState(true);
-  const [occurrences, setOccurrences] = useState("12");
-  const [creating, setCreating] = useState(false);
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    loadSubscriptions();
+  }, [isLoggedIn]);
 
-  const getBalance = () => {
-    if (token === "USDC") return wallet.balanceUSDC;
-    if (token === "USDT") return wallet.balanceUSDT;
-    return wallet.balancePASS;
-  };
+  const loadSubscriptions = async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); return; }
 
-  const handleCreate = async () => {
-    if (!recipient || !amount || Number(amount) <= 0) {
-      toast.error("Please fill in all required fields");
+    const { data: links } = await supabase
+      .from("payment_links")
+      .select("id")
+      .eq("user_id", user.id);
+
+    const linkIds = links?.map(l => l.id) || [];
+    if (linkIds.length === 0) {
+      setSubscriptions([]);
+      setLoading(false);
       return;
     }
 
-    setCreating(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const { data } = await supabase
+      .from("user_subscriptions")
+      .select("*, payment_links!inner(title)")
+      .in("payment_link_id", linkIds)
+      .order("created_at", { ascending: false });
 
-    const numOccurrences = hasOccurrences ? Number(occurrences) : 999;
-    const newPayment: RecurringPayment = {
-      id: `recurring_${Date.now()}`,
-      recipient,
-      recipientName: recipient.includes("@") ? recipient : undefined,
-      amount: Number(amount),
-      token,
-      frequency,
-      startDate: new Date(startDate),
-      endDate: hasEndDate ? new Date(endDate) : undefined,
-      occurrences: hasOccurrences ? Number(occurrences) : undefined,
-      nextPayment: getNextPaymentDate(new Date(startDate), frequency, 1),
-      status: "active",
-      totalPaid: 0,
-      totalSent: 0,
-    };
-
-    setPayments((prev) => [...prev, newPayment]);
-    setCreating(false);
-    setShowCreate(false);
-    resetForm();
-    toast.success("Recurring payment created!");
+    if (data) {
+      setSubscriptions(data.map((s: any) => ({
+        id: s.id,
+        payment_link_id: s.payment_link_id,
+        payer_email: s.payer_email,
+        amount: s.amount,
+        token: s.token,
+        frequency: s.frequency,
+        status: s.status,
+        next_payment_date: s.next_payment_date,
+        last_payment_date: s.last_payment_date,
+        occurrences_completed: s.occurrences_completed,
+        max_occurrences: s.max_occurrences,
+        memo: s.memo,
+        link_title: s.payment_links?.title,
+        created_at: s.created_at,
+      })));
+    }
+    setLoading(false);
   };
 
-  const resetForm = () => {
-    setRecipient("");
-    setAmount("");
-    setToken("USDC");
-    setFrequency("monthly");
-    setStartDate(new Date().toISOString().split("T")[0]);
-    setHasEndDate(false);
-    setEndDate("");
-    setHasOccurrences(true);
-    setOccurrences("12");
+  const updateStatus = async (id: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("user_subscriptions")
+      .update({ status: newStatus })
+      .eq("id", id);
+    if (error) { toast.error("Failed to update"); return; }
+    toast.success(`Subscription ${newStatus}`);
+    loadSubscriptions();
   };
 
-  const togglePause = (id: string) => {
-    setPayments((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, status: p.status === "active" ? "paused" : "active" } : p
-      )
-    );
-    toast.success("Payment status updated");
+  const deleteSubscription = async (id: string) => {
+    const { error } = await supabase
+      .from("user_subscriptions")
+      .update({ status: "cancelled" })
+      .eq("id", id);
+    if (error) { toast.error("Failed to cancel"); return; }
+    toast.success("Subscription cancelled");
+    loadSubscriptions();
   };
 
-  const deletePayment = (id: string) => {
-    setPayments((prev) => prev.filter((p) => p.id !== id));
-    toast.success("Recurring payment deleted");
-  };
-
-  const formatFrequency = (freq: Frequency) => {
-    return FREQUENCIES.find((f) => f.value === freq)?.label || freq;
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short", day: "numeric", year: "numeric",
+    });
   };
 
   if (!isLoggedIn) {
@@ -135,9 +120,9 @@ export default function RecurringPaymentsPage() {
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
             <RefreshCw className="h-10 w-10 text-primary" />
           </div>
-          <h2 className="mb-3 font-display text-2xl text-foreground sm:text-3xl">Recurring Payments</h2>
+          <h2 className="mb-3 font-display text-2xl text-foreground sm:text-3xl">Subscriptions</h2>
           <p className="mb-6 max-w-md text-sm text-muted-foreground">
-            Set up automatic payments on a schedule. Perfect for subscriptions, allowances, and regular transfers.
+            Manage subscriptions to your payment links. See who's subscribed and when payments are due.
           </p>
           <button onClick={login} className="rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow hover:opacity-90">
             Sign In to Get Started
@@ -147,6 +132,17 @@ export default function RecurringPaymentsPage() {
       </div>
     );
   }
+
+  const activeSubs = subscriptions.filter(s => s.status === "active" || s.status === "paused");
+  const totalMonthly = subscriptions
+    .filter(s => s.status === "active")
+    .reduce((sum, s) => {
+      if (s.frequency === "weekly") return sum + s.amount * 4.33;
+      if (s.frequency === "biweekly") return sum + s.amount * 2.17;
+      if (s.frequency === "monthly") return sum + s.amount;
+      if (s.frequency === "quarterly") return sum + s.amount / 3;
+      return sum;
+    }, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,42 +159,54 @@ export default function RecurringPaymentsPage() {
                 <RefreshCw className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="font-display text-3xl text-foreground sm:text-4xl">Recurring Payments</h1>
-                <p className="text-muted-foreground">Automate your regular payments</p>
+                <h1 className="font-display text-3xl text-foreground sm:text-4xl">Subscriptions</h1>
+                <p className="text-muted-foreground">Recurring payments from your payment links</p>
               </div>
             </div>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
-            >
-              <DollarSign className="h-4 w-4" />
-              New Recurring
-            </button>
           </div>
         </motion.div>
 
-        {/* Active Payments */}
-        {payments.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+        {/* Stats cards */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Active Subscriptions</p>
+            <p className="mt-1 text-2xl font-bold text-foreground">{activeSubs.length}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Est. Monthly Revenue</p>
+            <p className="mt-1 text-2xl font-bold text-foreground">${totalMonthly.toFixed(2)}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Total Subscribers</p>
+            <p className="mt-1 text-2xl font-bold text-foreground">{subscriptions.length}</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : subscriptions.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="rounded-xl border border-border bg-card p-12 text-center"
           >
             <RefreshCw className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mb-2 font-display text-lg text-foreground">No recurring payments yet</h3>
+            <h3 className="mb-2 font-display text-lg text-foreground">No subscriptions yet</h3>
             <p className="mb-6 text-sm text-muted-foreground">
-              Create your first recurring payment to automate regular transfers.
+              Create a recurring payment link from your profile to start getting subscribers.
             </p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
+            <Link
+              to="/profile"
+              className="inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
             >
-              Create Recurring Payment
-            </button>
+              Go to Profile
+            </Link>
           </motion.div>
         ) : (
           <div className="space-y-4">
-            {payments.map((payment, index) => (
+            {subscriptions.map((sub, index) => (
               <motion.div
-                key={payment.id}
+                key={sub.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
@@ -207,206 +215,73 @@ export default function RecurringPaymentsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                      payment.status === "active" ? "bg-primary/10 text-primary" :
-                      payment.status === "paused" ? "bg-yellow-500/10 text-yellow-500" :
-                      "bg-green-500/10 text-green-500"
+                      sub.status === "active" ? "bg-primary/10 text-primary" :
+                      sub.status === "paused" ? "bg-yellow-500/10 text-yellow-500" :
+                      "bg-muted text-muted-foreground"
                     }`}>
-                      <RefreshCw className={`h-5 w-5 ${payment.status === "active" ? "animate-spin" : ""}`} style={{ animationDuration: "3s" }} />
+                      <User className="h-5 w-5" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-foreground">
-                          {payment.recipientName || payment.recipient.slice(0, 8) + "..." + payment.recipient.slice(-6)}
+                        <p className="truncate font-medium text-foreground">
+                          {sub.link_title || "Payment Link"}
                         </p>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          payment.status === "active" ? "bg-primary/10 text-primary" :
-                          payment.status === "paused" ? "bg-yellow-500/10 text-yellow-500" :
-                          "bg-green-500/10 text-green-500"
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                          sub.status === "active" ? "bg-primary/10 text-primary" :
+                          sub.status === "paused" ? "bg-yellow-500/10 text-yellow-500" :
+                          "bg-muted text-muted-foreground"
                         }`}>
-                          {payment.status}
+                          {sub.status}
                         </span>
                       </div>
-                      <p className="text-2xl font-bold text-foreground mt-1">
-                        {payment.amount} {payment.token}
+                      <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" /> {sub.payer_email}
+                      </p>
+                      <p className="mt-1 text-2xl font-bold text-foreground">
+                        ${sub.amount.toFixed(2)} <span className="text-sm font-normal text-muted-foreground">{sub.token}</span>
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {formatFrequency(payment.frequency)}
+                          {FREQUENCY_LABELS[sub.frequency] || sub.frequency}
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          Next: {payment.nextPayment.toLocaleDateString()}
+                          Next: {formatDate(sub.next_payment_date)}
                         </span>
-                        {payment.occurrences && (
-                          <span>
-                            {payment.totalSent} of {payment.occurrences} sent
-                          </span>
+                        {sub.occurrences_completed > 0 && (
+                          <span>{sub.occurrences_completed} completed</span>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => togglePause(payment.id)}
-                      className={`rounded-lg p-2 transition-colors ${
-                        payment.status === "paused"
-                          ? "text-green-500 hover:bg-green-500/10"
-                          : "text-yellow-500 hover:bg-yellow-500/10"
-                      }`}
-                      title={payment.status === "active" ? "Pause" : "Resume"}
-                    >
-                      {payment.status === "active" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    </button>
-                    <button
-                      onClick={() => deletePayment(payment.id)}
-                      className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {(sub.status === "active" || sub.status === "paused") && (
+                      <button
+                        onClick={() => updateStatus(sub.id, sub.status === "active" ? "paused" : "active")}
+                        className={`rounded-lg p-2 transition-colors ${
+                          sub.status === "paused"
+                            ? "text-green-500 hover:bg-green-500/10"
+                            : "text-yellow-500 hover:bg-yellow-500/10"
+                        }`}
+                        title={sub.status === "active" ? "Pause" : "Resume"}
+                      >
+                        {sub.status === "active" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      </button>
+                    )}
+                    {sub.status !== "cancelled" && (
+                      <button
+                        onClick={() => deleteSubscription(sub.id)}
+                        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        title="Cancel"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </motion.div>
             ))}
-          </div>
-        )}
-
-        {/* Create Modal */}
-        {showCreate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl"
-            >
-              <h3 className="mb-6 font-display text-xl text-foreground">Create Recurring Payment</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">Recipient</label>
-                  <input
-                    type="text"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="Email or wallet address"
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Amount</label>
-                    <input
-                      type="number"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.00"
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Token</label>
-                    <select
-                      value={token}
-                      onChange={(e) => setToken(e.target.value as Token)}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    >
-                      <option value="USDC">USDC</option>
-                      <option value="PASS">PASS</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">Frequency</label>
-                  <select
-                    value={frequency}
-                    onChange={(e) => setFrequency(e.target.value as Frequency)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    {FREQUENCIES.map((f) => (
-                      <option key={f.value} value={f.value}>{f.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">Start Date</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <label className="text-sm font-medium text-foreground">End after occurrences</label>
-                    <button
-                      type="button"
-                      onClick={() => setHasOccurrences(!hasOccurrences)}
-                      className={`h-6 w-11 rounded-full transition-colors ${hasOccurrences ? "bg-primary" : "bg-muted"}`}
-                    >
-                      <div className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${hasOccurrences ? "translate-x-5" : "translate-x-0.5"}`} />
-                    </button>
-                  </div>
-                  {hasOccurrences && (
-                    <input
-                      type="number"
-                      value={occurrences}
-                      onChange={(e) => setOccurrences(e.target.value)}
-                      min="1"
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  )}
-                </div>
-
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <label className="text-sm font-medium text-foreground">Set end date</label>
-                    <button
-                      type="button"
-                      onClick={() => setHasEndDate(!hasEndDate)}
-                      className={`h-6 w-11 rounded-full transition-colors ${hasEndDate ? "bg-primary" : "bg-muted"}`}
-                    >
-                      <div className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${hasEndDate ? "translate-x-5" : "translate-x-0.5"}`} />
-                    </button>
-                  </div>
-                  {hasEndDate && (
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  )}
-                </div>
-
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-                  <p className="text-xs text-muted-foreground">
-                    Balance: <span className="font-medium text-foreground">{getBalance().toFixed(2)} {token}</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => { setShowCreate(false); resetForm(); }}
-                  className="flex-1 rounded-xl border border-border py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCreate}
-                  disabled={creating}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50"
-                >
-                  {creating ? "Creating..." : "Create"}
-                  {!creating && <Check className="h-4 w-4" />}
-                </button>
-              </div>
-            </motion.div>
           </div>
         )}
       </div>

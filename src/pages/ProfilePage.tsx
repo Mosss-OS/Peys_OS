@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Building2, Save, Loader2, ArrowLeft, Fingerprint, Shield, CheckCircle, X, Volume2, VolumeX, Link as LinkIcon, Copy, Check, ExternalLink } from "lucide-react";
+import { User, Building2, Save, Loader2, ArrowLeft, Fingerprint, Shield, CheckCircle, X, Volume2, VolumeX, Link as LinkIcon, Copy, Check, ExternalLink, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import AppHeader from "@/components/AppHeader";
@@ -358,7 +358,7 @@ export default function ProfilePage() {
 }
 
 function PaymentLinkSection({ displayName }: { displayName: string }) {
-  const [links, setLinks] = useState<Array<{ id: string; slug: string; title: string; amount: number | null; amount_type: string; token: string; use_count: number; status: string }>>([]);
+  const [links, setLinks] = useState<Array<{ id: string; slug: string; title: string; amount: number | null; amount_type: string; token: string; use_count: number; status: string; frequency: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -369,6 +369,7 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
   const [linkDescription, setLinkDescription] = useState("");
   const [linkAmount, setLinkAmount] = useState("");
   const [linkAmountType, setLinkAmountType] = useState<"fixed" | "custom">("fixed");
+  const [linkFrequency, setLinkFrequency] = useState<string>("one_time");
 
   const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
@@ -389,7 +390,7 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
     if (!user) { setLoading(false); return; }
     const { data } = await supabase
       .from("payment_links")
-      .select("id, slug, title, amount, amount_type, token, use_count, status")
+      .select("id, slug, title, amount, amount_type, token, use_count, status, frequency")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     if (data) setLinks(data);
@@ -411,6 +412,7 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
       token: "USDC",
       slug: slug,
       status: "active",
+      frequency: linkFrequency,
     });
 
     setCreating(false);
@@ -525,6 +527,20 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
               />
             </div>
           )}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Frequency</label>
+            <select
+              value={linkFrequency}
+              onChange={(e) => setLinkFrequency(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="one_time">One-time</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+            </select>
+          </div>
           <button
             onClick={createLink}
             disabled={creating || !slug}
@@ -558,6 +574,12 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
                     ? `$${(link.amount / 1000000).toFixed(2)} ${link.token}`
                     : "Open amount"}{" "}
                   &middot; {link.use_count} uses
+                  {link.frequency && link.frequency !== "one_time" && (
+                    <>
+                      {" "}&middot; <RefreshCw className="mr-0.5 inline h-3 w-3" />
+                      {link.frequency}
+                    </>
+                  )}
                 </p>
               </div>
               <div className="flex items-center gap-1">

@@ -524,6 +524,7 @@ export type Database = {
           use_count: number
           status: string
           metadata: Json
+          frequency: string
           created_at: string
           updated_at: string
         }
@@ -548,6 +549,7 @@ export type Database = {
           use_count?: number
           status?: string
           metadata?: Json
+          frequency?: string
           created_at?: string
           updated_at?: string
         }
@@ -571,6 +573,61 @@ export type Database = {
           max_uses?: number | null
           use_count?: number
           status?: string
+          metadata?: Json
+          frequency?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          id: string
+          payment_link_id: string | null
+          payer_email: string
+          amount: number
+          token: string
+          frequency: string
+          status: string
+          next_payment_date: string
+          last_payment_date: string | null
+          occurrences_completed: number
+          max_occurrences: number | null
+          memo: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          payment_link_id?: string | null
+          payer_email: string
+          amount: number
+          token?: string
+          frequency: string
+          status?: string
+          next_payment_date: string
+          last_payment_date?: string | null
+          occurrences_completed?: number
+          max_occurrences?: number | null
+          memo?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          payment_link_id?: string | null
+          payer_email?: string
+          amount?: number
+          token?: string
+          frequency?: string
+          status?: string
+          next_payment_date?: string
+          last_payment_date?: string | null
+          occurrences_completed?: number
+          max_occurrences?: number | null
+          memo?: string | null
           metadata?: Json
           created_at?: string
           updated_at?: string

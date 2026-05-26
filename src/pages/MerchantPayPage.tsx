@@ -1,11 +1,30 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Check, ArrowLeft, Loader2, Wallet, Mail } from "lucide-react";
+import { Send, Check, ArrowLeft, Loader2, Wallet, Mail, Calendar, RefreshCw } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
-import { usePrivyAuth } from "@/contexts/PrivyContext";
+
+const FREQUENCY_LABELS: Record<string, string> = {
+  one_time: "One-time",
+  weekly: "Weekly",
+  biweekly: "Bi-weekly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+};
+
+function getNextDate(frequency: string): Date {
+  const next = new Date();
+  switch (frequency) {
+    case "weekly": next.setDate(next.getDate() + 7); break;
+    case "biweekly": next.setDate(next.getDate() + 14); break;
+    case "monthly": next.setMonth(next.getMonth() + 1); break;
+    case "quarterly": next.setMonth(next.getMonth() + 3); break;
+    default: next.setDate(next.getDate() + 30);
+  }
+  return next;
+}
 
 interface PaymentLinkData {
   id: string;
@@ -18,13 +37,13 @@ interface PaymentLinkData {
   token: string;
   slug: string;
   status: string;
+  frequency: string;
   organization_id: string | null;
   organization_name?: string;
 }
 
 export default function MerchantPayPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { isLoggedIn, login } = usePrivyAuth();
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [paymentLink, setPaymentLink] = useState<PaymentLinkData | null>(null);
@@ -33,7 +52,6 @@ export default function MerchantPayPage() {
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
   const [step, setStep] = useState<"form" | "sending" | "done">("form");
-  const [claimId, setClaimId] = useState("");
 
   useEffect(() => {
     if (!slug) return;
@@ -62,13 +80,13 @@ export default function MerchantPayPage() {
         token: data.token,
         slug: data.slug,
         status: data.status,
+        frequency: data.frequency || "one_time",
         organization_id: data.organization_id,
         organization_name: (data as any).organizations?.name || undefined,
       });
 
       if (data.amount_type === "fixed" && data.amount) {
-        const displayAmount = (data.amount / 1000000).toString();
-        setAmount(displayAmount);
+        setAmount((data.amount / 1000000).toString());
       }
 
       setLoading(false);
@@ -77,6 +95,9 @@ export default function MerchantPayPage() {
 
   const merchantName = paymentLink?.organization_name || paymentLink?.title || "Merchant";
   const merchantInitial = merchantName.charAt(0).toUpperCase();
+  const isRecurring = paymentLink?.frequency && paymentLink.frequency !== "one_time";
+  const isCustomAmount = paymentLink?.amount_type === "custom";
+  const actionLabel = isRecurring ? "Subscribe" : "Pay";
 
   const handlePay = async () => {
     if (!payerEmail || !payerEmail.includes("@")) {
@@ -97,7 +118,7 @@ export default function MerchantPayPage() {
       const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-      const { error } = await supabase.from("payments").insert({
+      const { error: paymentError } = await supabase.from("payments").insert({
         payment_id: paymentId,
         sender_email: payerEmail,
         recipient_email: payerEmail,
@@ -110,7 +131,7 @@ export default function MerchantPayPage() {
         expires_at: expiresAt,
       });
 
-      if (error) throw error;
+      if (paymentError) throw paymentError;
 
       if (paymentLink) {
         await supabase
@@ -119,9 +140,21 @@ export default function MerchantPayPage() {
           .eq("id", paymentLink.id);
       }
 
-      setClaimId(newClaimId);
+      if (isRecurring && paymentLink) {
+        const nextPayment = getNextDate(paymentLink.frequency);
+        await supabase.from("user_subscriptions").insert({
+          payment_link_id: paymentLink.id,
+          payer_email: payerEmail,
+          amount: Number(amount),
+          token: paymentLink.token || "USDC",
+          frequency: paymentLink.frequency,
+          next_payment_date: nextPayment.toISOString(),
+          memo: memo || null,
+        });
+      }
+
       setStep("done");
-      toast.success("Payment initiated! Check your email for the claim link.");
+      toast.success(isRecurring ? "Subscription created!" : "Payment initiated!");
     } catch (err: unknown) {
       console.error("Payment failed:", err);
       toast.error(err instanceof Error ? err.message : "Payment failed");
@@ -156,8 +189,6 @@ export default function MerchantPayPage() {
     );
   }
 
-  const isCustomAmount = paymentLink.amount_type === "custom";
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container mx-auto max-w-lg px-4 py-12">
@@ -176,10 +207,16 @@ export default function MerchantPayPage() {
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground shadow-glow">
                 {merchantInitial}
               </div>
-              <div>
+              <div className="flex-1">
                 <h1 className="font-display text-xl text-foreground sm:text-2xl">{merchantName}</h1>
                 {paymentLink.description && (
                   <p className="mt-1 text-sm text-muted-foreground">{paymentLink.description}</p>
+                )}
+                {isRecurring && (
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    <RefreshCw className="h-3 w-3" />
+                    {FREQUENCY_LABELS[paymentLink.frequency]}
+                  </span>
                 )}
               </div>
             </div>
@@ -191,9 +228,7 @@ export default function MerchantPayPage() {
                 <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                   {/* Amount */}
                   <div>
-                    <label className="mb-2 block text-xs font-medium text-muted-foreground">
-                      {isCustomAmount ? "Amount" : "Amount"}
-                    </label>
+                    <label className="mb-2 block text-xs font-medium text-muted-foreground">Amount</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">$</span>
                       <input
@@ -234,18 +269,18 @@ export default function MerchantPayPage() {
                     />
                   </div>
 
-                  {/* Pay button */}
+                  {/* Action button */}
                   <button
                     onClick={handlePay}
                     disabled={!payerEmail || !amount || Number(amount) <= 0}
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-glow hover:opacity-90 disabled:opacity-50 transition-opacity"
                   >
-                    <Send className="h-4 w-4" />
-                    Pay {amount ? `$${Number(amount).toFixed(2)}` : ""}
+                    {isRecurring ? <RefreshCw className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                    {actionLabel} {amount ? `$${Number(amount).toFixed(2)}` : ""}
                   </button>
 
                   <p className="text-center text-xs text-muted-foreground">
-                    Secured by Peys • No account needed
+                    Secured by Peys {isRecurring ? "• You can cancel anytime" : "• No account needed"}
                   </p>
                 </motion.div>
               )}
@@ -253,7 +288,7 @@ export default function MerchantPayPage() {
               {step === "sending" && (
                 <motion.div key="sending" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center gap-4 py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Processing payment...</p>
+                  <p className="text-sm text-muted-foreground">{isRecurring ? "Creating subscription..." : "Processing payment..."}</p>
                 </motion.div>
               )}
 
@@ -262,15 +297,24 @@ export default function MerchantPayPage() {
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500/10">
                     <Check className="h-7 w-7 text-green-500" />
                   </div>
-                  <h2 className="font-display text-xl text-foreground">Payment Submitted! 🎉</h2>
+                  <h2 className="font-display text-xl text-foreground">
+                    {isRecurring ? "Subscribed! 🎉" : "Payment Submitted! 🎉"}
+                  </h2>
                   <p className="text-sm text-muted-foreground">
-                    {Number(amount).toFixed(2)} {paymentLink.token} to {merchantName}
+                    {Number(amount).toFixed(2)} {paymentLink.token} {isRecurring ? "per " + FREQUENCY_LABELS[paymentLink.frequency].toLowerCase() : "to " + merchantName}
                   </p>
                   <div className="rounded-xl border border-border bg-secondary/50 p-4 text-left text-sm">
-                    <p className="text-muted-foreground">
-                      A claim link has been sent to <strong className="text-foreground">{payerEmail}</strong>. 
-                      You'll need to use it to complete the payment.
-                    </p>
+                    {isRecurring ? (
+                      <p className="text-muted-foreground">
+                        You're now subscribed to <strong className="text-foreground">{merchantName}</strong>. 
+                        Your first payment of <strong className="text-foreground">${Number(amount).toFixed(2)} {paymentLink.token}</strong> will be processed soon.
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        A claim link has been sent to <strong className="text-foreground">{payerEmail}</strong>. 
+                        You'll need to use it to complete the payment.
+                      </p>
+                    )}
                   </div>
                   <Link
                     to="/"
