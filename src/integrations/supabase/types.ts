@@ -634,6 +634,78 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          id: string
+          user_id: string | null
+          invoice_number: string
+          client_name: string
+          client_email: string
+          due_date: string
+          status: string
+          items: Json
+          subtotal: number
+          tax_rate: number | null
+          tax_amount: number | null
+          discount_percent: number | null
+          discount_amount: number | null
+          total: number
+          token: string | null
+          memo: string | null
+          payment_id: string | null
+          sent_at: string | null
+          paid_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          invoice_number: string
+          client_name: string
+          client_email: string
+          due_date: string
+          status?: string
+          items?: Json
+          subtotal?: number
+          tax_rate?: number | null
+          tax_amount?: number | null
+          discount_percent?: number | null
+          discount_amount?: number | null
+          total?: number
+          token?: string | null
+          memo?: string | null
+          payment_id?: string | null
+          sent_at?: string | null
+          paid_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          invoice_number?: string
+          client_name?: string
+          client_email?: string
+          due_date?: string
+          status?: string
+          items?: Json
+          subtotal?: number
+          tax_rate?: number | null
+          tax_amount?: number | null
+          discount_percent?: number | null
+          discount_amount?: number | null
+          total?: number
+          token?: string | null
+          memo?: string | null
+          payment_id?: string | null
+          sent_at?: string | null
+          paid_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contractors: {
         Row: {
           id: string
