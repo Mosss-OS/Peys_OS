@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useSound } from "@/hooks/useSound";
 import { useHaptic } from "@/hooks/useHaptic";
 import { useWakeLock } from "@/hooks/useWakeLock";
+import GoodDollarIdentityCard from "@/components/GoodDollarIdentityCard";
 
 type AccountType = "individual" | "organization";
 
@@ -341,6 +342,9 @@ export default function ProfilePage() {
               )}
             </div>
 
+            {/* GoodDollar Identity */}
+            <GoodDollarIdentityCard />
+
             {/* Wallet receive */}
             <WalletReceiveCard address={walletAddress || wallet.address} />
           </div>
@@ -370,6 +374,7 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
   const [linkAmount, setLinkAmount] = useState("");
   const [linkAmountType, setLinkAmountType] = useState<"fixed" | "custom">("fixed");
   const [linkFrequency, setLinkFrequency] = useState<string>("one_time");
+  const [linkToken, setLinkToken] = useState<string>("USDC");
 
   const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
@@ -409,7 +414,7 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
       description: linkDescription || null,
       amount: linkAmount ? Math.round(Number(linkAmount) * 1000000) : null,
       amount_type: linkAmountType,
-      token: "USDC",
+      token: linkToken,
       slug: slug,
       status: "active",
       frequency: linkFrequency,
@@ -540,6 +545,24 @@ function PaymentLinkSection({ displayName }: { displayName: string }) {
               <option value="monthly">Monthly</option>
               <option value="quarterly">Quarterly</option>
             </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Token</label>
+            <div className="flex gap-2">
+              {(["USDC", "G$"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setLinkToken(t)}
+                  className={`flex-1 rounded-lg py-2 text-xs font-medium transition-colors ${
+                    linkToken === t
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border text-muted-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
           <button
             onClick={createLink}

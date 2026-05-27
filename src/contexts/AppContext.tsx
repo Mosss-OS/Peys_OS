@@ -12,6 +12,7 @@ export interface NetworkBalance {
   networkName: string;
   usdc: number;
   usdt: number;
+  g$: number;
   nativeToken: number;
   nativeSymbol: string;
 }
@@ -20,6 +21,7 @@ interface UserWallet {
   address: string;
   balanceUSDC: number;
   balanceUSDT: number;
+  balanceG$: number;
   totalBalanceUSD: number;
   networkBalances: NetworkBalance[];
 }
@@ -55,6 +57,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [balanceUSDC, setBalanceUSDC] = useState(0);
   const [balanceUSDT, setBalanceUSDT] = useState(0);
+  const [balanceG$, setBalanceG$] = useState(0);
   const [totalBalanceUSD, setTotalBalanceUSD] = useState(0);
   const [networkBalances, setNetworkBalances] = useState<NetworkBalance[]>([]);
   const [selectedNetwork, setSelectedNetwork] = useState<number | null>(null);
@@ -67,6 +70,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!walletAddress || !isLoggedIn) {
       setBalanceUSDC(0);
       setBalanceUSDT(0);
+      setBalanceG$(0);
       setTotalBalanceUSD(0);
       setNetworkBalances([]);
       return;
@@ -76,6 +80,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const netBalances: NetworkBalance[] = [];
     let totalUSDC = 0;
     let totalUSDT = 0;
+    let totalG$ = 0;
 
     const isValidAddress = (addr: string) => {
       if (!addr || !addr.startsWith("0x") || addr.length < 42) return false;
@@ -118,9 +123,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       Object.entries(chainConfigs).map(async ([chainId, config]) => {
         const client = publicClients[Number(chainId)];
         
-        const [usdcBalance, usdtBalance, nativeBalance] = await Promise.all([
+        const [usdcBalance, usdtBalance, g$Balance, nativeBalance] = await Promise.all([
           readBalance(client, config.usdcAddress),
           readBalance(client, config.usdtAddress),
+          readBalance(client, config.gdAddress),
           readNativeBalance(client),
         ]);
 
@@ -129,12 +135,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           networkName: config.name,
           usdc: usdcBalance,
           usdt: usdtBalance,
+          g$: g$Balance,
           nativeToken: nativeBalance,
           nativeSymbol: config.nativeSymbol || "ETH",
         });
 
         totalUSDC += usdcBalance;
         totalUSDT += usdtBalance;
+        totalG$ += g$Balance;
       })
     );
 
@@ -142,6 +150,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     setBalanceUSDC(totalUSDC);
     setBalanceUSDT(totalUSDT);
+    setBalanceG$(totalG$);
     setTotalBalanceUSD(totalUSDC + totalUSDT);
     setNetworkBalances(netBalances);
   }, [walletAddress, isLoggedIn]);
@@ -219,7 +228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           id: p.id,
           type,
           amount: Number(p.amount),
-          token: (p.token === "USDT" ? "USDT" : "USDC") as "USDC" | "USDT",
+          token: (p.token === "USDT" ? "USDT" : p.token === "G$" ? "G$" : "USDC") as "USDC" | "USDT" | "G$",
           counterparty,
           memo: p.memo || undefined,
           timestamp: new Date(p.created_at),
@@ -253,6 +262,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     address: shortAddr,
     balanceUSDC,
     balanceUSDT,
+    balanceG$,
     totalBalanceUSD,
     networkBalances,
   };

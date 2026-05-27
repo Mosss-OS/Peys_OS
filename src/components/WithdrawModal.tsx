@@ -9,10 +9,11 @@ interface WithdrawModalProps {
   onClose: () => void;
   balanceUSDC: number;
   balanceUSDT: number;
+  balanceG$?: number;
 }
 
 type WithdrawMethod = "wallet" | "bank";
-type Token = "USDC" | "USDT";
+type Token = "USDC" | "USDT" | "G$";
 
 interface Bank {
   code: string;
@@ -41,7 +42,7 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
   const [verificationError, setVerificationError] = useState("");
   const [exchangeRate, setExchangeRate] = useState(1520);
 
-  const balance = token === "USDC" ? balanceUSDC : balanceUSDT;
+  const balance = token === "USDC" ? balanceUSDC : token === "G$" ? (balanceG$ || 0) : balanceUSDT;
 
   const filteredBanks = useMemo(() => {
     if (!bankSearch) return banks;
@@ -305,7 +306,7 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
 
                     {/* Token */}
                     <div className="flex gap-2">
-                      {(["USDC", "USDT"] as Token[]).map((t) => (
+                      {(["USDC", "USDT", "G$"] as Token[]).filter(t => t !== "USDT").map((t) => (
                         <button
                           key={t}
                           onClick={() => setToken(t)}

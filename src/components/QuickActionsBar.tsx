@@ -137,6 +137,10 @@ export default function QuickActionsBar() {
                   <span className="text-muted-foreground">USDT</span>
                   <span className="font-semibold text-foreground">${wallet.balanceUSDT.toFixed(2)}</span>
                 </div>
+                <div className="flex justify-between items-center p-4 rounded-xl bg-secondary/50">
+                  <span className="text-muted-foreground">G$</span>
+                  <span className="font-semibold text-foreground">${wallet.balanceG$.toFixed(2)}</span>
+                </div>
                 <div className="flex justify-between items-center p-4 rounded-xl bg-primary/10 border border-primary/20">
                   <span className="text-primary font-medium">Total</span>
                   <span className="font-bold text-primary text-lg">${wallet.totalBalanceUSD.toFixed(2)}</span>

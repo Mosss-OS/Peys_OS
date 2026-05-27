@@ -13,7 +13,7 @@ import { usePublicClient, useAccount, useSwitchChain, useChainId } from "wagmi";
 import { usePrivyAuth } from "@/contexts/PrivyContext";
 import { sanitizeEmail, sanitizeString } from "@/utils/sanitize";
 
-type Token = "USDC" | "USDT" | "PASS";
+type Token = "USDC" | "USDT" | "PASS" | "G$";
 
 interface NetworkOption {
   id: number;
@@ -165,12 +165,14 @@ export default function PublicPaymentPage() {
           tokenAddress = chainConfig.passAddress;
         } else if (token === "USDC") {
           tokenAddress = chainConfig.usdcAddress;
+        } else if (token === "G$") {
+          tokenAddress = chainConfig.gdAddress;
         } else {
           tokenAddress = chainConfig.usdtAddress;
         }
         
-        const amountBigInt = token === "PASS" 
-          ? BigInt(Number(amount) * 1000000000000000000) 
+        const amountBigInt = token === "PASS" || token === "G$"
+          ? BigInt(Number(amount) * 1000000000000000000)
           : BigInt(Number(amount) * 1000000);
         const expiryDays = 7;
 
@@ -353,7 +355,7 @@ export default function PublicPaymentPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        {(["USDC", "USDT"] as Token[]).filter((t) => {
+                        {(["USDC", "USDT", "G$"] as Token[]).filter((t) => {
                           if (t === "USDT") {
                             return false; // USDT coming soon
                           }

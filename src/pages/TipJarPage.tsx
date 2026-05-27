@@ -33,7 +33,7 @@ export default function TipJarPage() {
   const [tips, setTips] = useState<Tip[]>(MOCK_TIPS);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
-  const [token, setToken] = useState<"USDC" | "USDT" | "PASS">("USDC");
+  const [token, setToken] = useState<"USDC" | "USDT" | "PASS" | "G$">("USDC");
 
   const totalReceived = tips.reduce((sum, tip) => sum + tip.amount, 0);
   const tipJarUrl = `${window.location.origin}/tipjar/${walletAddress?.slice(0, 10) || "demo"}`;
@@ -172,7 +172,7 @@ export default function TipJarPage() {
             <div>
               <label className="mb-2 block text-sm font-medium text-muted-foreground">Token</label>
               <div className="flex gap-2">
-                {(["USDC", "USDT", "PASS"] as const).filter(t => t !== "USDT").map((t) => (
+                {(["USDC", "USDT", "PASS", "G$"] as const).filter(t => t !== "USDT").map((t) => (
                   <button
                     key={t}
                     onClick={() => setToken(t)}

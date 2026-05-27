@@ -117,7 +117,7 @@ function NetworkCard({ network, totalUSD }: NetworkCardProps) {
       </div>
 
       {/* Token breakdown */}
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-4 gap-2">
         <div className="rounded-lg bg-card/50 p-2 text-center">
           <p className="text-xs text-muted-foreground">USDC</p>
           <p className="text-sm font-semibold text-foreground">{network.usdc.toFixed(2)}</p>
@@ -125,6 +125,10 @@ function NetworkCard({ network, totalUSD }: NetworkCardProps) {
         <div className="rounded-lg bg-card/50 p-2 text-center">
           <p className="text-xs text-muted-foreground">USDT</p>
           <p className="text-sm font-semibold text-foreground">{network.usdt.toFixed(2)}</p>
+        </div>
+        <div className="rounded-lg bg-card/50 p-2 text-center">
+          <p className="text-xs text-muted-foreground">G$</p>
+          <p className="text-sm font-semibold text-foreground">{network.g$.toFixed(2)}</p>
         </div>
         <div className="rounded-lg bg-card/50 p-2 text-center">
           <p className="text-xs text-muted-foreground">{network.nativeSymbol}</p>

@@ -14,7 +14,7 @@ interface PaymentCardProps {
   };
   sender?: string;
   amount?: number;
-  token?: "USDC" | "USDT" | "PASS";
+  token?: "USDC" | "USDT" | "PASS" | "G$";
   memo?: string;
   claimId?: string;
   link?: string;

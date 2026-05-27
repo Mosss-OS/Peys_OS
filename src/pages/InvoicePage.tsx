@@ -71,6 +71,7 @@ export default function InvoicePage() {
   const [taxRate, setTaxRate] = useState(0);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [memo, setMemo] = useState("");
+  const [invoiceToken, setInvoiceToken] = useState("USDC");
 
   const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
@@ -116,6 +117,7 @@ export default function InvoicePage() {
     setTaxRate(0);
     setDiscountPercent(0);
     setMemo("");
+    setInvoiceToken("USDC");
     setEditingId(null);
   };
 
@@ -126,6 +128,7 @@ export default function InvoicePage() {
     setItems(inv.items.length > 0 ? inv.items : [emptyItem()]);
     setTaxRate(inv.tax_rate || 0);
     setDiscountPercent(inv.discount_percent || 0);
+    setInvoiceToken(inv.token || "USDC");
     setMemo(inv.memo || "");
     setEditingId(inv.id);
     setShowForm(true);
@@ -158,7 +161,7 @@ export default function InvoicePage() {
       discount_percent: discountPercent,
       discount_amount: discountAmount,
       total,
-      token: "USDC",
+      token: invoiceToken,
       memo: memo || null,
     };
 
@@ -389,7 +392,27 @@ export default function InvoicePage() {
                 <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>${calcSubtotal().toFixed(2)}</span></div>
                 {taxRate > 0 && <div className="flex justify-between text-muted-foreground"><span>Tax ({taxRate}%)</span><span>${calcTax().toFixed(2)}</span></div>}
                 {discountPercent > 0 && <div className="flex justify-between text-muted-foreground"><span>Discount ({discountPercent}%)</span><span>-${calcDiscount().toFixed(2)}</span></div>}
-                <div className="flex justify-between font-semibold text-foreground pt-1 border-t border-border"><span>Total</span><span>${calcTotal().toFixed(2)} USDC</span></div>
+                <div className="flex justify-between font-semibold text-foreground pt-1 border-t border-border"><span>Total</span><span>${calcTotal().toFixed(2)} {invoiceToken}</span></div>
+              </div>
+
+              {/* Token */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">Token</label>
+                <div className="flex gap-2">
+                  {(["USDC", "G$"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setInvoiceToken(t)}
+                      className={`flex-1 rounded-lg py-2 text-xs font-medium transition-colors ${
+                        invoiceToken === t
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border text-muted-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Memo */}

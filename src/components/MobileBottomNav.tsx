@@ -31,6 +31,7 @@ const moreItems = [
   { to: "/recurring", label: "Recurring", icon: RefreshCw },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/badges", label: "Badges", icon: Shield },
+  { to: "/collective", label: "Collective", icon: Users },
   { to: "/streaming", label: "Stream", icon: Zap },
   { to: "/calendar", label: "Calendar", icon: Calendar },
   { to: "/organizations", label: "Orgs", icon: Building2 },

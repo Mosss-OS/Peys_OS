@@ -164,6 +164,7 @@ export function useEscrow() {
       escrowContract: config.escrowContract,
       usdcAddress: config.usdcAddress,
       usdtAddress: config.usdtAddress,
+      gdAddress: config.gdAddress,
     };
   }, [chainId]);
 

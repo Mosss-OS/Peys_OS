@@ -2,7 +2,7 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 export const paymentStatusEnum = z.enum(["pending", "claimed", "refunded", "expired"]);
 
-export const tokenEnum = z.enum(["USDC", "USDT", "PASS"]);
+export const tokenEnum = z.enum(["USDC", "USDT", "PASS", "G$"]);
 
 export const CreatePaymentSchema = z.object({
   recipientEmail: z.string().email("Invalid email address"),

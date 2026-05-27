@@ -27,7 +27,7 @@ interface Contact {
   totalSent: number;
 }
 
-type Token = "USDC" | "USDT";
+type Token = "USDC" | "USDT" | "G$";
 
 interface NetworkOption {
   id: number;
@@ -95,7 +95,7 @@ export default function SendPaymentForm() {
         setGasLoading(true);
         try {
           const chainConfig = getChainConfig(selectedNetwork);
-          const tokenAddress = token === "USDC" ? chainConfig.usdcAddress : chainConfig.usdtAddress;
+          const tokenAddress = token === "USDC" ? chainConfig.usdcAddress : token === "G$" ? chainConfig.gdAddress : chainConfig.usdtAddress;
           const amountBigInt = BigInt(Number(amount) * 1000000);
           const dummySecret = "estimate_gas_dummy_secret";
           
@@ -362,6 +362,8 @@ export default function SendPaymentForm() {
         let tokenAddress: string;
         if (token === "USDC") {
           tokenAddress = chainConfig.usdcAddress;
+        } else if (token === "G$") {
+          tokenAddress = chainConfig.gdAddress;
         } else {
           tokenAddress = chainConfig.usdtAddress;
         }
@@ -568,6 +570,9 @@ export default function SendPaymentForm() {
     if (token === "USDC") {
       return networkBalance ? networkBalance.usdc : wallet.balanceUSDC;
     }
+    if (token === "G$") {
+      return networkBalance ? networkBalance.g$ : wallet.balanceG$;
+    }
     return networkBalance ? networkBalance.usdt : wallet.balanceUSDT;
   };
   const balance = getBalance();
@@ -635,7 +640,7 @@ export default function SendPaymentForm() {
 
                 {/* Token Selector */}
                 <div className="flex gap-2">
-                  {(["USDC", "USDT"] as Token[])
+                  {(["USDC", "USDT", "G$"] as Token[])
                     .filter((t) => {
                       if (t === "USDT") {
                         return false; // USDT coming soon

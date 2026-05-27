@@ -42,6 +42,7 @@ import AffiliatePage from "./pages/AffiliatePage";
 import MiniGamesPage from "./pages/MiniGamesPage";
 import SmartContractPage from "./pages/SmartContractPage";
 import GiftCardsPage from "./pages/GiftCardsPage";
+import GoodCollectivePage from "./pages/GoodCollectivePage";
 import SocialFeedPage from "./pages/SocialFeedPage";
 import TimeLockPage from "./pages/TimeLockPage";
 import NfcPage from "./pages/NfcPage";
@@ -158,6 +159,7 @@ export default function App() {
                             <Route path="/games" element={<MiniGamesPage />} />
                             <Route path="/contract" element={<SmartContractPage />} />
                             <Route path="/giftcards" element={<GiftCardsPage />} />
+                            <Route path="/collective" element={<GoodCollectivePage />} />
                             <Route path="/feed" element={<SocialFeedPage />} />
                             <Route path="/timelock" element={<TimeLockPage />} />
                             <Route path="/nfc" element={<NfcPage />} />

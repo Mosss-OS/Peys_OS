@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface BatchRecipient {
   email: string;
   amount: number;
-  token: "USDC" | "USDT";
+  token: "USDC" | "USDT" | "G$";
   memo?: string;
   status: "pending" | "success" | "error";
   error?: string;
@@ -90,7 +90,7 @@ export default function BatchPage() {
       parsed.push({
         email: vals[emailIdx],
         amount: Number(vals[amountIdx]),
-        token: (tokenIdx >= 0 && vals[tokenIdx]?.toUpperCase() === "USDT" ? "USDT" : "USDC") as "USDC" | "USDT",
+        token: (tokenIdx >= 0 && vals[tokenIdx]?.toUpperCase() === "USDT" ? "USDT" : vals[tokenIdx]?.toUpperCase() === "G$" ? "G$" : "USDC") as "USDC" | "USDT" | "G$",
         memo: memoIdx >= 0 ? vals[memoIdx] : undefined,
         status: "pending",
       });

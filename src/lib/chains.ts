@@ -6,6 +6,7 @@ export interface ChainConfig {
   escrowContract: Address;
   usdcAddress: Address;
   usdtAddress: Address;
+  gdAddress: Address;
   passAddress: Address;
   streamingContract?: Address;
   batchPayrollContract?: Address;
@@ -22,6 +23,7 @@ export const chainConfigs: Record<number, ChainConfig> = {
     escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA || "0xb5e4A3130D774A8F3Bc0c081800b304A12a07aD1") as Address,
     usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_BASE_SEPOLIA || "0x036CbD53842c5426634e7929541eC2318f3dCF7e") as Address,
     usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_BASE_SEPOLIA || "") as Address,
+    gdAddress: (import.meta.env.VITE_GDOLLAR_ADDRESS_BASE_SEPOLIA || "") as Address,
     passAddress: "" as Address,
     rpcUrl: import.meta.env.VITE_RPC_URL_BASE_SEPOLIA || "https://sepolia.base.org",
     blockExplorer: "https://sepolia.basescan.org",

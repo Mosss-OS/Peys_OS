@@ -28,7 +28,7 @@ function TxIcon({ type }: { type: Transaction["type"] }) {
 }
 
 type StatusFilter = "all" | "sent" | "claimed" | "pending" | "starred";
-type TokenFilter = "all" | "USDC" | "USDT";
+type TokenFilter = "all" | "USDC" | "USDT" | "G$";
 
 export default function DashboardPage() {
   const { isLoggedIn, login, wallet, walletAddress, transactions, transactionsLoading, refreshTransactions } = useApp();
@@ -253,6 +253,7 @@ export default function DashboardPage() {
               >
                 <option value="all">All Tokens</option>
                 <option value="USDC">USDC</option>
+                <option value="G$">G$</option>
               </select>
             </div>
           </div>
