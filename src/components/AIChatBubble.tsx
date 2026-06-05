@@ -48,6 +48,7 @@ export default function AIChatBubble() {
     walletAddress,
     balanceUSDC: wallet.balanceUSDC,
     balanceUSDT: wallet.balanceUSDT,
+    balanceG$: wallet.balanceG$,
     networkBalances: wallet.networkBalances,
     transactions: transactions.slice(0, 10).map((tx) => ({
       type: tx.type,
@@ -61,22 +62,27 @@ export default function AIChatBubble() {
 
   // Build system prompt for Ollama (dev mode)
   const buildOllamaSystemPrompt = useCallback((context: ReturnType<typeof buildContext>) => {
-    let prompt = `You are Peys AI, a friendly and helpful payment assistant for the Peys app — a stablecoin payment platform built on Base (Ethereum L2).
+    let prompt = `You are Peys AI, a friendly and helpful payment assistant for the Peys app — a multi-chain payment platform for stablecoins and G$ (GoodDollar).
 
 ## What Peys Does
-- Users send USDC to anyone via email using magic claim links
+- Users send USDC or G$ to anyone via email using magic claim links
 - Funds are held in an on-chain escrow smart contract until claimed
 - Recipients sign in (email/Google via Privy) and get an auto-created embedded wallet
 - Unclaimed payments auto-refund after 7 days
-- Near-zero fees (~$0.01 per transaction on Base)
+- Near-zero fees on supported networks
 
-## Supported Network
-- **Base Sepolia** (Chain ID: 84532) - USDC available
-- USDT support coming soon!
+## Supported Tokens
+- **USDC** (6 decimals) — on Base Sepolia and Celo Alfajores
+- **G$ (GoodDollar)** (18 decimals) — on Celo Alfajores
+
+## Supported Networks
+- **Base Sepolia** (Chain ID: 84532) — USDC available
+- **Celo Alfajores** (Chain ID: 44787) — USDC and G$ available
+- G$ is the GoodDollar UBI token — it's the native token of the GoodDollar ecosystem
 
 ## Your Capabilities
-1. **Payment Creation** - Parse natural language like "send 10 USDC to john@email.com" and extract: amount, token, recipient
-2. **Balance Analysis** - Show real balances
+1. **Payment Creation** - Parse natural language like "send 10 USDC to john@email.com" or "send 5 G$ to alice@email.com" and extract: amount, token, recipient
+2. **Balance Analysis** - Show real balances including G$
 3. **Transaction History** - Display and explain past transactions
 4. **Crypto Education** - Explain concepts in simple terms
 
@@ -95,8 +101,9 @@ export default function AIChatBubble() {
       prompt += `- **Wallet address**: ${context.walletAddress || "Not connected"}\n`;
       prompt += `- **USDC Balance**: $${context.balanceUSDC?.toFixed(2) || "0.00"}\n`;
       prompt += `- **USDT Balance**: $${context.balanceUSDT?.toFixed(2) || "0.00"}\n`;
+      prompt += `- **G$ Balance**: ${context.balanceG$?.toFixed(2) || "0.00"} G$ (worth ~$${((context.balanceG$ || 0) * 0.000113).toFixed(2)} USD)\n`;
       
-      const total = ((context.balanceUSDC || 0) + (context.balanceUSDT || 0));
+      const total = ((context.balanceUSDC || 0) + (context.balanceUSDT || 0) + ((context.balanceG$ || 0) * 0.000113));
       prompt += `- **Total Balance**: $${total.toFixed(2)}\n`;
       
       if (context.transactions && context.transactions.length > 0) {
