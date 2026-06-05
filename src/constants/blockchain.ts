@@ -12,3 +12,8 @@ export const USDC_ADDRESS: Address = (import.meta.env.VITE_USDC_ADDRESS || "0x00
 export const USDT_ADDRESS: Address = (import.meta.env.VITE_USDT_ADDRESS || "0x0000000000000000000000000000000000000001") as Address;
 export const GDOLLAR_ADDRESS: Address = (import.meta.env.VITE_GDOLLAR_ADDRESS || "0x0000000000000000000000000000000000000001") as Address;
 export const RPC_URL = import.meta.env.VITE_RPC_URL_BASE_SEPOLIA || "https://sepolia.base.org";
+
+// G$ / USD price (approximate market price)
+// G$ trades at ~$0.000113 on Celo (Ubeswap V2) as of June 2024
+// This should be replaced with a price oracle in production
+export const GD_PRICE_IN_USD = 0.000113;

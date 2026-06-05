@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { usePrivyAuth } from "@/contexts/PrivyContext";
 import { createPublicClient, http, formatUnits, type Address, type PublicClient } from "viem";
 import { baseSepolia } from "viem/chains";
-import { ERC20_ABI } from "@/constants/blockchain";
+import { ERC20_ABI, GD_PRICE_IN_USD } from "@/constants/blockchain";
 import { chainConfigs } from "@/lib/chains";
 import { supabase } from "@/integrations/supabase/client";
 import type { Transaction } from "@/hooks/useMockData";
@@ -88,7 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return !cleanAddr.startsWith("0x0000000000000000000000000000000000000");
     };
 
-    const readBalance = async (client: PublicClient, tokenAddr: Address) => {
+    const readBalance = async (client: PublicClient, tokenAddr: Address, decimals: number = 6) => {
       if (!isValidAddress(tokenAddr)) {
         return 0;
       }
@@ -102,7 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }),
         ]);
         if (!raw || raw === 0n) return 0;
-        return Number(formatUnits(raw as bigint, 6));
+        return Number(formatUnits(raw as bigint, decimals));
       } catch (err) {
         console.error('Error reading token balance:', err);
         return 0;
@@ -124,9 +124,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const client = publicClients[Number(chainId)];
         
         const [usdcBalance, usdtBalance, g$Balance, nativeBalance] = await Promise.all([
-          readBalance(client, config.usdcAddress),
-          readBalance(client, config.usdtAddress),
-          readBalance(client, config.gdAddress),
+          readBalance(client, config.usdcAddress, 6),
+          readBalance(client, config.usdtAddress, 6),
+          readBalance(client, config.gdAddress, 18),
           readNativeBalance(client),
         ]);
 
@@ -151,7 +151,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBalanceUSDC(totalUSDC);
     setBalanceUSDT(totalUSDT);
     setBalanceG$(totalG$);
-    setTotalBalanceUSD(totalUSDC + totalUSDT);
+    setTotalBalanceUSD(totalUSDC + totalUSDT + (totalG$ * GD_PRICE_IN_USD));
     setNetworkBalances(netBalances);
   }, [walletAddress, isLoggedIn]);
 

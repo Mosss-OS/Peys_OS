@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, QrCode, Bell, Wallet, Plus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
+import { GD_PRICE_IN_USD } from "@/constants/blockchain";
 import { toast } from "sonner";
 
 export default function QuickActionsBar() {
@@ -139,7 +140,7 @@ export default function QuickActionsBar() {
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-xl bg-secondary/50">
                   <span className="text-muted-foreground">G$</span>
-                  <span className="font-semibold text-foreground">${wallet.balanceG$.toFixed(2)}</span>
+                  <span className="font-semibold text-foreground">${(wallet.balanceG$ * GD_PRICE_IN_USD).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-xl bg-primary/10 border border-primary/20">
                   <span className="text-primary font-medium">Total</span>
