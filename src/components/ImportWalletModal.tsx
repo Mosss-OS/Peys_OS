@@ -30,10 +30,6 @@ export default function ImportWalletModal({ open, onClose, onImport }: ImportWal
     setIsImporting(true);
 
     try {
-      // In a real implementation, we would derive the address from the private key or seedphrase
-      // For now, we'll simulate the import
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       // Validate input format
       const isValidPrivateKey = /^0x[a-fA-F0-9]{64}$/.test(inputValue.trim());
       const isValidSeedphrase = inputValue.trim().split(/\s+/).length === 12 || inputValue.trim().split(/\s+/).length === 24;
@@ -50,10 +46,7 @@ export default function ImportWalletModal({ open, onClose, onImport }: ImportWal
         return;
       }
 
-      // Generate a mock address (in real app, derive from key)
-      const mockAddress = "0x" + Math.random().toString(16).slice(2, 42);
-      
-      onImport(mockAddress, importMethod);
+      onImport(inputValue.trim(), importMethod);
       toast.success("Wallet imported successfully!");
       
       // Clear sensitive data from memory

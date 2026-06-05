@@ -81,7 +81,6 @@ export default function TaxReportPage() {
 
     setGenerating(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
       // Filter records by date range
       const filtered = records.filter(record => {
         const recordDate = new Date(record.date);

@@ -70,7 +70,6 @@ export default function ScheduledPaymentsPage() {
       return;
     }
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 1500));
     setSubmitting(false);
     setShowCreate(false);
     setFormData({ recipient: "", amount: "", frequency: "monthly", description: "" });

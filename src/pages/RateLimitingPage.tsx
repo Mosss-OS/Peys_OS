@@ -23,18 +23,11 @@ interface RateLimitEvent {
   waitTime?: number;
 }
 
-const mockRateLimitEvents: RateLimitEvent[] = [
-  { id: "1", endpoint: "/api/payments", timestamp: "2 min ago", status: "blocked", waitTime: 5 },
-  { id: "2", endpoint: "/api/transactions", timestamp: "5 min ago", status: "allowed" },
-  { id: "3", endpoint: "/api/batch", timestamp: "10 min ago", status: "queued", waitTime: 30 },
-  { id: "4", endpoint: "/api/send", timestamp: "15 min ago", status: "allowed" },
-  { id: "5", endpoint: "/api/contacts", timestamp: "20 min ago", status: "allowed" },
-];
-
 export default function RateLimitingPage() {
   const [enableRateLimiting, setEnableRateLimiting] = useState(true);
   const [rateLimit, setRateLimit] = useState(100);
   const [timeWindow, setTimeWindow] = useState(60);
+  const [rateLimitEvents, setRateLimitEvents] = useState<RateLimitEvent[]>([]);
 
   const handleIncreaseLimit = () => {
     toast.info("Rate limit increase requested. This may require verification.");
@@ -178,7 +171,10 @@ export default function RateLimitingPage() {
               <CardTitle className="text-lg">Recent Requests</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {mockRateLimitEvents.map((event) => {
+              {rateLimitEvents.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground text-sm">No recent requests</div>
+              ) : (
+                rateLimitEvents.map((event) => {
                 const config = statusConfig[event.status];
                 return (
                   <div
@@ -198,7 +194,8 @@ export default function RateLimitingPage() {
                     </Badge>
                   </div>
                 );
-              })}
+              })
+              )}
             </CardContent>
           </Card>
 

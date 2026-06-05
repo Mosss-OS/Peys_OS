@@ -76,14 +76,6 @@ const BADGES: Badge[] = [
   },
 ];
 
-const MOCK_LEADERBOARD = [
-  { rank: 1, name: "satoshi_nakamoto", badges: 6, type: "verified" },
-  { rank: 2, name: "crypto_enthusiast", badges: 5, type: "verified" },
-  { rank: 3, name: "web3_builder", badges: 5, type: "premium" },
-  { rank: 4, name: "defi_trader", badges: 4, type: "verified" },
-  { rank: 5, name: "nft_collector", badges: 4, type: "influencer" },
-];
-
 interface BadgeApplication {
   badgeType: BadgeType;
   status: "pending" | "approved" | "rejected";
@@ -108,9 +100,6 @@ export default function VerificationBadgesPage() {
     }
 
     setApplying(true);
-    // Simulate application
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
     setApplications((prev) => [
       ...prev,
       {
@@ -269,31 +258,10 @@ export default function VerificationBadgesPage() {
           </div>
 
           <div className="space-y-2">
-            {MOCK_LEADERBOARD.map((entry) => (
-              <div key={entry.rank} className="flex items-center justify-between rounded-lg border border-border bg-secondary/30 p-3">
-                <div className="flex items-center gap-3">
-                  <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                    entry.rank === 1 ? "bg-yellow-500 text-yellow-950" :
-                    entry.rank === 2 ? "bg-gray-400 text-gray-900" :
-                    entry.rank === 3 ? "bg-amber-600 text-white" :
-                    "bg-secondary text-muted-foreground"
-                  }`}>
-                    {entry.rank}
-                  </span>
-                  <span className="font-medium text-foreground">@{entry.name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-primary">{entry.badges} badges</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    entry.type === "verified" ? "bg-blue-500/10 text-blue-500" :
-                    entry.type === "premium" ? "bg-yellow-500/10 text-yellow-500" :
-                    "bg-pink-500/10 text-pink-500"
-                  }`}>
-                    {entry.type}
-                  </span>
-                </div>
-              </div>
-            ))}
+            <div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
+              <Users className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Leaderboard coming soon</p>
+            </div>
           </div>
         </motion.div>
 

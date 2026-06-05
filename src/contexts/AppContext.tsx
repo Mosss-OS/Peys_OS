@@ -5,7 +5,7 @@ import { baseSepolia } from "viem/chains";
 import { ERC20_ABI, GD_PRICE_IN_USD } from "@/constants/blockchain";
 import { chainConfigs } from "@/lib/chains";
 import { supabase } from "@/integrations/supabase/client";
-import type { Transaction } from "@/hooks/useMockData";
+import type { Transaction } from "@/types/transaction";
 
 export interface NetworkBalance {
   chainId: number;

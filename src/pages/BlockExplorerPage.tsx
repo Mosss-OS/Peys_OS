@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, ExternalLink, Copy, Check, ArrowLeft, Activity, Fuel, Box, Hash, Clock } from "lucide-react";
+import { Search, ExternalLink, ArrowLeft, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import AppHeader from "@/components/AppHeader";
@@ -8,82 +8,25 @@ import Footer from "@/components/Footer";
 import { getChainConfig } from "@/lib/chains";
 import { toast } from "sonner";
 
-interface TransactionDetails {
-  hash: string;
-  blockNumber: number;
-  blockHash: string;
-  timestamp: number;
-  from: string;
-  to: string;
-  value: string;
-  gasUsed: string;
-  gasPrice: string;
-  status: "confirmed" | "pending" | "failed";
-  network: string;
-  explorerUrl: string;
-}
-
-const MOCK_TX: TransactionDetails = {
-  hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-  blockNumber: 12345678,
-  blockHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678",
-  timestamp: Date.now() - 3600000,
-  from: "0x742d35Cc6634C0532925a3b844Bc9e7595f0d123",
-  to: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
-  value: "1.5",
-  gasUsed: "21000",
-  gasPrice: "0.00001",
-  status: "confirmed",
-  network: "Base Sepolia Testnet",
-  explorerUrl: "https://sepolia.basescan.org",
-};
-
 export default function BlockExplorerPage() {
-  const { isLoggedIn, login, walletAddress } = useApp();
+  const { isLoggedIn, login } = useApp();
   const [searchQuery, setSearchQuery] = useState("");
-  const [txDetails, setTxDetails] = useState<TransactionDetails | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!searchQuery.trim()) {
       toast.error("Please enter a transaction hash or address");
       return;
     }
 
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Mock response - in production this would call an API
-    if (searchQuery.startsWith("0x") && searchQuery.length > 40) {
-      setTxDetails({ ...MOCK_TX, hash: searchQuery });
-      toast.success("Transaction found!");
-    } else if (searchQuery.startsWith("0x")) {
-      setTxDetails({ ...MOCK_TX, from: searchQuery });
-      toast.success("Address details loaded");
-    } else {
-      toast.error("Invalid format. Please enter a valid hash (0x...) or address");
-      setTxDetails(null);
+    const q = searchQuery.trim();
+    if (!q.startsWith("0x")) {
+      toast.error("Invalid format. Please enter a valid hash or address (0x...)");
+      return;
     }
 
-    setLoading(false);
-  };
-
-  const copyToClipboard = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(type);
-    toast.success("Copied to clipboard");
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const getExplorerUrl = (type: "tx" | "address", hash: string, _network: string) => {
-    return `https://sepolia.basescan.org/${type}/${hash}`;
-  };
-
-  const openInExplorer = (type: "tx" | "address", hash: string) => {
-    if (txDetails) {
-      window.open(getExplorerUrl(type, hash, txDetails.network), "_blank");
-    }
+    const type = q.length > 42 ? "tx" : "address";
+    window.open(`https://sepolia.basescan.org/${type}/${q}`, "_blank");
+    toast.success(`Opening on Base Sepolia Explorer...`);
   };
 
   if (!isLoggedIn) {
@@ -145,10 +88,9 @@ export default function BlockExplorerPage() {
             </div>
             <button
               onClick={handleSearch}
-              disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
             >
-              {loading ? "Searching..." : "Search"}
+              Search
             </button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -156,150 +98,15 @@ export default function BlockExplorerPage() {
           </p>
         </motion.div>
 
-        {/* Transaction Details */}
-        {txDetails && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-border bg-card overflow-hidden"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-border bg-secondary/50 p-4">
-              <div className="flex items-center gap-2">
-                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                  txDetails.status === "confirmed"
-                    ? "bg-green-500/10 text-green-500"
-                    : txDetails.status === "pending"
-                    ? "bg-yellow-500/10 text-yellow-500"
-                    : "bg-red-500/10 text-red-500"
-                }`}>
-                  {txDetails.status}
-                </span>
-                <span className="text-sm text-muted-foreground">{txDetails.network}</span>
-              </div>
-              <button
-                onClick={() => openInExplorer("tx", txDetails.hash)}
-                className="flex items-center gap-1 text-sm text-primary hover:underline"
-              >
-                View on Explorer
-                <ExternalLink className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Details Grid */}
-            <div className="p-4 space-y-4">
-              {/* TX Hash */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Hash className="h-4 w-4" />
-                  Transaction Hash
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-mono text-foreground break-all">
-                    {txDetails.hash.slice(0, 10)}...{txDetails.hash.slice(-8)}
-                  </span>
-                  <button
-                    onClick={() => copyToClipboard(txDetails.hash, "hash")}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    {copied === "hash" ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Block */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Box className="h-4 w-4" />
-                  Block Number
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-mono text-foreground">{txDetails.blockNumber.toLocaleString()}</span>
-                  <button
-                    onClick={() => openInExplorer("block", txDetails.blockNumber.toString())}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Timestamp */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  Timestamp
-                </div>
-                <span className="text-sm text-foreground">
-                  {new Date(txDetails.timestamp).toLocaleString()}
-                </span>
-              </div>
-
-              {/* From */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-sm text-muted-foreground">From</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-mono text-foreground">
-                    {txDetails.from.slice(0, 8)}...{txDetails.from.slice(-6)}
-                  </span>
-                  <button
-                    onClick={() => copyToClipboard(txDetails.from, "from")}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    {copied === "from" ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                  <button
-                    onClick={() => openInExplorer("address", txDetails.from)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* To */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-sm text-muted-foreground">To</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-mono text-foreground">
-                    {txDetails.to.slice(0, 8)}...{txDetails.to.slice(-6)}
-                  </span>
-                  <button
-                    onClick={() => copyToClipboard(txDetails.to, "to")}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    {copied === "to" ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                  <button
-                    onClick={() => openInExplorer("address", txDetails.to)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Value */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-sm text-muted-foreground">Value</div>
-                <span className="text-sm font-semibold text-foreground">{txDetails.value} USDC</span>
-              </div>
-
-              {/* Gas */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Fuel className="h-4 w-4" />
-                  Gas Used
-                </div>
-                <span className="text-sm text-foreground">{parseInt(txDetails.gasUsed).toLocaleString()}</span>
-              </div>
-
-              {/* Gas Price */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-sm text-muted-foreground">Gas Price</div>
-                <span className="text-sm text-foreground">{txDetails.gasPrice} ETH</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Empty state */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-dashed border-border p-12 text-center"
+        >
+          <Search className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+          <p className="text-sm text-muted-foreground">
+            Enter a transaction hash or address above to view it on the block explorer.
+          </p>
+        </motion.div>
 
         {/* Quick Links */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
@@ -309,6 +116,7 @@ export default function BlockExplorerPage() {
           <div className="grid gap-3 sm:grid-cols-2">
         {[
           { name: "Base Sepolia Explorer", url: "https://sepolia.basescan.org", chain: "Base" },
+          { name: "Celo Alfajores Explorer", url: "https://alfajores.celoscan.io", chain: "Celo" },
         ].map((explorer) => (
               <a
                 key={explorer.url}

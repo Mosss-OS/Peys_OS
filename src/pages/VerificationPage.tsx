@@ -62,7 +62,6 @@ export default function VerificationPage() {
     }
 
     setUploading(true);
-    await new Promise(r => setTimeout(r, 2000));
     
     if (type === "document") {
       setDocumentUploaded(true);
@@ -81,8 +80,6 @@ export default function VerificationPage() {
     }
     setVerificationStatus("pending");
     setStep("complete");
-    toast.loading("Submitting verification...");
-    await new Promise(r => setTimeout(r, 2000));
     toast.success("Verification submitted! We'll review within 24-48 hours.");
   };
 

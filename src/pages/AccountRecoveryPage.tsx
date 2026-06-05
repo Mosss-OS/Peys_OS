@@ -61,8 +61,6 @@ export default function AccountRecoveryPage() {
   const sendVerificationCode = async () => {
     setIsVerifying(true);
     try {
-      // Simulate sending code
-      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success(`Verification code sent to ${verificationMethod === "email" ? "email" : "phone"}`);
     } finally {
       setIsVerifying(false);
@@ -77,9 +75,7 @@ export default function AccountRecoveryPage() {
 
     setIsVerifying(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Simulate verification
-      if (verificationCode === "123456" || verificationCode.length === 6) {
+      if (verificationCode.length === 6) {
         setCurrentStep(1);
         toast.success("Verification successful!");
       } else {
@@ -98,8 +94,6 @@ export default function AccountRecoveryPage() {
 
     setIsVerifying(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Simulate recovery code verification
       setCurrentStep(1);
       toast.success("Recovery code verified!");
     } finally {
@@ -125,7 +119,6 @@ export default function AccountRecoveryPage() {
 
     setIsVerifying(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
       setCurrentStep(3);
       toast.success("PIN reset successfully!");
     } finally {

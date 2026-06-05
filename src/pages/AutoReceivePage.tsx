@@ -75,7 +75,6 @@ export default function AutoReceivePage() {
       return;
     }
     setSaving(true);
-    await new Promise(r => setTimeout(r, 1000));
     
     const newEntry: SenderEntry = {
       id: Date.now().toString(),

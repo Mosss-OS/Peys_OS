@@ -128,11 +128,9 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
 
   const handleConfirm = () => {
     setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
-      setStep("done");
-      toast.success("Withdrawal successful! Money sent to your bank.");
-    }, 2000);
+    setProcessing(false);
+    setStep("done");
+    toast.success("Withdrawal successful! Money sent to your bank.");
   };
 
   const fee = 0.50;

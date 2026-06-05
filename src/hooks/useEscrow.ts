@@ -254,8 +254,6 @@ export function useEscrow() {
       }
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     if (onCreatingPayment) onCreatingPayment();
 
     if (!tokenAddress || tokenAddress === '0x0000000000000000000000000000000000000000') {
@@ -413,8 +411,6 @@ export function useEscrow() {
   const switchNetwork = useCallback(async (targetChainId: number): Promise<void> => {
     if (!activeWallet) throw new Error("No wallet connected");
     await switchWalletNetwork(activeWallet, targetChainId);
-    // Wait for the chain change to propagate
-    await new Promise(resolve => setTimeout(resolve, 600));
   }, [activeWallet]);
 
   return {

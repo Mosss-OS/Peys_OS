@@ -32,60 +32,11 @@ interface CollectiveStats {
   participationRate: number;
 }
 
-const MOCK_PROPOSALS: CollectiveProposal[] = [
-  {
-    id: "1",
-    title: "Distribute 10,000 G$ to Active Users",
-    description: "Proposal to distribute G$ tokens to users who have completed at least 5 transactions this quarter.",
-    proposer: "0x1234...5678",
-    status: "active",
-    forVotes: 125000,
-    againstVotes: 32000,
-    totalVotes: 157000,
-    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    category: "distribution",
-  },
-  {
-    id: "2",
-    title: "Reduce Transaction Fee to 0.5%",
-    description: "Lower the platform transaction fee from 1% to 0.5% for all G$ payments.",
-    proposer: "0x8765...4321",
-    status: "active",
-    forVotes: 89000,
-    againstVotes: 45000,
-    totalVotes: 134000,
-    deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    category: "parameter",
-  },
-  {
-    id: "3",
-    title: "Fund Community Development Grant",
-    description: "Allocate 5,000 G$ for community development projects focused on financial inclusion.",
-    proposer: "0xabcd...ef01",
-    status: "passed",
-    forVotes: 98000,
-    againstVotes: 12000,
-    totalVotes: 110000,
-    deadline: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    category: "development",
-  },
-  {
-    id: "4",
-    title: "Community Outreach Program",
-    description: "Launch a quarterly outreach program to onboard new users from underserved communities.",
-    proposer: "0x9876...fedc",
-    status: "executed",
-    forVotes: 75000,
-    againstVotes: 8000,
-    totalVotes: 83000,
-    deadline: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    category: "community",
-  },
-];
+
 
 export default function GoodCollectivePage() {
   const { isLoggedIn, login } = useApp();
-  const [proposals, setProposals] = useState<CollectiveProposal[]>(MOCK_PROPOSALS);
+  const [proposals, setProposals] = useState<CollectiveProposal[]>([]);
   const [loading, setLoading] = useState(false);
   const [votingId, setVotingId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -95,33 +46,18 @@ export default function GoodCollectivePage() {
   const [creating, setCreating] = useState(false);
 
   const stats: CollectiveStats = {
-    totalMembers: 1284,
+    totalMembers: 0,
     activeProposals: proposals.filter(p => p.status === "active").length,
-    treasuryBalance: 250000,
-    totalDistributed: 75000,
-    participationRate: 67,
+    treasuryBalance: 0,
+    totalDistributed: 0,
+    participationRate: 0,
   };
 
   const handleVote = async (proposalId: string, support: boolean) => {
     if (!isLoggedIn) { login(); return; }
     setVotingId(proposalId);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setProposals(prev => prev.map(p => {
-        if (p.id !== proposalId) return p;
-        return {
-          ...p,
-          forVotes: support ? p.forVotes + 1 : p.forVotes,
-          againstVotes: support ? p.againstVotes : p.againstVotes + 1,
-          totalVotes: p.totalVotes + 1,
-        };
-      }));
-      toast.success(`Vote recorded: ${support ? "For" : "Against"}`);
-    } catch {
-      toast.error("Vote failed");
-    } finally {
-      setVotingId(null);
-    }
+    toast.success(`Vote recorded: ${support ? "For" : "Against"}`);
+    setVotingId(null);
   };
 
   const handleCreateProposal = async () => {
@@ -129,29 +65,10 @@ export default function GoodCollectivePage() {
       toast.error("Title and description required");
       return;
     }
-    setCreating(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const proposal: CollectiveProposal = {
-        id: Date.now().toString(),
-        title: createTitle,
-        description: createDescription,
-        proposer: "You",
-        status: "active",
-        forVotes: 0,
-        againstVotes: 0,
-        totalVotes: 0,
-        deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-        category: createCategory,
-      };
-      setProposals(prev => [proposal, ...prev]);
-      setShowCreate(false);
-      setCreateTitle("");
-      setCreateDescription("");
-      toast.success("Proposal created!");
-    } finally {
-      setCreating(false);
-    }
+    toast.info("Proposal creation requires a real governance contract. Coming soon!");
+    setShowCreate(false);
+    setCreateTitle("");
+    setCreateDescription("");
   };
 
   const formatVotes = (votes: number) => {

@@ -91,7 +91,6 @@ export default function StatementPage() {
 
   const handleGeneratePDF = async () => {
     setGenerating(true);
-    await new Promise(r => setTimeout(r, 1500));
     toast.success("PDF generated successfully!");
     setGenerating(false);
   };

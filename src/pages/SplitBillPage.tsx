@@ -66,7 +66,6 @@ export default function SplitBillPage() {
 
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success("Split bill created! Share with your friends.");
       setShowCreate(false);
       setTitle("");

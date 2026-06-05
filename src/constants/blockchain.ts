@@ -7,10 +7,10 @@ export const ESCROW_ABI = CORRECT_ESCROW_ABI;
 
 // NOTE: These addresses are now deprecated. Use chain-specific addresses from src/lib/chains.ts instead.
 // These fallback values are kept for backward compatibility but should not be used in new code.
-export const ESCROW_CONTRACT_ADDRESS: Address = (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000001") as Address;
-export const USDC_ADDRESS: Address = (import.meta.env.VITE_USDC_ADDRESS || "0x0000000000000000000000000000000000000001") as Address;
-export const USDT_ADDRESS: Address = (import.meta.env.VITE_USDT_ADDRESS || "0x0000000000000000000000000000000000000001") as Address;
-export const GDOLLAR_ADDRESS: Address = (import.meta.env.VITE_GDOLLAR_ADDRESS || "0x0000000000000000000000000000000000000001") as Address;
+export const ESCROW_CONTRACT_ADDRESS: Address = (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS || "") as Address;
+export const USDC_ADDRESS: Address = (import.meta.env.VITE_USDC_ADDRESS || "") as Address;
+export const USDT_ADDRESS: Address = (import.meta.env.VITE_USDT_ADDRESS || "") as Address;
+export const GDOLLAR_ADDRESS: Address = (import.meta.env.VITE_GDOLLAR_ADDRESS || "") as Address;
 export const RPC_URL = import.meta.env.VITE_RPC_URL_BASE_SEPOLIA || "https://sepolia.base.org";
 
 // G$ / USD price (approximate market price)

@@ -65,7 +65,6 @@ export default function DonationPage() {
 
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success(`Thank you for your donation of ${amount} ${campaign.currency}!`);
       setDonationAmount("");
       setSelectedCampaign(null);

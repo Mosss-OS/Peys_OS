@@ -6,7 +6,7 @@ import { useApp } from "@/contexts/AppContext";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
-import type { Transaction } from "@/hooks/useMockData";
+import type { Transaction } from "@/types/transaction";
 import { useSound } from "@/hooks/useSound";
 
 interface Bundle {
@@ -92,7 +92,6 @@ export default function TransactionBundlerPage() {
     }
 
     setVerifying(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const newBundle: Bundle = {
       id: `bundle_${Date.now()}`,
@@ -110,13 +109,6 @@ export default function TransactionBundlerPage() {
     setBundlePreview(false);
     playSound("success");
     toast.success(`Bundle created with ${selectedTransactions.length} transactions!`);
-
-    // Simulate processing
-    setTimeout(() => {
-      setBundles((prev) =>
-        prev.map((b) => (b.id === newBundle.id ? { ...b, status: "completed" } : b))
-      );
-    }, 3000);
   };
 
   const unbundle = (bundleId: string) => {

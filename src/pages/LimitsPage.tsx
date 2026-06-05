@@ -85,7 +85,6 @@ export default function LimitsPage() {
       return;
     }
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 2000));
     setSubmitting(false);
     setShowIncreaseForm(false);
     setIncreaseReason("");

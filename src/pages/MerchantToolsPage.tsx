@@ -27,19 +27,13 @@ export default function MerchantToolsPage() {
   const merchantLink = "https://pay.peys.io/moses-store";
   
   const stats = {
-    totalSales: 15420,
-    monthlySales: 2340,
-    pendingPayout: 450,
-    totalCustomers: 89,
+    totalSales: 0,
+    monthlySales: 0,
+    pendingPayout: 0,
+    totalCustomers: 0,
   };
 
-  const sales: Sale[] = [
-    { id: "1", amount: 25, token: "USDC", customer: "0x1234...5678", date: "2026-03-18", status: "completed" },
-    { id: "2", amount: 100, token: "USDC", customer: "0xabcd...efgh", date: "2026-03-17", status: "completed" },
-    { id: "3", amount: 50, token: "USDC", customer: "0x9876...ijkl", date: "2026-03-16", status: "pending" },
-    { id: "4", amount: 200, token: "USDC", customer: "0xmoses...mnop", date: "2026-03-15", status: "completed" },
-    { id: "5", amount: 75, token: "USDC", customer: "0xqrst...uvwx", date: "2026-03-14", status: "refunded" },
-  ];
+  const sales: Sale[] = [];
 
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(merchantLink);
@@ -48,10 +42,8 @@ export default function MerchantToolsPage() {
 
   const handleGenerateButton = () => {
     setGenerating(true);
-    setTimeout(() => {
-      setGenerating(false);
-      toast.success("Button code generated!");
-    }, 1000);
+    setGenerating(false);
+    toast.success("Button code generated!");
   };
 
   const buttonCode = `<a href="${merchantLink}${paymentAmount ? `?amount=${paymentAmount}` : ''}" class="peys-pay-button" data-style="${buttonStyle}" data-color="${buttonColor}">${buttonText}</a>
@@ -193,39 +185,43 @@ export default function MerchantToolsPage() {
                 Recent Sales
               </h2>
               <div className="space-y-3">
-                {sales.map((sale) => (
-                  <div key={sale.id} className="flex items-center justify-between rounded-lg border border-border p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                        sale.status === "completed" ? "bg-green-500/10" :
-                        sale.status === "pending" ? "bg-yellow-500/10" :
-                        "bg-red-500/10"
-                      }`}>
-                        {sale.status === "completed" ? (
-                          <TrendingUp className="h-5 w-5 text-green-500" />
-                        ) : sale.status === "pending" ? (
-                          <Clock className="h-5 w-5 text-yellow-500" />
-                        ) : (
-                          <TrendingDown className="h-5 w-5 text-red-500" />
-                        )}
+                {sales.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground text-sm">No sales yet</div>
+                ) : (
+                  sales.map((sale) => (
+                    <div key={sale.id} className="flex items-center justify-between rounded-lg border border-border p-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                          sale.status === "completed" ? "bg-green-500/10" :
+                          sale.status === "pending" ? "bg-yellow-500/10" :
+                          "bg-red-500/10"
+                        }`}>
+                          {sale.status === "completed" ? (
+                            <TrendingUp className="h-5 w-5 text-green-500" />
+                          ) : sale.status === "pending" ? (
+                            <Clock className="h-5 w-5 text-yellow-500" />
+                          ) : (
+                            <TrendingDown className="h-5 w-5 text-red-500" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">${sale.amount.toFixed(2)} {sale.token}</p>
+                          <p className="text-xs text-muted-foreground">{sale.customer}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground">${sale.amount.toFixed(2)} {sale.token}</p>
-                        <p className="text-xs text-muted-foreground">{sale.customer}</p>
+                      <div className="text-right">
+                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                          sale.status === "completed" ? "bg-green-500/10 text-green-600" :
+                          sale.status === "pending" ? "bg-yellow-500/10 text-yellow-600" :
+                          "bg-red-500/10 text-red-600"
+                        }`}>
+                          {sale.status}
+                        </span>
+                        <p className="mt-1 text-xs text-muted-foreground">{new Date(sale.date).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        sale.status === "completed" ? "bg-green-500/10 text-green-600" :
-                        sale.status === "pending" ? "bg-yellow-500/10 text-yellow-600" :
-                        "bg-red-500/10 text-red-600"
-                      }`}>
-                        {sale.status}
-                      </span>
-                      <p className="mt-1 text-xs text-muted-foreground">{new Date(sale.date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </motion.div>
@@ -445,23 +441,7 @@ export default function MerchantToolsPage() {
                 Payout History
               </h2>
               <div className="space-y-3">
-                {[
-                  { date: "2026-03-15", amount: 450, status: "pending" },
-                  { date: "2026-03-01", amount: 890, status: "completed" },
-                  { date: "2026-02-15", amount: 720, status: "completed" },
-                ].map((payout, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg border border-border p-4">
-                    <div>
-                      <p className="font-medium text-foreground">${payout.amount.toFixed(2)}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(payout.date).toLocaleDateString()}</p>
-                    </div>
-                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      payout.status === "completed" ? "bg-green-500/10 text-green-600" : "bg-yellow-500/10 text-yellow-600"
-                    }`}>
-                      {payout.status}
-                    </span>
-                  </div>
-                ))}
+                <div className="text-center py-8 text-muted-foreground text-sm">No payout history</div>
               </div>
             </div>
           </motion.div>
