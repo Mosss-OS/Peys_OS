@@ -114,7 +114,6 @@ export default function TemplatesPage() {
 
   const handleSend = async (template: Template) => {
     setSending(template.id);
-    await new Promise(r => setTimeout(r, 1500));
     setTemplates(templates.map(t => t.id === template.id ? { ...t, useCount: t.useCount + 1, lastUsed: new Date().toISOString().split("T")[0] } : t));
     setSending(null);
     toast.success(`Payment of $${template.amount} ${template.token} sent!`);

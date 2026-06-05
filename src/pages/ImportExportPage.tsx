@@ -74,7 +74,6 @@ export default function ImportExportPage() {
       return;
     }
     setImporting(true);
-    await new Promise(r => setTimeout(r, 1500));
     setImporting(false);
     setPreviewData([]);
     toast.success(`Successfully imported ${validContacts.length} contacts!`);
@@ -82,7 +81,6 @@ export default function ImportExportPage() {
 
   const handleExport = async () => {
     setExporting(true);
-    await new Promise(r => setTimeout(r, 2000));
     setExporting(false);
     toast.success(`Exported transactions as ${exportOptions.format.toUpperCase()}!`);
   };

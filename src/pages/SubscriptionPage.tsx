@@ -125,8 +125,6 @@ export default function SubscriptionPage() {
 
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       const frequency = FREQUENCIES.find(f => f.id === newSub.frequency) || FREQUENCIES[2];
       const nextPaymentDate = new Date();
       nextPaymentDate.setDate(nextPaymentDate.getDate() + frequency.interval);

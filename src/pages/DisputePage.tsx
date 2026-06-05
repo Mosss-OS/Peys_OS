@@ -51,24 +51,7 @@ export default function DisputePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"new" | "history">("new");
 
-  const [disputes, setDisputes] = useState<Dispute[]>([
-    {
-      id: "1",
-      transactionId: "tx_abc123",
-      title: "Failed payment to merchant",
-      reason: "Did not receive payment",
-      description: "Sent payment but merchant claims they didn't receive it",
-      status: "reviewing",
-      createdAt: "2026-03-17T10:30:00",
-      updatedAt: "2026-03-18T14:20:00",
-      evidence: [],
-      timeline: [
-        { date: "2026-03-17", action: "Dispute opened", status: "completed" },
-        { date: "2026-03-17", action: "Support assigned", status: "completed" },
-        { date: "2026-03-18", action: "Under investigation", status: "in-progress" },
-      ],
-    },
-  ]);
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
 
   const [selectedReason, setSelectedReason] = useState("");
   const [disputeTitle, setDisputeTitle] = useState("");
@@ -97,8 +80,6 @@ export default function DisputePage() {
 
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       const newDispute: Dispute = {
         id: crypto.randomUUID(),
         transactionId,

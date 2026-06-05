@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowUpRight, ArrowDownLeft, Clock, Copy, ExternalLink } from "lucide-react";
-import type { Transaction } from "@/hooks/useMockData";
+import type { Transaction } from "@/types/transaction";
 import { toast } from "sonner";
 
 interface Props {

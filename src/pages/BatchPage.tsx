@@ -218,9 +218,6 @@ export default function BatchPage() {
       }
 
       setProcessedCount(i + 1);
-      
-      // Small delay between transactions
-      await new Promise((r) => setTimeout(r, 1000));
     }
 
     // Batch processing completed

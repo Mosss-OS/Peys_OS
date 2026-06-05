@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ArrowDownLeft, Clock, Copy, ExternalLink, Send, Search, Filter, BarChart3, Zap, FileText, Users, RefreshCw, Loader2, QrCode, UserCircle, Wallet, Plus, Star } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useFavorites } from "@/hooks/useFavorites";
-import type { Transaction } from "@/hooks/useMockData";
+import type { Transaction } from "@/types/transaction";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";

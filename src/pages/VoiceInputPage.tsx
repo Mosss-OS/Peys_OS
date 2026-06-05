@@ -58,13 +58,8 @@ export default function VoiceInputPage() {
     setIsListening(true);
     toast.info("Listening... Speak a command");
     
-    setTimeout(() => {
-      setIsListening(false);
-      setTranscript("Send 50 dollars to Alice");
-      setConfidence(95);
-      setLastCommand("Send $50.00 to alice.eth");
-      toast.success("Command recognized!");
-    }, 3000);
+    setIsListening(false);
+    toast.info("Voice input is not yet available in this demo.");
   };
 
   const stopListening = () => {

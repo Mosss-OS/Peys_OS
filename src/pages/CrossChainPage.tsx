@@ -63,11 +63,9 @@ export default function CrossChainPage() {
       return;
     }
     setBridging(true);
-    toast.loading("Initiating bridge transaction...");
-    setTimeout(() => {
-      setBridging(false);
-      toast.success("Bridge transaction initiated! Check your wallet for confirmation.");
-    }, 3000);
+    // Bridge functionality coming soon
+    setBridging(false);
+    toast.info("Cross-chain bridging is not yet available in this demo.");
   };
 
   const handleSwapChains = () => {

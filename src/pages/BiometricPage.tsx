@@ -40,7 +40,6 @@ export default function BiometricPage() {
 
   const handleEnroll = async (type: string) => {
     setEnrolling(true);
-    await new Promise(r => setTimeout(r, 2000));
     setEnrolling(false);
     toast.success(`${type} enrolled successfully!`);
   };

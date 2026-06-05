@@ -40,7 +40,6 @@ export default function WhitelabelPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
       localStorage.setItem("whitelabel_settings", JSON.stringify(settings));
       toast.success("Whitelabel settings saved!");
     } finally {

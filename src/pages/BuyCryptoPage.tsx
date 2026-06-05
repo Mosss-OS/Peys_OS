@@ -127,8 +127,6 @@ export default function BuyCryptoPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const mockTxRef = `peydot_buy_${Date.now()}`;
-
       await supabase.from("crypto_purchases").insert({
         user_id: user.id,
         amount_fiat: parseFloat(amount),
@@ -136,7 +134,7 @@ export default function BuyCryptoPage() {
         currency,
         payment_method: paymentMethod,
         status: "completed",
-        reference: mockTxRef,
+        reference: `peydot_buy_${Date.now()}`,
       });
 
       toast.success(`${usdcAmount} USDC purchased successfully!`);

@@ -24,38 +24,37 @@ interface CacheStats {
   lastCleared: string;
 }
 
+interface CacheType {
+  name: string;
+  size: string;
+  items: number;
+  hitRate: number;
+}
+
 export default function CachingPage() {
   const [cacheStats, setCacheStats] = useState<CacheStats>({
-    totalSize: "12.4 MB",
-    items: 245,
-    hitRate: 94,
-    lastCleared: "3 days ago",
+    totalSize: "0 MB",
+    items: 0,
+    hitRate: 0,
+    lastCleared: "",
   });
 
   const [enableCaching, setEnableCaching] = useState(true);
   const [cacheStrategy, setCacheStrategy] = useState("stale-while-revalidate");
   const [cacheSize, setCacheSize] = useState(50);
   const [clearInProgress, setClearInProgress] = useState(false);
-
-  const cacheTypes = [
-    { name: "API Responses", size: "5.2 MB", items: 89, hitRate: 92 },
-    { name: "User Data", size: "2.1 MB", items: 34, hitRate: 98 },
-    { name: "Images", size: "3.8 MB", items: 67, hitRate: 88 },
-    { name: "Blockchain Data", size: "1.3 MB", items: 55, hitRate: 95 },
-  ];
+  const [cacheTypes, setCacheTypes] = useState<CacheType[]>([]);
 
   const handleClearCache = () => {
     setClearInProgress(true);
-    setTimeout(() => {
-      setCacheStats((prev) => ({
-        ...prev,
-        totalSize: "0 MB",
-        items: 0,
-        lastCleared: "Just now",
-      }));
-      setClearInProgress(false);
-      toast.success("Cache cleared successfully");
-    }, 2000);
+    setCacheStats((prev) => ({
+      ...prev,
+      totalSize: "0 MB",
+      items: 0,
+      lastCleared: "Just now",
+    }));
+    setClearInProgress(false);
+    toast.success("Cache cleared successfully");
   };
 
   const handleClearType = (type: string) => {
@@ -188,29 +187,33 @@ export default function CachingPage() {
               <CardTitle className="text-lg">Cache by Type</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {cacheTypes.map((type) => (
-                <div
-                  key={type.name}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">{type.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {type.items} items - {type.size}
-                    </p>
+              {cacheTypes.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground text-sm">No cached data</div>
+              ) : (
+                cacheTypes.map((type) => (
+                  <div
+                    key={type.name}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium">{type.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {type.items} items - {type.size}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline">{type.hitRate}% hit rate</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleClearType(type.name)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline">{type.hitRate}% hit rate</Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleClearType(type.name)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </CardContent>
           </Card>
 

@@ -36,62 +36,13 @@ export default function LoyaltyPage() {
   const { isLoggedIn, login } = useApp();
   const [activeTab, setActiveTab] = useState<"rewards" | "history" | "tiers">("rewards");
   const [redeeming, setRedeeming] = useState<string | null>(null);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [history, setHistory] = useState<PointsTransaction[]>([]);
+  const [tiers, setTiers] = useState<Tier[]>([]);
 
-  const pointsBalance = 2450;
-  const pointsToNextTier = 550;
-  const currentTier = "Silver";
-
-  const tiers: Tier[] = [
-    {
-      id: "bronze",
-      name: "Bronze",
-      pointsRequired: 0,
-      benefits: ["5% cashback on payments", "Monthly point bonus", "Basic support"],
-      icon: Star,
-      color: "amber-700",
-    },
-    {
-      id: "silver",
-      name: "Silver",
-      pointsRequired: 1000,
-      benefits: ["7% cashback on payments", "Priority support", "Early access features", "Birthday bonus"],
-      icon: Shield,
-      color: "gray-400",
-    },
-    {
-      id: "gold",
-      name: "Gold",
-      pointsRequired: 5000,
-      benefits: ["10% cashback on payments", "Dedicated support", "Exclusive rewards", "Free feature unlocks"],
-      icon: Crown,
-      color: "yellow-500",
-    },
-    {
-      id: "platinum",
-      name: "Platinum",
-      pointsRequired: 15000,
-      benefits: ["15% cashback on payments", "VIP support", "Beta features access", "Personal account manager"],
-      icon: Sparkles,
-      color: "purple-500",
-    },
-  ];
-
-  const rewards: Reward[] = [
-    { id: "1", name: "$5 USDC Cashback", description: "Get $5 cashback on your next payment", pointsCost: 500, category: "cashback", available: true },
-    { id: "2", name: "10% Fee Discount", description: "Reduce fees on your next 10 transactions", pointsCost: 1000, category: "discount", available: true },
-    { id: "3", name: "NFT Badge", description: "Exclusive Bronze Collector NFT", pointsCost: 750, category: "gift", available: true },
-    { id: "4", name: "$25 USDC Cashback", description: "Get $25 cashback on your next payment", pointsCost: 2000, category: "cashback", available: true },
-    { id: "5", name: "Priority Support", description: "Skip the queue for 30 days", pointsCost: 1500, category: "feature", available: true },
-    { id: "6", name: "$100 USDC Cashback", description: "Get $100 cashback on your next payment", pointsCost: 8000, category: "cashback", available: false },
-  ];
-
-  const history: PointsTransaction[] = [
-    { id: "1", type: "earned", points: 50, description: "Payment to Restaurant XYZ", date: "2026-03-18" },
-    { id: "2", type: "earned", points: 100, description: "Referral bonus - new user signup", date: "2026-03-17" },
-    { id: "3", type: "redeemed", points: -500, description: "Redeemed: $5 USDC Cashback", date: "2026-03-15" },
-    { id: "4", type: "earned", points: 75, description: "Payment for Groceries", date: "2026-03-14" },
-    { id: "5", type: "earned", points: 25, description: "Weekly activity bonus", date: "2026-03-12" },
-  ];
+  const pointsBalance = 0;
+  const pointsToNextTier = 0;
+  const currentTier = "";
 
   const handleRedeem = async (reward: Reward) => {
     if (reward.pointsCost > pointsBalance) {
@@ -99,7 +50,6 @@ export default function LoyaltyPage() {
       return;
     }
     setRedeeming(reward.id);
-    await new Promise(r => setTimeout(r, 1500));
     setRedeeming(null);
     toast.success(`Successfully redeemed: ${reward.name}!`);
   };

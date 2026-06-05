@@ -93,176 +93,11 @@ export class FlutterwaveService {
         }));
       }
       
-      console.warn("Flutterwave API failed, using fallback banks");
-      return this.getMockBanks(countryCode);
+      throw new Error(data.message || "Failed to fetch banks from Flutterwave");
     } catch (error) {
       console.error("Failed to fetch banks:", error);
-      return this.getMockBanks(countryCode);
+      throw error;
     }
-  }
-
-  private getMockBanks(countryCode: string): any[] {
-    const mockBanks: Record<string, any[]> = {
-      NG: [
-        { id: "ng_001", code: "044", name: "Access Bank" },
-        { id: "ng_002", code: "023", name: "Citibank Nigeria" },
-        { id: "ng_003", code: "063", name: "Diamond Bank" },
-        { id: "ng_004", code: "050", name: "Ecobank Nigeria" },
-        { id: "ng_005", code: "214", name: "First Bank of Nigeria" },
-        { id: "ng_006", code: "011", name: "First City Monument Bank (FCMB)" },
-        { id: "ng_007", code: "058", name: "Guaranty Trust Bank (GTBank)" },
-        { id: "ng_008", code: "030", name: "Heritage Bank" },
-        { id: "ng_009", code: "082", name: "Keystone Bank" },
-        { id: "ng_010", code: "076", name: "Polaris Bank (Skye Bank)" },
-        { id: "ng_011", code: "039", name: "Sterling Bank" },
-        { id: "ng_012", code: "232", name: "Sterling Bank" },
-        { id: "ng_013", code: "068", name: "Standard Chartered Bank" },
-        { id: "ng_014", code: "032", name: "Union Bank of Nigeria" },
-        { id: "ng_015", code: "215", name: "United Bank for Africa (UBA)" },
-        { id: "ng_016", code: "035", name: "Wema Bank" },
-        { id: "ng_017", code: "057", name: "Zenith Bank" },
-        { id: "ng_018", code: "070", name: "Fidelity Bank" },
-        { id: "ng_019", code: "084", name: "Enterprise Bank" },
-        { id: "ng_020", code: "100", name: "Suntrust Bank" },
-        { id: "ng_021", code: "221", name: "Stanbic IBTC Bank" },
-        { id: "ng_022", code: "225", name: "Globacom Bank" },
-        { id: "ng_023", code: "304", name: "Stanbic IBTC" },
-        { id: "ng_024", code: "305", name: "FSDH" },
-        { id: "ng_025", code: "307", name: "凌云 Bank" },
-        { id: "ng_026", code: "308", name: "Fortune Bank" },
-        { id: "ng_027", code: "309", name: "Jubilee Bank" },
-        { id: "ng_028", code: "311", name: "Pay Attitude" },
-        { id: "ng_029", code: "322", name: "Kuda Bank" },
-        { id: "ng_030", code: "323", name: "Rust" },
-        { id: "ng_031", code: "324", name: "Finca" },
-        { id: "ng_031", code: "324", name: "Teasy" },
-        { id: "ng_032", code: "325", name: "GoMoney" },
-        { id: "ng_033", code: "326", name: "Parralex" },
-        { id: "ng_034", code: "327", name: "PAGA" },
-        { id: "ng_035", code: "328", name: "Carbon" },
-        { id: "ng_036", code: "329", name: " Zedvance" },
-        { id: "ng_037", code: "330", name: "Vfd" },
-        { id: "ng_038", code: "070", name: "Polaris Bank" },
-      ],
-      GH: [
-        { id: "gh_001", code: "GH001", name: "Ecobank Ghana" },
-        { id: "gh_002", code: "GH002", name: "Ghana Commercial Bank (GCB)" },
-        { id: "gh_003", code: "GH003", name: "ATLANTIC BANK" },
-        { id: "gh_004", code: "GH004", name: "SG Ghana Bank" },
-        { id: "gh_005", code: "GH005", name: "Stanbic Bank Ghana" },
-        { id: "gh_006", code: "GH006", name: "United Bank for Africa Ghana" },
-        { id: "gh_007", code: "GH007", name: "Access Bank Ghana" },
-        { id: "gh_008", code: "GH008", name: "Fidelity Bank Ghana" },
-        { id: "gh_009", code: "GH009", name: "First Bank of Nigeria Ghana" },
-        { id: "gh_010", code: "GH010", name: "CAL Bank" },
-        { id: "gh_011", code: "GH011", name: " Guaranty Trust Bank Ghana" },
-        { id: "gh_012", code: "GH012", name: "Zenith Bank Ghana" },
-        { id: "gh_013", code: "GH013", name: "Agricultural Development Bank" },
-        { id: "gh_014", code: "GH014", name: "Universal Merchant Bank" },
-        { id: "gh_015", code: "GH015", name: "Republic Bank Ghana" },
-      ],
-      KE: [
-        { id: "ke_001", code: "KE001", name: "Equity Bank Kenya" },
-        { id: "ke_002", code: "KE002", name: "KCB Bank Kenya" },
-        { id: "ke_003", code: "KE003", name: "Co-operative Bank Kenya" },
-        { id: "ke_004", code: "KE004", name: "Standard Chartered Kenya" },
-        { id: "ke_005", code: "KE005", name: "Absa Bank Kenya (Formerly Barclays)" },
-        { id: "ke_006", code: "KE006", name: "Diamond Trust Bank Kenya" },
-        { id: "ke_007", code: "KE007", name: "Housing Finance Company" },
-        { id: "ke_008", code: "KE008", name: "National Bank of Kenya" },
-        { id: "ke_009", code: "KE009", name: "CFC Stanbic IBTC" },
-        { id: "ke_010", code: "KE010", name: "Guaranty Trust Bank Kenya" },
-        { id: "ke_011", code: "KE011", name: "M-Pesa" },
-        { id: "ke_012", code: "KE012", name: "Jumo" },
-        { id: "ke_013", code: "KE013", name: "Tala" },
-      ],
-      ZA: [
-        { id: "za_001", code: "ZA001", name: "FNB (First National Bank)" },
-        { id: "za_002", code: "ZA002", name: "Standard Bank" },
-        { id: "za_003", code: "ZA003", name: "Nedbank" },
-        { id: "za_004", code: "ZA004", name: "Absa Bank South Africa" },
-        { id: "za_005", code: "ZA005", name: "Capitec Bank" },
-        { id: "za_006", code: "ZA006", name: "Discovery Bank" },
-        { id: "za_007", code: "ZA007", name: "African Bank" },
-        { id: "za_008", code: "ZA008", name: "TymeBank" },
-        { id: "za_009", code: "ZA009", name: "Bank of Athens" },
-        { id: "za_010", code: "ZA010", name: "Investec" },
-      ],
-      UG: [
-        { id: "ug_001", code: "UG001", name: "Stanbic Bank Uganda" },
-        { id: "ug_002", code: "UG002", name: "DFCU Bank" },
-        { id: "ug_003", code: "UG003", name: "Equity Bank Uganda" },
-        { id: "ug_004", code: "UG004", name: "Cairo International Bank" },
-        { id: "ug_005", code: "UG005", name: "Housing Finance Bank" },
-        { id: "ug_006", code: "UG006", name: "United Bank for Africa Uganda" },
-        { id: "ug_007", code: "UG007", name: "Orient Bank" },
-        { id: "ug_008", code: "UG008", name: "Centenary Bank" },
-        { id: "ug_009", code: "UG009", name: "Bank of Baroda Uganda" },
-        { id: "ug_010", code: "UG010", name: "Opportunity Bank Uganda" },
-      ],
-      TZ: [
-        { id: "tz_001", code: "TZ001", name: "CRDB Bank" },
-        { id: "tz_002", code: "TZ002", name: "NMB Bank" },
-        { id: "tz_003", code: "TZ003", name: "Equity Bank Tanzania" },
-        { id: "tz_004", code: "TZ004", name: "Stanbic Bank Tanzania" },
-        { id: "tz_005", code: "TZ005", name: "Diamond Trust Bank Tanzania" },
-        { id: "tz_006", code: "TZ006", name: "Bank of Baroda Tanzania" },
-        { id: "tz_007", code: "TZ007", name: "Exim Bank Tanzania" },
-        { id: "tz_008", code: "TZ008", name: "Akiba Commercial Bank" },
-      ],
-      ZM: [
-        { id: "zm_001", code: "ZM001", name: "Standard Chartered Zambia" },
-        { id: "zm_002", code: "ZM002", name: "Stanbic Bank Zambia" },
-        { id: "zm_003", code: "ZM003", name: "First National Bank Zambia" },
-        { id: "zm_004", code: "ZM004", name: "Barclays Bank Zambia" },
-        { id: "zm_005", code: "ZM005", name: "Zambia National Commercial Bank" },
-        { id: "zm_006", code: "ZM006", name: "Atlas Mara" },
-        { id: "zm_007", code: "ZM007", name: "EcoBank Zambia" },
-        { id: "zm_008", code: "ZM008", name: "GLB Bank" },
-      ],
-      MW: [
-        { id: "mw_001", code: "MW001", name: "Standard Bank Malawi" },
-        { id: "mw_002", code: "MW002", name: "NBS Bank" },
-        { id: "mw_003", code: "MW003", name: "First Discount House" },
-        { id: "mw_004", code: "MW004", name: "National Bank of Malawi" },
-        { id: "mw_005", code: "MW005", name: "MyBank Limited" },
-        { id: "mw_006", code: "MW006", name: "FDH Bank" },
-      ],
-      RW: [
-        { id: "rw_001", code: "RW001", name: "Bank of Kigali" },
-        { id: "rw_002", code: "RW002", name: "Equity Bank Rwanda" },
-        { id: "rw_003", code: "RW003", name: "Access Bank Rwanda" },
-        { id: "rw_004", code: "RW004", name: "Cogeb Banque" },
-        { id: "rw_005", code: "RW005", name: "Banque Populaire du Rwanda" },
-      ],
-      ET: [
-        { id: "et_001", code: "ET001", name: "Commercial Bank of Ethiopia" },
-        { id: "et_002", code: "ET002", name: "Dashen Bank" },
-        { id: "et_003", code: "ET003", name: "Awash Bank" },
-        { id: "et_004", code: "ET004", name: "Wegagen Bank" },
-        { id: "et_005", code: "ET005", name: "United Bank" },
-        { id: "et_006", code: "ET006", name: "Nib International Bank" },
-      ],
-      SN: [
-        { id: "sn_001", code: "SN001", name: "Banque Islamique du Sénégal" },
-        { id: "sn_002", code: "SN002", name: "Banque Nationale de Développement" },
-        { id: "sn_003", code: "SN003", name: "Ecobank Senegal" },
-        { id: "sn_004", code: "SN004", name: "CGRAE" },
-      ],
-      CI: [
-        { id: "ci_001", code: "CI001", name: "Ecobank Côte d'Ivoire" },
-        { id: "ci_002", code: "CI002", name: "Standard Chartered Bank CI" },
-        { id: "ci_003", code: "CI003", name: "Banque Populaire" },
-        { id: "ci_004", code: "CI004", name: "SIB" },
-      ],
-      CM: [
-        { id: "cm_001", code: "CM001", name: "Ecobank Cameroon" },
-        { id: "cm_002", code: "CM002", name: "BICEC" },
-        { id: "cm_003", code: "CM003", name: "Standard Chartered Cameroon" },
-        { id: "cm_004", code: "CM004", name: "ATL" },
-      ],
-    };
-    return mockBanks[countryCode] || [];
   }
 
   async resolveAccount(
@@ -290,7 +125,7 @@ export class FlutterwaveService {
       return { account_name: "", is_valid: false };
     } catch (error) {
       console.error("Failed to resolve account:", error);
-      return { account_name: "Test User", is_valid: true };
+      throw error;
     }
   }
 
@@ -325,49 +160,11 @@ export class FlutterwaveService {
           net_amount: sourceAmount - fee,
         };
       }
-      return null;
+      throw new Error(data.message || "Failed to get exchange rate from Flutterwave");
     } catch (error) {
       console.error("Failed to get exchange rate:", error);
-      return this.getMockExchangeRate(sourceCurrency, destinationCurrency, amount);
+      throw error;
     }
-  }
-
-  private getMockExchangeRate(
-    source: string,
-    dest: string,
-    amount: number
-  ): ExchangeRate {
-    const rates: Record<string, Record<string, number>> = {
-      USDC: {
-        NGN: 1520,
-        GHS: 13.5,
-        KES: 155,
-        ZAR: 19,
-        UGX: 3850,
-        TZS: 2650,
-        XOF: 610,
-        XAF: 610,
-      },
-      USDT: {
-        NGN: 1520,
-        GHS: 13.5,
-        KES: 155,
-        ZAR: 19,
-        UGX: 3850,
-        TZS: 2650,
-        XOF: 610,
-        XAF: 610,
-      },
-    };
-    const rate = rates[source]?.[dest] || 1;
-    const fee = amount * rate * 0.01;
-    return {
-      source_currency: source,
-      destination_currency: dest,
-      rate,
-      fee,
-      net_amount: amount * rate - fee,
-    };
   }
 
   async initiateTransfer(
@@ -721,8 +518,7 @@ export class FlutterwaveService {
       return { success: false, message: data.message };
     } catch (error: any) {
       console.error("Bill payment failed:", error);
-      await this.saveBillPayment(userId, billType, itemCode, amount, `mock_${Date.now()}`, customerId);
-      return { success: true, reference: `mock_${Date.now()}` };
+      throw error;
     }
   }
 

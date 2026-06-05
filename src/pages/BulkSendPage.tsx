@@ -93,7 +93,6 @@ export default function BulkSendPage() {
       return;
     }
     setSending(true);
-    await new Promise(r => setTimeout(r, 3000));
     setSending(false);
     toast.success(`Sent $${totalAmount.toFixed(2)} to ${uniqueRecipients} recipients!`);
     setRecipients([]);

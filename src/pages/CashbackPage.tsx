@@ -81,7 +81,6 @@ export default function CashbackPage() {
 
     setRedeeming(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success(`${cashbackBalance.toFixed(2)} USDC redeemed to your wallet!`);
       setCashbackBalance(0);
     } finally {

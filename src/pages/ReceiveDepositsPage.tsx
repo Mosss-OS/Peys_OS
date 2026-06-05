@@ -151,23 +151,7 @@ export default function ReceiveDepositsPage() {
       });
 
       if (error || !data?.success) {
-        const mockAccount = {
-          account_number: generateMockAccountNumber(selectedCurrency),
-          bank_name: getBankName(selectedCurrency),
-        };
-
-        await supabase.from("virtual_accounts").insert({
-          user_id: user.id,
-          flutterwave_ref: `mock_${Date.now()}`,
-          account_number: mockAccount.account_number,
-          bank_name: mockAccount.bank_name,
-          currency: selectedCurrency,
-          status: "active",
-        });
-
-        toast.success("Virtual account created! (Demo mode)");
-        fetchVirtualAccounts();
-        setShowCreate(false);
+        toast.error("Failed to create virtual account. Please try again.");
         return;
       }
 
@@ -180,23 +164,6 @@ export default function ReceiveDepositsPage() {
     } finally {
       setCreating(false);
     }
-  };
-
-  const generateMockAccountNumber = (currency: string): string => {
-    if (currency === "NGN") {
-      return Math.floor(1000000000 + Math.random() * 9000000000).toString();
-    }
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
-
-  const getBankName = (currency: string): string => {
-    const banks: Record<string, string> = {
-      NGN: "Access Bank",
-      GHS: "Ecobank Ghana",
-      KES: "Equity Bank Kenya",
-      ZAR: "FNB South Africa",
-    };
-    return banks[currency] || "Flutterwave Bank";
   };
 
   const copyToClipboard = async (text: string, accountId: string) => {

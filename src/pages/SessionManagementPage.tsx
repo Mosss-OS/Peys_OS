@@ -30,16 +30,10 @@ interface Session {
   current: boolean;
 }
 
-const mockSessions: Session[] = [
-  { id: "1", device: "iPhone 15 Pro", browser: "Safari", location: "San Francisco, CA", ip: "192.168.1.1", lastActive: "Just now", current: true },
-  { id: "2", device: "MacBook Pro", browser: "Chrome", location: "San Francisco, CA", ip: "192.168.1.2", lastActive: "2 hours ago", current: false },
-  { id: "3", device: "Windows PC", browser: "Firefox", location: "New York, NY", ip: "10.0.0.1", lastActive: "Yesterday", current: false },
-];
-
 export default function SessionManagementPage() {
   const [sessionTimeout, setSessionTimeout] = useState(30);
   const [requireReAuth, setRequireReAuth] = useState(true);
-  const [sessions, setSessions] = useState(mockSessions);
+  const [sessions, setSessions] = useState<Session[]>([]);
 
   const handleRevokeSession = (id: string) => {
     setSessions((prev) => prev.filter((s) => s.id !== id));
@@ -245,5 +239,25 @@ export default function SessionManagementPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function Switch({ checked, onCheckedChange }: { checked: boolean; onCheckedChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onCheckedChange(!checked)}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+        checked ? "bg-primary" : "bg-muted"
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          checked ? "translate-x-6" : "translate-x-1"
+        }`}
+      />
+    </button>
   );
 }

@@ -52,29 +52,6 @@ export default function TimeLockPage() {
   useEffect(() => {
     if (!isLoggedIn) return;
     setLoading(false);
-    // Load sample vaults
-    setVaults([
-      {
-        id: "1",
-        name: "Emergency Fund",
-        amount: 500,
-        token: "USDC",
-        lockedUntil: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        status: "locked",
-        penaltyPaid: 0,
-      },
-      {
-        id: "2",
-        name: "Vacation Savings",
-        amount: 2000,
-        token: "USDC",
-        lockedUntil: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-        status: "locked",
-        penaltyPaid: 0,
-      },
-    ]);
   }, [isLoggedIn]);
 
   const totalLocked = useMemo(() =>
@@ -111,8 +88,6 @@ export default function TimeLockPage() {
 
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       const period = LOCK_PERIODS.find(p => p.id === newVault.periodId) || LOCK_PERIODS[1];
       const unlockDate = new Date();
       unlockDate.setDate(unlockDate.getDate() + period.days);

@@ -26,17 +26,10 @@ interface UndoableAction {
   data: unknown;
 }
 
-const mockHistory: UndoableAction[] = [
-  { id: "1", type: "payment", description: "Sent $50.00 to alice.eth", timestamp: new Date(Date.now() - 60000), canUndo: true, data: {} },
-  { id: "2", type: "contact", description: "Added contact: bob.eth", timestamp: new Date(Date.now() - 120000), canUndo: true, data: {} },
-  { id: "3", type: "settings", description: "Changed notification settings", timestamp: new Date(Date.now() - 300000), canUndo: true, data: {} },
-  { id: "4", type: "payment", description: "Sent $25.00 to charity.eth", timestamp: new Date(Date.now() - 600000), canUndo: false, data: {} },
-];
-
 export default function UndoFunctionalityPage() {
   const [undoEnabled, setUndoEnabled] = useState(true);
   const [undoTimeout, setUndoTimeout] = useState(10);
-  const [history, setHistory] = useState<UndoableAction[]>(mockHistory);
+  const [history, setHistory] = useState<UndoableAction[]>([]);
   const [undoCount, setUndoCount] = useState(3);
 
   const handleUndo = useCallback((id: string) => {

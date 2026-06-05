@@ -63,7 +63,6 @@ export default function RoundUpSavingsPage() {
 
   const handleWithdraw = async (goalId: string) => {
     setWithdrawing(goalId);
-    await new Promise(r => setTimeout(r, 1500));
     setWithdrawing(null);
     toast.success("Withdrawal initiated!");
   };

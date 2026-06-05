@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowUpRight, ArrowDownLeft, Clock, X } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
-import type { Transaction } from "@/hooks/useMockData";
+import type { Transaction } from "@/types/transaction";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 
