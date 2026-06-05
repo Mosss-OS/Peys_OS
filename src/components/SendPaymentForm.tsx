@@ -96,7 +96,9 @@ export default function SendPaymentForm() {
         try {
           const chainConfig = getChainConfig(selectedNetwork);
           const tokenAddress = token === "USDC" ? chainConfig.usdcAddress : token === "G$" ? chainConfig.gdAddress : chainConfig.usdtAddress;
-          const amountBigInt = BigInt(Number(amount) * 1000000);
+        const amountBigInt = token === "G$"
+          ? BigInt(Number(amount) * 1000000000000000000)
+          : BigInt(Number(amount) * 1000000);
           const dummySecret = "estimate_gas_dummy_secret";
           
           const estimated = await estimateGas(
@@ -368,7 +370,9 @@ export default function SendPaymentForm() {
           tokenAddress = chainConfig.usdtAddress;
         }
         
-        const amountBigInt = BigInt(Number(amount) * 1000000);
+        const amountBigInt = token === "G$"
+          ? BigInt(Number(amount) * 1000000000000000000)
+          : BigInt(Number(amount) * 1000000);
         const expiryDays = 7;
 
         setSendingPhase("approving");
