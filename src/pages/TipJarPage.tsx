@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Coffee, DollarSign, MessageSquare, Share2, History, TrendingUp, ArrowLeft, Copy, Check, Heart } from "lucide-react";
+import { Coffee, MessageSquare, Share2, History, TrendingUp, ArrowLeft, Copy, Check, Heart, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
+import { useEscrow, getChainConfig } from "@/hooks/useEscrow";
+import { supabase } from "@/integrations/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import type { Address } from "viem";
 
 const TIP_AMOUNTS = [1, 5, 10, 25, 50, 100];
 
@@ -18,25 +21,61 @@ interface Tip {
   timestamp: Date;
 }
 
-const MOCK_TIPS: Tip[] = [
-  { id: "1", amount: 5, token: "USDC", message: "Great work!", from: "alice.eth", timestamp: new Date(Date.now() - 3600000) },
-  { id: "2", amount: 10, token: "USDC", message: "Keep it up!", from: "bob.eth", timestamp: new Date(Date.now() - 86400000) },
-  { id: "3", amount: 25, token: "USDT", from: "crypto_fan", timestamp: new Date(Date.now() - 172800000) },
-  { id: "4", amount: 2, token: "PASS", message: "Thanks for the help", timestamp: new Date(Date.now() - 259200000) },
-];
-
 export default function TipJarPage() {
-  const { isLoggedIn, login, walletAddress } = useApp();
+  const { isLoggedIn, login, walletAddress, wallet } = useApp();
+  const { createPayment } = useEscrow();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
   const [message, setMessage] = useState("");
-  const [tips, setTips] = useState<Tip[]>(MOCK_TIPS);
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [tipsLoading, setTipsLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
-  const [token, setToken] = useState<"USDC" | "USDT" | "PASS" | "G$">("USDC");
+  const [token, setToken] = useState<"USDC" | "G$">("G$");
 
   const totalReceived = tips.reduce((sum, tip) => sum + tip.amount, 0);
   const tipJarUrl = `${window.location.origin}/tipjar/${walletAddress?.slice(0, 10) || "demo"}`;
+
+  useEffect(() => {
+    if (!walletAddress) {
+      setTipsLoading(false);
+      return;
+    }
+    loadTips();
+  }, [walletAddress]);
+
+  const loadTips = async () => {
+    setTipsLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        setTipsLoading(false);
+        return;
+      }
+      const { data: payments } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("recipient_email", user.email)
+        .eq("status", "claimed")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (payments) {
+        setTips(payments.map((p) => ({
+          id: p.id,
+          amount: Number(p.amount),
+          token: p.token || "USDC",
+          message: p.memo || undefined,
+          from: p.sender_wallet ? `${p.sender_wallet.slice(0, 6)}...${p.sender_wallet.slice(-4)}` : p.sender_email || undefined,
+          timestamp: new Date(p.created_at),
+        })));
+      }
+    } catch (err) {
+      console.error("Failed to load tips:", err);
+    } finally {
+      setTipsLoading(false);
+    }
+  };
 
   const handleSendTip = async () => {
     const amount = customAmount ? Number(customAmount) : selectedAmount;
@@ -46,25 +85,76 @@ export default function TipJarPage() {
     }
 
     setSending(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const recipientEmail = user?.email || "demo@peys.xyz";
+      const claimSecret = Math.random().toString(36).substring(2, 15);
+      const claimHash = claimSecret; // Will be hashed on-chain
+      const newClaimId = `tip_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
-    const newTip: Tip = {
-      id: `tip_${Date.now()}`,
-      amount,
-      token,
-      message: message || undefined,
-      timestamp: new Date(),
-    };
+      const chainId = 44787; // Celo Alfajores (G$ lives here)
+      const chainConfig = getChainConfig(chainId);
+      const tokenAddress = token === "G$" ? chainConfig.gdAddress : chainConfig.usdcAddress;
 
-    setTips((prev) => [newTip, ...prev]);
-    setSending(false);
-    setSent(true);
-    setSelectedAmount(null);
-    setCustomAmount("");
-    setMessage("");
-    toast.success(`Thank you for the ${amount} ${token} tip! ☕`);
+      const amountBigInt = token === "G$"
+        ? BigInt(Number(amount) * 1000000000000000000)
+        : BigInt(Number(amount) * 1000000);
 
-    setTimeout(() => setSent(false), 3000);
+      const { data: payment, error } = await supabase
+        .from("payments")
+        .insert({
+          payment_id: newClaimId,
+          sender_wallet: walletAddress,
+          sender_email: user?.email || "",
+          recipient_email: recipientEmail,
+          amount: Number(amount),
+          token,
+          memo: message || null,
+          claim_secret: claimSecret,
+          claim_link: newClaimId,
+          status: "pending",
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          chain_id: chainId,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const txHash = await createPayment(
+        tokenAddress as Address,
+        amountBigInt,
+        claimSecret,
+        message || "",
+        7,
+      );
+
+      await supabase
+        .from("payments")
+        .update({ transaction_hash: txHash, status: "pending" })
+        .eq("id", payment.id);
+
+      const newTip: Tip = {
+        id: payment.id,
+        amount: Number(amount),
+        token,
+        message: message || undefined,
+        from: walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : undefined,
+        timestamp: new Date(),
+      };
+
+      setTips((prev) => [newTip, ...prev]);
+      setSent(true);
+      setSelectedAmount(null);
+      setCustomAmount("");
+      setMessage("");
+      toast.success(`Thank you for the ${amount} ${token} tip!`);
+      setTimeout(() => setSent(false), 3000);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to send tip. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const copyLink = () => {
@@ -172,7 +262,7 @@ export default function TipJarPage() {
             <div>
               <label className="mb-2 block text-sm font-medium text-muted-foreground">Token</label>
               <div className="flex gap-2">
-                {(["USDC", "USDT", "PASS", "G$"] as const).filter(t => t !== "USDT").map((t) => (
+                {(["USDC", "G$"] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => setToken(t)}
@@ -202,7 +292,7 @@ export default function TipJarPage() {
                         : "border-border text-foreground hover:bg-secondary"
                     }`}
                   >
-                    ${amount}
+                    {token === "G$" ? `${amount} G$` : `$${amount}`}
                   </button>
                 ))}
               </div>
@@ -212,7 +302,7 @@ export default function TipJarPage() {
             <div>
               <label className="mb-2 block text-sm font-medium text-muted-foreground">Or custom amount</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{token === "G$" ? "G$" : "$"}</span>
                 <input
                   type="number"
                   value={customAmount}
@@ -250,12 +340,7 @@ export default function TipJarPage() {
             >
               {sending ? (
                 <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Coffee className="h-4 w-4" />
-                  </motion.div>
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Sending...
                 </>
               ) : sent ? (
@@ -266,7 +351,7 @@ export default function TipJarPage() {
               ) : (
                 <>
                   <Heart className="h-4 w-4" />
-                  Send Tip
+                  Send {token === "G$" ? "G$" : "Tip"}
                 </>
               )}
             </button>
@@ -281,7 +366,7 @@ export default function TipJarPage() {
             <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mx-auto">
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
-            <p className="text-2xl font-bold text-foreground">${totalReceived.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-foreground">{totalReceived.toFixed(2)} G$</p>
             <p className="text-xs text-muted-foreground">Total Received</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 text-center">
@@ -302,7 +387,12 @@ export default function TipJarPage() {
             <h2 className="font-display text-lg text-foreground">Recent Tips</h2>
           </div>
           <div className="divide-y divide-border">
-            {tips.length === 0 ? (
+            {tipsLoading ? (
+              <div className="p-8 text-center">
+                <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-muted-foreground/50" />
+                <p className="text-sm text-muted-foreground">Loading tips...</p>
+              </div>
+            ) : tips.length === 0 ? (
               <div className="p-8 text-center">
                 <Coffee className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
                 <p className="text-sm text-muted-foreground">No tips yet. Be the first!</p>
@@ -326,7 +416,7 @@ export default function TipJarPage() {
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">{formatTime(tip.timestamp)}</p>
                     {tip.from && (
-                      <p className="text-xs text-muted-foreground">from @{tip.from}</p>
+                      <p className="text-xs text-muted-foreground">from {tip.from}</p>
                     )}
                   </div>
                 </div>
