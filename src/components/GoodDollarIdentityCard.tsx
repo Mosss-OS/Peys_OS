@@ -1,18 +1,27 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Shield, CheckCircle, Loader2, UserCheck, Globe, ExternalLink, AlertCircle, RefreshCw } from "lucide-react";
+import { Shield, CheckCircle, Loader2, UserCheck, Globe, ExternalLink, AlertCircle, RefreshCw, Network } from "lucide-react";
 import { toast } from "sonner";
 import { useGoodDollarIdentity } from "@/hooks/useGoodDollarIdentity";
+import { useSwitchChain } from "wagmi";
 
 export default function GoodDollarIdentityCard() {
-  const { identity, loading, error, checkIdentity, requestVerification, isIdentityDeployed } = useGoodDollarIdentity();
+  const { identity, loading, error, checkIdentity, requestVerification, isIdentityDeployed, needsNetworkSwitch, identityChainId } = useGoodDollarIdentity();
+  const { switchChainAsync } = useSwitchChain();
   const [verifying, setVerifying] = useState(false);
 
   const handleVerify = async () => {
+    if (needsNetworkSwitch) {
+      try {
+        await switchChainAsync({ chainId: identityChainId });
+      } catch {
+        toast.error("Please switch to Celo Alfajores to verify your identity");
+        return;
+      }
+    }
     setVerifying(true);
     try {
       await requestVerification();
-      toast.success("GoodDollar Identity verified!");
+      toast.success("GoodDollar Identity verification started! Complete it in the opened tab.");
     } catch (err: any) {
       toast.error(err?.message || "Verification failed");
     } finally {
@@ -40,6 +49,11 @@ export default function GoodDollarIdentityCard() {
             {identity.verificationLevel === "unique-human" ? "Unique Human" : identity.isVerified ? "Verified" : "Registered"}
           </div>
         )}
+      </div>
+
+      <div className="mb-3 flex items-center gap-1.5 rounded-md bg-muted/50 px-2.5 py-1.5">
+        <Network className="h-3 w-3 text-muted-foreground" />
+        <span className="text-xs text-muted-foreground">Powered by Celo Alfajores</span>
       </div>
 
       {!isIdentityDeployed ? (
@@ -102,18 +116,25 @@ export default function GoodDollarIdentityCard() {
                 disabled={verifying}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
               >
-                {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
-                {verifying ? "Verifying..." : "Verify Identity"}
+                {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+                {verifying ? "Waiting for verification..." : "Verify via GoodDollar App"}
               </button>
             )}
             <button
               onClick={checkIdentity}
               disabled={loading}
+              title="Refresh identity status"
               className="flex items-center justify-center gap-2 rounded-lg border border-border py-2 px-3 text-sm font-medium text-foreground hover:bg-secondary disabled:opacity-50 transition-colors"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
+
+          {!identity.isVerified && (
+            <p className="text-xs text-muted-foreground text-center">
+              Opens GoodDollar App in a new tab. Complete verification there, then refresh here.
+            </p>
+          )}
         </div>
       )}
     </div>
