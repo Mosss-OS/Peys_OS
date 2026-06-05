@@ -32,6 +32,8 @@ interface ImportMetaEnv {
   readonly VITE_USDT_ADDRESS_POLYGON: string;
   readonly VITE_GDOLLAR_ADDRESS_BASE_SEPOLIA: string;
   readonly VITE_GDOLLAR_ADDRESS_BASE: string;
+  readonly VITE_GDOLLAR_ADDRESS_CELO: string;
+  readonly VITE_GDOLLAR_IDENTITY_ADDRESS: string;
   readonly VITE_WHATSAPP_BOT_URL: string;
   readonly VITE_BOT_API_URL: string;
   readonly VITE_ESCROW_CONTRACT_ADDRESS: string;
