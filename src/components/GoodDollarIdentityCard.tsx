@@ -14,7 +14,7 @@ import { useSwitchChain } from "wagmi";
  * verification action, and error/loading states.
  */
 export default function GoodDollarIdentityCard() {
-  const { identity, loading, error, checkIdentity, requestVerification, isIdentityDeployed, needsNetworkSwitch, identityChainId } = useGoodDollarIdentity();
+  const { identity, loading, error, checkIdentity, requestVerification, verificationAttempted, isIdentityDeployed, needsNetworkSwitch, identityChainId } = useGoodDollarIdentity();
   const { switchChainAsync } = useSwitchChain();
   const [verifying, setVerifying] = useState(false);
 
@@ -34,7 +34,7 @@ export default function GoodDollarIdentityCard() {
     setVerifying(true);
     try {
       await requestVerification();
-      toast.success("GoodDollar Identity verification started! Complete it in the opened tab.");
+      toast.success("Verification link opened in new tab");
     } catch (err: any) {
       toast.error(err?.message || "Verification failed");
     } finally {
@@ -143,7 +143,12 @@ export default function GoodDollarIdentityCard() {
             </button>
           </div>
 
-          {!identity.isVerified && (
+          {verificationAttempted && !identity.isVerified && !loading && (
+            <p className="text-xs text-amber-500 text-center">
+              Verification pending. Complete it on the GoodDollar App and click Refresh to check status.
+            </p>
+          )}
+          {!identity.isVerified && !verificationAttempted && (
             <p className="text-xs text-muted-foreground text-center">
               Opens GoodDollar App in a new tab. Complete verification there, then refresh here.
             </p>

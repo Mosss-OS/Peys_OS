@@ -1,5 +1,5 @@
 /** GoodCollectivePage - Community governance hub for creating and voting on proposals. */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Users, Vote, TrendingUp, Calendar, Clock, CheckCircle, XCircle,
@@ -11,6 +11,7 @@ import { useApp } from "@/contexts/AppContext";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CollectiveProposal {
   id: string;
@@ -34,10 +35,9 @@ interface CollectiveStats {
 }
 
 
-
 /** Community governance page for creating proposals, voting, and tracking treasury stats. */
 export default function GoodCollectivePage() {
-  const { isLoggedIn, login } = useApp();
+  const { isLoggedIn, login, wallet } = useApp();
   const [proposals, setProposals] = useState<CollectiveProposal[]>([]);
   const [loading, setLoading] = useState(false);
   const [votingId, setVotingId] = useState<string | null>(null);
@@ -46,6 +46,62 @@ export default function GoodCollectivePage() {
   const [createDescription, setCreateDescription] = useState("");
   const [createCategory, setCreateCategory] = useState<CollectiveProposal["category"]>("distribution");
   const [creating, setCreating] = useState(false);
+  const [votedProposals, setVotedProposals] = useState<Set<string>>(new Set());
+
+  const fetchProposals = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("collective_proposals")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        toast.error("Failed to fetch proposals");
+        return;
+      }
+
+      const mapped: CollectiveProposal[] = (data || []).map((p) => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        proposer: p.user_id ? `${p.user_id.slice(0, 6)}...${p.user_id.slice(-4)}` : "Unknown",
+        status: p.status,
+        forVotes: Number(p.for_votes),
+        againstVotes: Number(p.against_votes),
+        totalVotes: Number(p.for_votes) + Number(p.against_votes),
+        deadline: p.deadline,
+        category: p.category,
+      }));
+
+      setProposals(mapped);
+    } catch {
+      toast.error("Failed to fetch proposals");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserVotes = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("collective_votes")
+      .select("proposal_id")
+      .eq("user_id", user.id);
+
+    if (data) {
+      setVotedProposals(new Set(data.map((v) => v.proposal_id)));
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchProposals();
+      fetchUserVotes();
+    }
+  }, [isLoggedIn]);
 
   const stats: CollectiveStats = {
     totalMembers: 0,
@@ -57,9 +113,86 @@ export default function GoodCollectivePage() {
 
   const handleVote = async (proposalId: string, support: boolean) => {
     if (!isLoggedIn) { login(); return; }
+    if (votedProposals.has(proposalId)) {
+      toast.error("You have already voted on this proposal");
+      return;
+    }
     setVotingId(proposalId);
-    toast.success(`Vote recorded: ${support ? "For" : "Against"}`);
-    setVotingId(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be signed in to vote");
+        setVotingId(null);
+        return;
+      }
+
+      const weight = wallet.balanceG$ || 0;
+
+      const { error: voteError } = await supabase
+        .from("collective_votes")
+        .insert({
+          proposal_id: proposalId,
+          user_id: user.id,
+          support,
+          weight,
+        });
+
+      if (voteError) {
+        toast.error(voteError.message);
+        setVotingId(null);
+        return;
+      }
+
+      const { data: current, error: fetchError } = await supabase
+        .from("collective_proposals")
+        .select("for_votes, against_votes")
+        .eq("id", proposalId)
+        .single();
+
+      if (fetchError) {
+        toast.error("Failed to update vote count");
+        setVotingId(null);
+        return;
+      }
+
+      const newForVotes = support
+        ? Number(current.for_votes) + weight
+        : Number(current.for_votes);
+      const newAgainstVotes = support
+        ? Number(current.against_votes)
+        : Number(current.against_votes) + weight;
+
+      const { error: updateError } = await supabase
+        .from("collective_proposals")
+        .update({ for_votes: newForVotes, against_votes: newAgainstVotes })
+        .eq("id", proposalId);
+
+      if (updateError) {
+        toast.error("Vote recorded but count update failed");
+        setVotingId(null);
+        return;
+      }
+
+      setVotedProposals((prev) => new Set(prev).add(proposalId));
+      setProposals((prev) =>
+        prev.map((p) =>
+          p.id === proposalId
+            ? {
+                ...p,
+                forVotes: support ? p.forVotes + weight : p.forVotes,
+                againstVotes: support ? p.againstVotes : p.againstVotes + weight,
+                totalVotes: p.totalVotes + weight,
+              }
+            : p
+        )
+      );
+
+      toast.success(`Vote recorded: ${support ? "For" : "Against"}`);
+    } catch {
+      toast.error("Failed to record vote");
+    } finally {
+      setVotingId(null);
+    }
   };
 
   const handleCreateProposal = async () => {
@@ -67,10 +200,62 @@ export default function GoodCollectivePage() {
       toast.error("Title and description required");
       return;
     }
-    toast.info("Proposal creation requires a real governance contract. Coming soon!");
-    setShowCreate(false);
-    setCreateTitle("");
-    setCreateDescription("");
+    setCreating(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be signed in to create a proposal");
+        setCreating(false);
+        return;
+      }
+
+      const deadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data, error } = await supabase
+        .from("collective_proposals")
+        .insert({
+          title: createTitle.trim(),
+          description: createDescription.trim(),
+          category: createCategory,
+          user_id: user.id,
+          status: "active",
+          for_votes: 0,
+          against_votes: 0,
+          deadline,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        toast.error(error.message);
+        setCreating(false);
+        return;
+      }
+
+      const newProposal: CollectiveProposal = {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        proposer: `${user.id.slice(0, 6)}...${user.id.slice(-4)}`,
+        status: data.status,
+        forVotes: Number(data.for_votes),
+        againstVotes: Number(data.against_votes),
+        totalVotes: 0,
+        deadline: data.deadline,
+        category: data.category,
+      };
+
+      setProposals((prev) => [newProposal, ...prev]);
+      toast.success("Proposal created!");
+
+      setShowCreate(false);
+      setCreateTitle("");
+      setCreateDescription("");
+    } catch {
+      toast.error("Failed to create proposal");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const formatVotes = (votes: number) => {
@@ -215,91 +400,100 @@ export default function GoodCollectivePage() {
           </motion.div>
         )}
 
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        )}
+
         {/* Proposals */}
-        <div className="space-y-3">
-          {proposals.map((proposal) => (
-            <motion.div key={proposal.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-border bg-card overflow-hidden"
-            >
-              <div className="p-4 sm:p-5">
-                <div className="mb-3 flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-display text-base text-foreground sm:text-lg">{proposal.title}</h3>
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[proposal.status]}`}>
-                        {proposal.status}
-                      </span>
+        {!loading && (
+          <div className="space-y-3">
+            {proposals.map((proposal) => (
+              <motion.div key={proposal.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl border border-border bg-card overflow-hidden"
+              >
+                <div className="p-4 sm:p-5">
+                  <div className="mb-3 flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-display text-base text-foreground sm:text-lg">{proposal.title}</h3>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[proposal.status]}`}>
+                          {proposal.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        by {proposal.proposer} &middot; {proposal.category}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      by {proposal.proposer} &middot; {proposal.category}
-                    </p>
                   </div>
-                </div>
 
-                <p className="mb-4 text-sm text-muted-foreground">{proposal.description}</p>
+                  <p className="mb-4 text-sm text-muted-foreground">{proposal.description}</p>
 
-                {/* Vote Bar */}
-                <div className="mb-3">
-                  <div className="flex h-2 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="bg-green-500 transition-all"
-                      style={{ width: `${(proposal.forVotes / Math.max(proposal.totalVotes, 1)) * 100}%` }}
-                    />
-                    <div
-                      className="bg-red-500 transition-all"
-                      style={{ width: `${(proposal.againstVotes / Math.max(proposal.totalVotes, 1)) * 100}%` }}
-                    />
+                  {/* Vote Bar */}
+                  <div className="mb-3">
+                    <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="bg-green-500 transition-all"
+                        style={{ width: `${(proposal.forVotes / Math.max(proposal.totalVotes, 1)) * 100}%` }}
+                      />
+                      <div
+                        className="bg-red-500 transition-all"
+                        style={{ width: `${(proposal.againstVotes / Math.max(proposal.totalVotes, 1)) * 100}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 flex justify-between text-xs">
+                      <span className="text-green-600 font-medium">{formatVotes(proposal.forVotes)} For</span>
+                      <span className="text-muted-foreground">{formatVotes(proposal.totalVotes)} total</span>
+                      <span className="text-red-600 font-medium">{formatVotes(proposal.againstVotes)} Against</span>
+                    </div>
                   </div>
-                  <div className="mt-1 flex justify-between text-xs">
-                    <span className="text-green-600 font-medium">{formatVotes(proposal.forVotes)} For</span>
-                    <span className="text-muted-foreground">{formatVotes(proposal.totalVotes)} total</span>
-                    <span className="text-red-600 font-medium">{formatVotes(proposal.againstVotes)} Against</span>
-                  </div>
-                </div>
 
-                {/* Deadline & Actions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    {proposal.status === "active" ? (
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {getDaysLeft(proposal.deadline)} days left
-                      </span>
-                    ) : proposal.status === "passed" ? (
-                      <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Approved</span>
-                    ) : proposal.status === "rejected" ? (
-                      <span className="flex items-center gap-1"><XCircle className="h-3 w-3 text-red-500" /> Rejected</span>
-                    ) : (
-                      <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Executed</span>
+                  {/* Deadline & Actions */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      {proposal.status === "active" ? (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {getDaysLeft(proposal.deadline)} days left
+                        </span>
+                      ) : proposal.status === "passed" ? (
+                        <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Approved</span>
+                      ) : proposal.status === "rejected" ? (
+                        <span className="flex items-center gap-1"><XCircle className="h-3 w-3 text-red-500" /> Rejected</span>
+                      ) : (
+                        <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Executed</span>
+                      )}
+                    </div>
+                    {proposal.status === "active" && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleVote(proposal.id, true)}
+                          disabled={votingId === proposal.id || votedProposals.has(proposal.id)}
+                          className="flex items-center gap-1 rounded-lg bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-600 hover:bg-green-500/20 disabled:opacity-50 transition-colors"
+                        >
+                          {votingId === proposal.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <ThumbsUp className="h-3 w-3" />}
+                          For
+                        </button>
+                        <button
+                          onClick={() => handleVote(proposal.id, false)}
+                          disabled={votingId === proposal.id || votedProposals.has(proposal.id)}
+                          className="flex items-center gap-1 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                        >
+                          {votingId === proposal.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <ThumbsDown className="h-3 w-3" />}
+                          Against
+                        </button>
+                      </div>
                     )}
                   </div>
-                  {proposal.status === "active" && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleVote(proposal.id, true)}
-                        disabled={votingId === proposal.id}
-                        className="flex items-center gap-1 rounded-lg bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-600 hover:bg-green-500/20 disabled:opacity-50 transition-colors"
-                      >
-                        {votingId === proposal.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <ThumbsUp className="h-3 w-3" />}
-                        For
-                      </button>
-                      <button
-                        onClick={() => handleVote(proposal.id, false)}
-                        disabled={votingId === proposal.id}
-                        className="flex items-center gap-1 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
-                      >
-                        {votingId === proposal.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <ThumbsDown className="h-3 w-3" />}
-                        Against
-                      </button>
-                    </div>
-                  )}
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
-        {proposals.length === 0 && (
+        {!loading && proposals.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-12 text-center">
             <Vote className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">No proposals yet. Be the first to create one!</p>

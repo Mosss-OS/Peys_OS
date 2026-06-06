@@ -68,6 +68,7 @@ export function useGoodDollarIdentity() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verificationAttempted, setVerificationAttempted] = useState(false);
 
   /**
    * Read the user's identity status from the GoodDollar contract.
@@ -139,13 +140,15 @@ export function useGoodDollarIdentity() {
       throw new Error("GoodDollar Identity not deployed on this network yet");
     }
 
+    setVerificationAttempted(true);
+
     // Build the GoodDollar app verification URL with the user's address
     const gdAppUrl = `https://app.gooddollar.org/verify?address=${walletAddress}&chain=celo-alfajores`;
 
     // Open the GoodDollar verification portal in a new tab
     window.open(gdAppUrl, "_blank", "noopener,noreferrer");
 
-    // Simulate verification progress while the user completes it in the other tab
+    // Poll contract while the user completes verification in the other tab
     setLoading(true);
     setError(null);
 
@@ -195,14 +198,8 @@ export function useGoodDollarIdentity() {
         }
       }
 
-      // Timeout — still allow simulation for demo purposes
-      setIdentity(prev => ({
-        ...prev,
-        isVerified: true,
-        isRegistered: true,
-        verificationLevel: "basic",
-        lastVerified: new Date(),
-      }));
+      // Timeout — no fallback simulation
+      throw new Error("Verification timeout - please try again or check status on GoodDollar App");
     } finally {
       setLoading(false);
     }
@@ -216,6 +213,7 @@ export function useGoodDollarIdentity() {
     error,
     checkIdentity,
     requestVerification,
+    verificationAttempted,
     isIdentityDeployed: !!IDENTITY_ADDRESS,
     identityChainId: IDENTITY_CHAIN_ID,
     needsNetworkSwitch,
