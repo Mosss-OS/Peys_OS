@@ -35,11 +35,7 @@ interface PaymentInsert {
   expires_at: string;
 }
 
-const SAMPLE_CSV = `email,amount,token,memo
-alice@email.com,50,USDC,Lunch money
-bob@email.com,100,USDC,Project payment
-grace@email.com,75,USDT,Birthday gift
-moses@email.com,200,USDC,Freelance work`;
+const CSV_HEADERS = `email,amount,token,memo`;
 
 /** BatchPage component - Multi-step batch payment flow: CSV upload, review, PIN entry, on-chain processing, and results */
 export default function BatchPage() {
@@ -126,14 +122,14 @@ export default function BatchPage() {
   };
 
   const downloadSample = () => {
-    const blob = new Blob([SAMPLE_CSV], { type: "text/csv" });
+    const blob = new Blob([CSV_HEADERS], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "peys-batch-sample.csv";
+    a.download = "peys-batch-template.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Sample CSV downloaded");
+    toast.success("CSV template downloaded");
   };
 
   const removeRecipient = (idx: number) => {

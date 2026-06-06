@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BarChart3, TrendingUp, Users, Globe, ArrowUpRight, ArrowDownLeft, Clock, Loader2 } from "lucide-react";
+import { TrendingUp, ArrowUpRight, ArrowDownLeft, Clock, Loader2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function AnalyticsPage() {
   const { isLoggedIn, login, walletAddress } = useApp();
   const [loading, setLoading] = useState(true);
+  const [hasData, setHasData] = useState(false);
   const [stats, setStats] = useState({
     totalVolume: 0,
     totalPayments: 0,
@@ -21,7 +22,6 @@ export default function AnalyticsPage() {
   const [claimRateData, setClaimRateData] = useState<{name: string, rate: number}[]>([]);
   const [tokenDistribution, setTokenDistribution] = useState<{name: string, value: number, color: string}[]>([]);
   const [topRecipients, setTopRecipients] = useState<{name: string, amount: number, count: number}[]>([]);
-  const [geoData, setGeoData] = useState<{country: string, payments: number, pct: number}[]>([]);
 
   useEffect(() => {
     if (isLoggedIn && walletAddress) {
@@ -42,7 +42,6 @@ export default function AnalyticsPage() {
 
       const userEmail = user?.email || "";
 
-      // Fetch all payments for this user
       const { data: payments, error } = await supabase
         .from("payments")
         .select("*")
@@ -56,26 +55,27 @@ export default function AnalyticsPage() {
       }
 
       if (!payments || payments.length === 0) {
+        setHasData(false);
         setLoading(false);
-        setVolumeChartData([
-          { name: "Mon", volume: 0 },
-          { name: "Tue", volume: 0 },
-          { name: "Wed", volume: 0 },
-          { name: "Thu", volume: 0 },
-          { name: "Fri", volume: 0 },
-          { name: "Sat", volume: 0 },
-          { name: "Sun", volume: 0 },
-        ]);
         return;
       }
 
-      // Calculate stats
+      setHasData(true);
+
       const totalVolume = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0) / 1000000;
       const totalPayments = payments.length;
       const claimedPayments = payments.filter(p => p.status === "claimed").length;
       const claimRate = totalPayments > 0 ? Math.round((claimedPayments / totalPayments) * 100) : 0;
 
-      // Calculate volume by day (last 7 days)
+      const claimedWithTime = payments.filter(p => p.status === "claimed" && p.claimed_at);
+      const avgClaimTime = claimedWithTime.length > 0
+        ? claimedWithTime.reduce((sum, p) => {
+            const created = new Date(p.created_at).getTime();
+            const claimed = new Date(p.claimed_at).getTime();
+            return sum + (claimed - created);
+          }, 0) / claimedWithTime.length / 3600000
+        : 0;
+
       const now = new Date();
       const last7Days: Record<string, number> = {};
       for (let i = 6; i >= 0; i--) {
@@ -98,7 +98,6 @@ export default function AnalyticsPage() {
         volume: Math.round(volume * 100) / 100,
       }));
 
-      // Calculate top recipients
       const recipientAmounts: Record<string, number> = {};
       const recipientCounts: Record<string, number> = {};
       
@@ -115,7 +114,6 @@ export default function AnalyticsPage() {
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 5);
 
-      // Calculate claim rate trend (last 6 weeks)
       const claimRateTrend: {name: string, rate: number}[] = [];
       for (let i = 5; i >= 0; i--) {
         const weekStart = new Date(now);
@@ -134,7 +132,6 @@ export default function AnalyticsPage() {
         claimRateTrend.push({ name: `Week ${6 - i}`, rate });
       }
 
-      // Calculate token distribution
       const tokenCounts: Record<string, number> = {};
       payments.forEach(p => {
         const token = p.token || "USDC";
@@ -147,25 +144,16 @@ export default function AnalyticsPage() {
         color: i === 0 ? "hsl(250, 65%, 52%)" : "hsl(155, 70%, 42%)",
       }));
 
-      // Geographic data - placeholder (would need location tracking)
-      const geoData = [
-        { country: "Africa", payments: 0, pct: 0 },
-        { country: "Americas", payments: 0, pct: 0 },
-        { country: "Europe", payments: 0, pct: 0 },
-        { country: "Asia", payments: 0, pct: 0 },
-      ];
-
       setStats({
         totalVolume,
         totalPayments,
         claimRate,
-        avgClaimTime: 2.4,
+        avgClaimTime: Math.round(avgClaimTime * 10) / 10,
       });
       setVolumeChartData(volumeDataFormatted);
       setClaimRateData(claimRateTrend);
       setTokenDistribution(tokenDist);
       setTopRecipients(topRecipientsFormatted);
-      setGeoData(geoData);
 
     } catch (error) {
       console.error("Error in fetchAnalytics:", error);
@@ -180,16 +168,11 @@ export default function AnalyticsPage() {
     return `$${amount.toFixed(2)}`;
   };
 
-  const displayStats = loading ? [
-    { label: "Total Volume", value: "-", change: "+0%", icon: TrendingUp },
-    { label: "Payments Sent", value: "-", change: "+0%", icon: ArrowUpRight },
-    { label: "Claim Rate", value: "-%", change: "+0%", icon: ArrowDownLeft },
-    { label: "Avg. Claim Time", value: "-h", change: "-0%", icon: Clock },
-  ] : [
-    { label: "Total Volume", value: formatAmount(stats.totalVolume), change: "+0%", icon: TrendingUp },
-    { label: "Payments Sent", value: stats.totalPayments.toString(), change: "+0%", icon: ArrowUpRight },
-    { label: "Claim Rate", value: `${stats.claimRate}%`, change: "+0%", icon: ArrowDownLeft },
-    { label: "Avg. Claim Time", value: `${stats.avgClaimTime}h`, change: "-0%", icon: Clock },
+  const displayStats = [
+    { label: "Total Volume", value: hasData ? formatAmount(stats.totalVolume) : "—", icon: TrendingUp },
+    { label: "Payments Sent", value: hasData ? stats.totalPayments.toString() : "—", icon: ArrowUpRight },
+    { label: "Claim Rate", value: hasData ? `${stats.claimRate}%` : "—", icon: ArrowDownLeft },
+    { label: "Avg. Claim Time", value: hasData ? `${stats.avgClaimTime}h` : "—", icon: Clock },
   ];
 
   if (!isLoggedIn) {
@@ -236,47 +219,38 @@ export default function AnalyticsPage() {
           </div>
         ) : (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {(() => {
-            const formatAmount = (amount: number) => {
-              if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
-              if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
-              return `$${amount.toFixed(2)}`;
-            };
-            const displayStats = loading ? [
-              { label: "Total Volume", value: "-", change: "+0%", icon: TrendingUp },
-              { label: "Payments Sent", value: "-", change: "+0%", icon: ArrowUpRight },
-              { label: "Claim Rate", value: "-%", change: "+0%", icon: ArrowDownLeft },
-              { label: "Avg. Claim Time", value: "-h", change: "-0%", icon: Clock },
-            ] : [
-              { label: "Total Volume", value: formatAmount(stats.totalVolume), change: "+0%", icon: TrendingUp },
-              { label: "Payments Sent", value: stats.totalPayments.toString(), change: "+0%", icon: ArrowUpRight },
-              { label: "Claim Rate", value: `${stats.claimRate}%`, change: "+0%", icon: ArrowDownLeft },
-              { label: "Avg. Claim Time", value: `${stats.avgClaimTime}h`, change: "-0%", icon: Clock },
-            ];
-            return displayStats.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="rounded-xl border border-border bg-card p-4 shadow-soft"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">{s.label}</p>
-                  <s.icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="mt-2 font-display text-xl text-foreground sm:text-2xl">{s.value}</p>
-                <p className={`mt-1 text-xs font-medium ${s.change.startsWith("+") ? "text-primary" : "text-destructive"}`}>
-                  {s.change} vs last period
-                </p>
-              </motion.div>
-            ));
-          })()}
+          {displayStats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="rounded-xl border border-border bg-card p-4 shadow-soft"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <s.icon className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <p className="mt-2 font-display text-xl text-foreground sm:text-2xl">{s.value}</p>
+            </motion.div>
+          ))}
         </div>
         )}
 
+        {!hasData && !loading ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center"
+          >
+            <TrendingUp className="mb-4 h-12 w-12 text-muted-foreground/50" />
+            <h3 className="mb-2 text-lg font-semibold text-foreground">No analytics data yet</h3>
+            <p className="max-w-md text-sm text-muted-foreground">
+              Send your first payment to see volume trends, claim rates, and recipient stats here.
+            </p>
+          </motion.div>
+        ) : (
+        <>
         {/* Charts Row */}
-        <div className="mb-6 grid gap-4 sm:gap-6 lg:grid-cols-2">
+        {hasData && <div className="mb-6 grid gap-4 sm:gap-6 lg:grid-cols-2">
           {/* Volume Chart */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
             className="rounded-xl border border-border bg-card p-4 shadow-soft sm:p-6"
@@ -305,7 +279,7 @@ export default function AnalyticsPage() {
               <AreaChart data={claimRateData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" domain={[60, 100]} />
+                <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
                   formatter={(value: number) => [`${value}%`, "Claim Rate"]}
@@ -314,10 +288,10 @@ export default function AnalyticsPage() {
               </AreaChart>
             </ResponsiveContainer>
           </motion.div>
-        </div>
+        </div>}
 
         {/* Bottom Row */}
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+        {hasData && <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           {/* Token Distribution */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
             className="rounded-xl border border-border bg-card p-4 shadow-soft sm:p-6"
@@ -366,30 +340,9 @@ export default function AnalyticsPage() {
               ))}
             </div>
           </motion.div>
-
-          {/* Geographic Distribution */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-            className="rounded-xl border border-border bg-card p-4 shadow-soft sm:p-6"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">Geographic Reach</h3>
-            </div>
-            <div className="space-y-3">
-              {geoData.map((g) => (
-                <div key={g.country}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-foreground">{g.country}</span>
-                    <span className="text-muted-foreground">{g.payments}</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${g.pct}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+        </div>}
+        </>
+        )}
       </div>
       <Footer />
     </div>

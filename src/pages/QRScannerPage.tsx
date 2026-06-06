@@ -24,11 +24,7 @@ export default function QRScannerPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const scanHistory: ScanHistory[] = [
-    { id: "1", address: "0x1234567890abcdef1234567890abcdef12345678", timestamp: "2026-03-18 14:30", status: "valid" },
-    { id: "2", address: "0xabcdef1234567890abcdef1234567890abcdef12", amount: 50, timestamp: "2026-03-17 09:15", status: "valid" },
-    { id: "3", address: "0xinvalid123", timestamp: "2026-03-16 18:45", status: "invalid" },
-  ];
+  const [scanHistory, setScanHistory] = useState<ScanHistory[]>([]);
 
   const startCamera = async () => {
     try {
@@ -52,23 +48,6 @@ export default function QRScannerPage() {
       streamRef.current = null;
     }
     setScanning(false);
-  };
-
-  const simulateScan = () => {
-    const fakeAddress = "0x" + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
-    const isValid = /^0x[a-fA-F0-9]{40}$/.test(fakeAddress);
-    setLastScan({
-      id: Date.now().toString(),
-      address: fakeAddress,
-      amount: amount ? parseFloat(amount) : undefined,
-      timestamp: new Date().toISOString(),
-      status: isValid ? "valid" : "invalid",
-    });
-    if (isValid) {
-      toast.success("Valid address scanned!");
-    } else {
-      toast.error("Invalid address format");
-    }
   };
 
   const handleUseAddress = () => {
@@ -166,13 +145,7 @@ export default function QRScannerPage() {
                     <X className="h-5 w-5" />
                     Stop
                   </button>
-                  <button
-                    onClick={simulateScan}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90"
-                  >
-                    <Camera className="h-5 w-5" />
-                    Scan
-                  </button>
+
                 </>
               )}
             </div>
@@ -268,32 +241,40 @@ export default function QRScannerPage() {
             Scan History
           </h2>
           <div className="space-y-3">
-            {scanHistory.map((scan) => (
-              <div key={scan.id} className="flex items-center justify-between rounded-lg border border-border p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                    scan.status === "valid" ? "bg-green-500/10" : "bg-red-500/10"
-                  }`}>
-                    {scan.status === "valid" ? (
-                      <Link2 className="h-5 w-5 text-green-500" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-red-500" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-mono text-sm text-foreground">
-                      {scan.address.slice(0, 10)}...{scan.address.slice(-8)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(scan.timestamp).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                {scan.amount && (
-                  <span className="font-medium text-foreground">${scan.amount}</span>
-                )}
+            {scanHistory.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <History className="mb-3 h-8 w-8 text-muted-foreground/50" />
+                <p className="text-sm text-muted-foreground">No scan history yet</p>
+                <p className="text-xs text-muted-foreground/70 mt-1">Scan a QR code to see it here</p>
               </div>
-            ))}
+            ) : (
+              scanHistory.map((scan) => (
+                <div key={scan.id} className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                      scan.status === "valid" ? "bg-green-500/10" : "bg-red-500/10"
+                    }`}>
+                      {scan.status === "valid" ? (
+                        <Link2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-5 w-5 text-red-500" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-mono text-sm text-foreground">
+                        {scan.address.slice(0, 10)}...{scan.address.slice(-8)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(scan.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  {scan.amount && (
+                    <span className="font-medium text-foreground">${scan.amount}</span>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </motion.div>
       </div>
