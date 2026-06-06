@@ -1,4 +1,4 @@
-import { parseAbi } from "viem";
+import { parseAbi } from "npm:viem";
 
 export const ESCROW_ABI = parseAbi([
   "function createPaymentWithPermit(address _sender, address _recipient, uint256 _amount, bytes32 _secretHash, uint256 _duration, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) external returns (uint256)",

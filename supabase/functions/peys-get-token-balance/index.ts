@@ -1,10 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { createPublicClient, http, parseAbi } from "viem";
+import { createPublicClient, http, parseAbi } from "npm:viem";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 const ERC20_ABI = parseAbi([
-  "function allowance(address owner, address spender) view returns (uint256)",
+  "function balanceOf(address account) view returns (uint256)",
 ]);
 
 Deno.serve(async (req) => {
@@ -45,11 +45,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { tokenAddress, ownerAddress, spenderAddress, chainId } = await req.json();
+    const { tokenAddress, walletAddress, chainId } = await req.json();
 
-    if (!tokenAddress || !ownerAddress || !spenderAddress) {
+    if (!tokenAddress || !walletAddress) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: tokenAddress, ownerAddress, spenderAddress" }),
+        JSON.stringify({ error: "Missing required fields: tokenAddress, walletAddress" }),
         { status: 400, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
       );
     }
@@ -62,25 +62,24 @@ Deno.serve(async (req) => {
       transport: http(rpcUrl),
     });
 
-    // Get allowance
-    const allowance = await publicClient.readContract({
+    // Get balance
+    const balance = await publicClient.readContract({
       address: tokenAddress as `0x${string}`,
       abi: ERC20_ABI,
-      functionName: "allowance",
-      args: [ownerAddress as `0x${string}`, spenderAddress as `0x${string}`],
+      functionName: "balanceOf",
+      args: [walletAddress as `0x${string}`],
     });
 
     return new Response(
       JSON.stringify({
-        allowance: allowance.toString(),
+        balance: balance.toString(),
         tokenAddress,
-        ownerAddress,
-        spenderAddress,
+        walletAddress,
       }),
       { status: 200, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error getting token allowance:", error);
+    console.error("Error getting token balance:", error);
     return new Response(
       JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       { status: 500, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }

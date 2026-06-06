@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createWalletClient, http, keccak256, stringToHex } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { createWalletClient, http, keccak256, stringToHex } from "npm:viem";
+import { privateKeyToAccount } from "npm:viem/accounts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { ESCROW_ABI, getRpcUrl, getEscrowContractAddress } from "../_shared/blockchain.ts";
 
