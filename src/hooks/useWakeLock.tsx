@@ -1,3 +1,7 @@
+/**
+ * @file Manages the Screen Wake Lock API to prevent the device screen from dimming.
+ */
+
 import { useCallback, useContext, useEffect, useRef, useState, createContext, ReactNode } from "react";
 
 interface WakeLockContextType {
@@ -11,6 +15,10 @@ interface WakeLockContextType {
 
 const WakeLockContext = createContext<WakeLockContextType | null>(null);
 
+/**
+ * Provider that wraps the app and exposes wake-lock controls via context.
+ * Automatically re-acquires the lock when the page becomes visible again.
+ */
 export function WakeLockProvider({ children }: { children: ReactNode }) {
   const [wakeLockEnabled, setWakeLockEnabled] = useState(() => localStorage.getItem("peys_wake_lock_enabled") !== "false");
   const [isWakeLockActive, setIsWakeLockActive] = useState(false);
@@ -54,6 +62,7 @@ export function WakeLockProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Release wake lock on unmount to prevent holding it unnecessarily
   useEffect(() => {
     return () => {
       if (wakeLockRef.current) {
@@ -62,6 +71,7 @@ export function WakeLockProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Re-acquire the wake lock when the page becomes visible again (if enabled)
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible' && wakeLockEnabled && !wakeLockRef.current) {
@@ -91,6 +101,9 @@ export function WakeLockProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook to access the wake-lock context (enable/disable, request/release, isSupported).
+ */
 export function useWakeLock() {
   const ctx = useContext(WakeLockContext);
   if (!ctx) throw new Error("useWakeLock must be inside WakeLockProvider");

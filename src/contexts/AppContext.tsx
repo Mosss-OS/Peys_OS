@@ -1,3 +1,7 @@
+/**
+ * @file Global application context providing wallet balances, transactions, and auth integration.
+ */
+
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { usePrivyAuth } from "@/contexts/PrivyContext";
 import { createPublicClient, http, formatUnits, type Address, type PublicClient } from "viem";
@@ -7,6 +11,7 @@ import { chainConfigs } from "@/lib/chains";
 import { supabase } from "@/integrations/supabase/client";
 import type { Transaction } from "@/types/transaction";
 
+/** Token and native-coin balances for a single blockchain network. */
 export interface NetworkBalance {
   chainId: number;
   networkName: string;
@@ -17,6 +22,7 @@ export interface NetworkBalance {
   nativeSymbol: string;
 }
 
+/** Aggregated wallet data including per-network and total USD balances. */
 interface UserWallet {
   address: string;
   balanceUSDC: number;
@@ -26,6 +32,7 @@ interface UserWallet {
   networkBalances: NetworkBalance[];
 }
 
+/** Shape of the global application context exposed to consumers. */
 interface AppContextType {
   isLoggedIn: boolean;
   isLoading: boolean;
@@ -43,6 +50,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null);
 
+/** Pre-built viem public clients keyed by chain ID for reading on-chain data. */
 const publicClients = Object.entries(chainConfigs).reduce((acc, [chainId, config]) => {
   acc[Number(chainId)] = createPublicClient({
     chain: baseSepolia,
@@ -51,6 +59,10 @@ const publicClients = Object.entries(chainConfigs).reduce((acc, [chainId, config
   return acc;
 }, {} as Record<number, ReturnType<typeof createPublicClient>>);
 
+/**
+ * Provider that aggregates wallet balances across all supported chains,
+ * loads transaction history, and syncs auth state with Supabase.
+ */
 export function AppProvider({ children }: { children: ReactNode }) {
   const { isLoggedIn, isLoading, login, logout, walletAddress } = usePrivyAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -66,6 +78,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ? walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4)
     : "Not connected";
 
+  /**
+   * Fetch token and native-coin balances across all configured chains.
+   * Returns early with zeroed balances if the user is not logged in.
+   */
   const fetchBalances = useCallback(async () => {
     if (!walletAddress || !isLoggedIn) {
       setBalanceUSDC(0);
@@ -82,12 +98,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let totalUSDT = 0;
     let totalG$ = 0;
 
+    // Guard against zero-address or malformed token addresses
     const isValidAddress = (addr: string) => {
       if (!addr || !addr.startsWith("0x") || addr.length < 42) return false;
       const cleanAddr = addr.toLowerCase();
       return !cleanAddr.startsWith("0x0000000000000000000000000000000000000");
     };
 
+    /** Read an ERC-20 token balance for the user's wallet. */
     const readBalance = async (client: PublicClient, tokenAddr: Address, decimals: number = 6) => {
       if (!isValidAddress(tokenAddr)) {
         return 0;
@@ -109,6 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    /** Read the native coin balance (e.g. ETH) for the user's wallet. */
     const readNativeBalance = async (client: PublicClient) => {
       try {
         const balance = await client.getBalance({ address: addr });
@@ -155,6 +174,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setNetworkBalances(netBalances);
   }, [walletAddress, isLoggedIn]);
 
+  /**
+   * Load recent payment transactions from Supabase that involve the current user.
+   * Queries by user ID, email, or wallet address.
+   */
   const fetchTransactions = useCallback(async () => {
     if (!isLoggedIn) {
       setTransactions([]);
@@ -268,6 +291,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Ensure Supabase session stays in sync with Privy auth state
     const syncSupabaseAuth = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -309,6 +333,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook to access the global application context (wallet, balances, transactions).
+ */
 export function useApp() {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("useApp must be inside AppProvider");

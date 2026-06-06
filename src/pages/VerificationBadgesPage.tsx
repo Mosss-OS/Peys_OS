@@ -1,3 +1,4 @@
+/** VerificationBadgesPage - Browse and apply for verification badges with tiered requirements. */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, CheckCircle, Building, Award, Star, Clock, Send, ExternalLink, ArrowLeft, Users, Zap, TrendingUp } from "lucide-react";
@@ -83,6 +84,7 @@ interface BadgeApplication {
   reviewedAt?: Date;
 }
 
+/** Page for browsing verification badges, viewing requirements, and submitting applications. */
 export default function VerificationBadgesPage() {
   const { isLoggedIn, login } = useApp();
   const [applications, setApplications] = useState<BadgeApplication[]>([]);

@@ -1,3 +1,4 @@
+/** SessionManagementPage - Manage active sessions, timeout settings, and security preferences. */
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,7 @@ interface Session {
   current: boolean;
 }
 
+/** Page for viewing active sessions, configuring timeout, and toggling security settings. */
 export default function SessionManagementPage() {
   const [sessionTimeout, setSessionTimeout] = useState(30);
   const [requireReAuth, setRequireReAuth] = useState(true);

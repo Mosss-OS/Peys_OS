@@ -1,3 +1,7 @@
+/**
+ * @file Manages escrow smart contract interactions for creating, claiming, and refunding payments.
+ */
+
 import { usePublicClient, useChainId } from 'wagmi';
 import { useWallets } from '@privy-io/react-auth';
 import { ESCROW_ABI, ERC20_ABI } from '@/constants/blockchain';
@@ -6,6 +10,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { keccak256, toBytes, Address, Hex, encodeFunctionData } from 'viem';
 import { usePrivyAuth } from '@/contexts/PrivyContext';
 
+/** Represents an escrow payment retrieved from the blockchain. */
 export interface Payment {
   sender: string;
   recipient: string;
@@ -18,6 +23,7 @@ export interface Payment {
   claimedAt: bigint;
 }
 
+/** Re-export chain configuration getter. */
 export { getChainConfig };
 
 type EIP1193Provider = {
@@ -32,6 +38,10 @@ interface PendingNonce {
 const pendingNonces = new Map<string, PendingNonce>();
 const nonceLocks = new Map<string, Promise<void>>();
 
+/**
+ * Acquire a mutual-exclusion lock for nonce management on a given wallet.
+ * Ensures concurrent transaction requests do not reuse the same nonce.
+ */
 async function acquireNonceLock(walletAddress: string): Promise<() => void> {
   while (nonceLocks.has(walletAddress)) {
     await nonceLocks.get(walletAddress);
@@ -44,6 +54,10 @@ async function acquireNonceLock(walletAddress: string): Promise<() => void> {
   return releaseLock!;
 }
 
+/**
+ * Get the next available nonce for a wallet on a given chain, tracking
+ * pending transactions locally to avoid nonce collisions.
+ */
 async function getNextNonce(
   wallet: { address: string; getEthereumProvider: () => Promise<unknown> },
   chainId: number
@@ -68,6 +82,7 @@ async function getNextNonce(
   }
 }
 
+/** Increment the tracked nonce for a wallet after a successful transaction submission. */
 function incrementNonce(walletAddress: string, chainId: number) {
   const key = walletAddress.toLowerCase() + '-' + chainId;
   const current = pendingNonces.get(key);
@@ -81,7 +96,10 @@ interface PendingNonce {
   chainId: number;
 }
 
-// Switch the wallet's network via EIP-1193 — works for Privy embedded + external wallets
+/**
+ * Switch the wallet's network via EIP-1193.
+ * Works for both Privy embedded and external wallets.
+ */
 async function switchWalletNetwork(
   wallet: { getEthereumProvider: () => Promise<unknown> },
   chainId: number
@@ -100,8 +118,10 @@ async function switchWalletNetwork(
   }
 }
 
-// Send a transaction using the connected wallet's EIP-1193 provider directly.
-// Bypasses viem's chain requirement — works for Privy embedded + external wallets.
+/**
+ * Send a transaction using the connected wallet's EIP-1193 provider directly.
+ * Bypasses viem's chain requirement — works for Privy embedded + external wallets.
+ */
 async function sendViaTx(
   wallet: { address: string; getEthereumProvider: () => Promise<unknown> },
   address: string,
@@ -144,6 +164,10 @@ async function sendViaTx(
   }
 }
 
+/**
+ * Hook providing escrow payment management: create, claim, refund, estimate gas, and switch network.
+ * Relies on Privy for wallet access and viem public clients for read operations.
+ */
 export function useEscrow() {
   const publicClient = usePublicClient();
   const wagmiChainId = useChainId();
@@ -207,16 +231,19 @@ export function useEscrow() {
       throw new Error("Wallet not connected. Please connect your wallet first.");
     }
 
+    // Hash the secret to produce the on-chain claim hash
     const claimHash = keccak256(toBytes(secret));
     const expiry = BigInt(expiryDays * 24 * 60 * 60);
     const { escrowContract } = getContractAddresses();
 
     console.log("createPayment called", { tokenAddress, amount, escrowContract, chainId });
     
+    // Check if the token is the chain's native asset (no ERC-20 approval required)
     const isNativeToken = tokenAddress.startsWith("0x00000001") || tokenAddress.startsWith("0x0000000100000000");
     
     const pc = publicClient;
     
+    // For non-native tokens, check and request ERC-20 approval if allowance is insufficient
     if (!isNativeToken) {
       let hasAllowance = false;
       try {
@@ -226,6 +253,7 @@ export function useEscrow() {
       }
       
       if (!hasAllowance) {
+        // Notify the UI that an approval transaction is being submitted
         if (onApprovalRequested) onApprovalRequested();
         
         try {
@@ -293,6 +321,9 @@ export function useEscrow() {
     }
   }, [address, activeWallet, chainId, publicClient, checkAllowance, getContractAddresses]);
 
+  /**
+   * Fetch a payment's details from the escrow contract by its ID.
+   */
   const getPayment = useCallback(async (paymentId: Hex): Promise<{
     sender: string;
     token: string;
@@ -331,6 +362,9 @@ export function useEscrow() {
     }
   }, [publicClient, getContractAddresses]);
 
+  /**
+   * Claim an escrow payment by providing the secret that matches the on-chain hash.
+   */
   const claimPayment = useCallback(async (
     paymentId: Hex,
     secret: string
@@ -358,6 +392,9 @@ export function useEscrow() {
     }
   }, [address, activeWallet, publicClient, getContractAddresses]);
 
+  /**
+   * Refund an expired or cancelled escrow payment (sender only).
+   */
   const refundPayment = useCallback(async (paymentId: Hex): Promise<Hex | undefined> => {
     if (!address || !activeWallet) throw new Error("Wallet not connected");
     if (!publicClient) throw new Error("Public client not available");
@@ -382,6 +419,9 @@ export function useEscrow() {
     }
   }, [address, activeWallet, publicClient, getContractAddresses]);
 
+  /**
+   * Estimate the gas required to create a payment.
+   */
   const estimateGas = useCallback(async (
     tokenAddress: Address,
     amount: bigint,
@@ -408,6 +448,9 @@ export function useEscrow() {
     }
   }, [address, publicClient, getContractAddresses]);
 
+  /**
+   * Switch the connected wallet to a different chain.
+   */
   const switchNetwork = useCallback(async (targetChainId: number): Promise<void> => {
     if (!activeWallet) throw new Error("No wallet connected");
     await switchWalletNetwork(activeWallet, targetChainId);

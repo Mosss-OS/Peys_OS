@@ -1,3 +1,4 @@
+/** CTASection - Final call-to-action section directing users to Personal or Business account signup */
 import { Link } from "react-router-dom";
 import { ArrowRight, User, Building2 } from "lucide-react";
 import { motion } from "framer-motion";

@@ -1,3 +1,8 @@
+/**
+ * Root application component.
+ * Sets up all providers (Wagmi, Privy, themes, sound, haptics, wake lock)
+ * and defines the full route tree via React Router.
+ */
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -113,8 +118,10 @@ import WebhooksPage from "./pages/WebhooksPage";
 import DocsPage from "./pages/docs/DocsPage";
 import NotFound from "./pages/NotFound";
 
+/** React Query client used across the entire app for server-state caching. */
 const queryClient = new QueryClient();
 
+/** Root component that wraps the app with all context providers and defines every route. */
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>

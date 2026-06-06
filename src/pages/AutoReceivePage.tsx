@@ -1,3 +1,4 @@
+/** AutoReceivePage - Auto-receive settings with amount thresholds, trusted/blocked sender lists, and notification config */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Settings, ToggleLeft, ToggleRight, DollarSign, Bell, Users, Shield, Clock, Plus, X, Check, AlertTriangle, Loader2, Mail, User, UserX } from "lucide-react";
@@ -24,6 +25,7 @@ interface SenderEntry {
   type: "trusted" | "blocked";
 }
 
+/** AutoReceivePage component - Configures automatic fund claiming with thresholds, trusted/blocked senders, and notification preferences */
 export default function AutoReceivePage() {
   const { isLoggedIn, login } = useApp();
   const [config, setConfig] = useState<AutoReceiveConfig>({

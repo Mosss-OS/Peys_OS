@@ -1,3 +1,4 @@
+/** DisputePage - File and track transaction disputes with evidence upload and support chat. */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -46,6 +47,7 @@ const DISPUTE_STATUSES = {
   closed: { label: "Closed", color: "bg-gray-500", text: "text-gray-600" },
 };
 
+/** Dispute resolution page with filing form, evidence upload, history tracking, and support chat. */
 export default function DisputePage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

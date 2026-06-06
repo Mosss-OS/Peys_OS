@@ -1,3 +1,4 @@
+/** ErrorMessage - Error alert with optional retry and dismiss actions, accepts string or Error object */
 import { AlertCircle, RefreshCw, X } from "lucide-react";
 
 interface ErrorMessageProps {
@@ -7,6 +8,13 @@ interface ErrorMessageProps {
   className?: string;
 }
 
+/**
+ * ErrorMessage - Displays an error alert with optional retry and dismiss actions.
+ * @param error - Error string or Error object to display
+ * @param onRetry - Optional callback for "Try again" button
+ * @param onDismiss - Optional callback for dismiss (X) button
+ * @param className - Additional CSS classes
+ */
 export default function ErrorMessage({ error, onRetry, onDismiss, className = "" }: ErrorMessageProps) {
   const errorMessage = typeof error === "string" ? error : error.message;
 

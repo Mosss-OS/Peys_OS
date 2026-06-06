@@ -1,3 +1,4 @@
+/** TaxReportPage - Tax report generation from transaction history with date filtering and CSV export */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FileText, Download, Calendar, Filter, Search, Loader2, CheckCircle } from "lucide-react";
@@ -17,6 +18,7 @@ interface TaxRecord {
   description: string;
 }
 
+/** TaxReportPage component - Fetches payments, filters by date range, displays records in a table, and downloads CSV tax reports */
 export default function TaxReportPage() {
   const { isLoggedIn, login, walletAddress } = useApp();
   const [loading, setLoading] = useState(true);

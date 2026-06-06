@@ -1,3 +1,4 @@
+/** NfcPage - NFC contactless payment with tag reading, writing, settings, and Web NFC API integration */
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -142,6 +143,7 @@ export function useNfc() {
   };
 }
 
+/** NfcPage component - NFC read/write interface with tabbed UI, tag detection history, device status, and settings */
 export default function NfcPage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

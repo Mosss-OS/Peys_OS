@@ -1,3 +1,4 @@
+/** BatchPage - CSV-based batch payment processing with on-chain escrow and Supabase persistence */
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileText, X, Check, AlertCircle, Send, Download, Loader2 } from "lucide-react";
@@ -40,6 +41,7 @@ bob@email.com,100,USDC,Project payment
 grace@email.com,75,USDT,Birthday gift
 moses@email.com,200,USDC,Freelance work`;
 
+/** BatchPage component - Multi-step batch payment flow: CSV upload, review, PIN entry, on-chain processing, and results */
 export default function BatchPage() {
   const { isLoggedIn, login, walletAddress } = useApp();
   const { createPayment } = useEscrow();

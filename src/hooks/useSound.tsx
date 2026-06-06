@@ -1,5 +1,10 @@
+/**
+ * @file Provides audio feedback via the Web Audio API with a context-based provider.
+ */
+
 import { useCallback, useContext, useEffect, useRef, useState, createContext, ReactNode } from "react";
 
+/** The set of sound types available for different UI events. */
 export type SoundType = "send" | "success" | "error" | "notification" | "click";
 
 interface SoundContextType {
@@ -18,6 +23,10 @@ const SOUND_CONFIGS: Record<SoundType, { freq: number; duration: number; type: O
   click: { freq: 520, duration: 0.05, type: "square" },
 };
 
+/**
+ * Provider that wraps the app and exposes sound playback controls via context.
+ * Uses the Web Audio API to generate sounds programmatically (no audio files required).
+ */
 export function SoundProvider({ children }: { children: ReactNode }) {
   const [soundsEnabled, setSoundsEnabled] = useState(() => localStorage.getItem("peys_sounds_enabled") !== "false");
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -63,12 +72,18 @@ export function SoundProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook to access sound context (whether sounds are enabled and the playSound function).
+ */
 export function useSounds() {
   const ctx = useContext(SoundContext);
   if (!ctx) throw new Error("useSounds must be inside SoundProvider");
   return ctx;
 }
 
+/**
+ * Alias for useSounds — kept for backwards compatibility.
+ */
 export function useSound() {
   return useSounds();
 }

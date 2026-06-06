@@ -1,3 +1,4 @@
+/** AddressBookPage - Wallet address book with starred favorites, search, add, delete, and send actions */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users, Plus, Search, User, Trash2, Edit, Star, Clock, ChevronRight, X, Loader2 } from "lucide-react";
@@ -16,6 +17,7 @@ interface Contact {
   transactionCount: number;
 }
 
+/** AddressBookPage component - Manages wallet contacts with starring, search filtering, add/delete, and quick-send */
 export default function AddressBookPage() {
   const { isLoggedIn, login } = useApp();
   const [contacts, setContacts] = useState<Contact[]>([

@@ -1,3 +1,4 @@
+/** VerificationPage - KYC identity verification flow with document upload, selfie capture, and tier-based limits */
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Shield, Camera, Upload, Check, X, AlertTriangle, ChevronRight, Loader2, FileText, User, Building, CreditCard, Clock, Star, ExternalLink } from "lucide-react";
@@ -17,6 +18,7 @@ interface VerificationTier {
   features: string[];
 }
 
+/** VerificationPage component - Handles KYC verification from intro through document upload, selfie, review, and completion */
 export default function VerificationPage() {
   const { isLoggedIn, login } = useApp();
   const [step, setStep] = useState<"intro" | "upload" | "selfie" | "review" | "complete">("intro");

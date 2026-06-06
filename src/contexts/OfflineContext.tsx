@@ -1,5 +1,10 @@
+/**
+ * @file Offline-first support: queues transactions and caches balances when the network is unavailable.
+ */
+
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 
+/** A transaction queued for submission once the device comes back online. */
 export interface QueuedTransaction {
   id: string;
   type: "payment" | "approval" | "claim";
@@ -36,8 +41,13 @@ const OfflineContext = createContext<OfflineContextType | null>(null);
 
 const STORAGE_KEY_QUEUE = "peys_offline_queue";
 const STORAGE_KEY_BALANCES = "peys_cached_balances";
+/** Maximum number of sync retry attempts before a queued transaction is abandoned. */
 const MAX_RETRIES = 3;
 
+/**
+ * Provider that tracks online/offline status, queues failed transactions,
+ * caches balances, and auto-syncs when connectivity is restored.
+ */
 export function OfflineProvider({ children }: { children: ReactNode }) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [queuedTransactions, setQueuedTransactions] = useState<QueuedTransaction[]>([]);
@@ -93,6 +103,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  /** Add a transaction to the offline queue. Returns the generated ID. */
   const queueTransaction = useCallback((
     tx: Omit<QueuedTransaction, "id" | "timestamp" | "status" | "retryCount">
   ): string => {
@@ -108,15 +119,18 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     return id;
   }, []);
 
+  /** Remove a specific transaction from the offline queue. */
   const removeFromQueue = useCallback((id: string) => {
     setQueuedTransactions((prev) => prev.filter((tx) => tx.id !== id));
   }, []);
 
+  /** Remove all queued transactions. */
   const clearQueue = useCallback(() => {
     setQueuedTransactions([]);
     localStorage.removeItem(STORAGE_KEY_QUEUE);
   }, []);
 
+  /** Persist balance data locally for offline display. */
   const updateCachedBalances = useCallback((balances: { usdc: number; usdt: number; pass: number }) => {
     setCachedBalances({
       ...balances,
@@ -132,6 +146,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /** Attempt to process all pending/failed queued transactions in order. */
   const syncNow = useCallback(async () => {
     if (isSyncing || queuedTransactions.length === 0) return;
     
@@ -187,6 +202,9 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook to access offline context: queue management, cached balances, and sync controls.
+ */
 export function useOffline() {
   const context = useContext(OfflineContext);
   if (!context) {

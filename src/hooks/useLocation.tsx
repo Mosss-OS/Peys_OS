@@ -1,8 +1,13 @@
+/**
+ * @file Provides location tagging (GPS or manual) and a toggle hook for location preferences.
+ */
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, MapPinPlus, Check, X, Loader2, Crosshair, Globe, Hash } from "lucide-react";
 import { toast } from "sonner";
 
+/** A geographic location captured via GPS or entered manually. */
 interface Location {
   latitude: number;
   longitude: number;
@@ -12,11 +17,18 @@ interface Location {
 }
 
 interface LocationTaggingProps {
+  /** Callback invoked whenever the current location changes. */
   onLocationChange: (location: Location | null) => void;
+  /** Pre-populated location (e.g. from a previous session). */
   initialLocation?: Location | null;
+  /** When true, the component renders nothing. */
   disabled?: boolean;
 }
 
+/**
+ * A UI component that lets the user attach a location (GPS or manual coordinates) to a payment.
+ * Renders nothing when disabled.
+ */
 export function LocationTagging({ onLocationChange, initialLocation = null, disabled = false }: LocationTaggingProps) {
   const [location, setLocation] = useState<Location | null>(initialLocation);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -34,6 +46,10 @@ export function LocationTagging({ onLocationChange, initialLocation = null, disa
     onLocationChange(location);
   }, [location, onLocationChange]);
 
+  /**
+   * Attempt to capture the device's current location via the Geolocation API.
+   * Falls back to manual coordinate entry on permission denial or error.
+   */
   const requestLocation = async () => {
     if (!locationEnabled) {
       toast.error("Location is disabled in settings");
@@ -106,6 +122,7 @@ export function LocationTagging({ onLocationChange, initialLocation = null, disa
     }
   };
 
+  /** Validate and save manually-entered latitude/longitude coordinates. */
   const saveManualLocation = () => {
     if (!manualLat || !manualLng) {
       toast.error("Please enter coordinates");
@@ -132,6 +149,7 @@ export function LocationTagging({ onLocationChange, initialLocation = null, disa
     toast.success("Location added");
   };
 
+  /** Remove the currently tagged location. */
   const clearLocation = () => {
     setLocation(null);
     toast.success("Location cleared");
@@ -226,6 +244,9 @@ export function LocationTagging({ onLocationChange, initialLocation = null, disa
   );
 }
 
+/**
+ * Hook that controls the global location-enabled preference (persisted to localStorage).
+ */
 export function useLocation() {
   const [locationEnabled, setLocationEnabled] = useState(() => localStorage.getItem("peys_location_enabled") !== "false");
   const [lastLocation, setLastLocation] = useState<Location | null>(null);

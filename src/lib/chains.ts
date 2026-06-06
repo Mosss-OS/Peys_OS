@@ -1,5 +1,10 @@
 import type { Address } from "viem";
 
+/**
+ * Per-chain configuration for the escrow contract, token addresses, and RPC endpoints.
+ */
+
+/** Configuration required to interact with a single blockchain network. */
 export interface ChainConfig {
   id: number;
   name: string;
@@ -16,6 +21,7 @@ export interface ChainConfig {
   nativeSymbol: string;
 }
 
+/** Map of chain IDs to their full configuration objects. Falls back to environment variables or hardcoded defaults. */
 export const chainConfigs: Record<number, ChainConfig> = {
   // Base Sepolia (Testnet)
   84532: {
@@ -46,10 +52,12 @@ export const chainConfigs: Record<number, ChainConfig> = {
   },
 };
 
+/** Returns the configuration for a given chain ID, falling back to Base Sepolia if the chain is not configured. */
 export function getChainConfig(chainId: number): ChainConfig {
   return chainConfigs[chainId] || chainConfigs[84532];
 }
 
+/** Returns the default chain ID (Base Sepolia Testnet) used when no chain is explicitly selected. */
 export function getDefaultChainId(): number {
   return 84532; // Base Sepolia Testnet
 }

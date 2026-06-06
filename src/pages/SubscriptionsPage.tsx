@@ -1,3 +1,4 @@
+/** SubscriptionsPage - Recurring payment subscriptions with Supabase persistence, create, pause, resume, and cancel */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -42,6 +43,7 @@ interface CreateSubscriptionForm {
   startDate: string;
 }
 
+/** SubscriptionsPage component - Manages DB-backed subscriptions with create modal, status toggles, and aggregate totals */
 export default function SubscriptionsPage() {
   const { isLoggedIn, login, walletAddress } = useApp();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);

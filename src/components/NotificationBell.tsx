@@ -1,3 +1,8 @@
+/**
+ * NotificationBell - Bell icon button that opens a dropdown notification
+ * panel. Fetches notifications from Supabase, subscribes to real-time
+ * INSERT events, and supports mark-as-read / mark-all-read actions.
+ */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, DollarSign, ArrowDownLeft, Clock, AlertCircle } from "lucide-react";
@@ -22,6 +27,10 @@ const typeIcons: Record<string, typeof DollarSign> = {
   payment_refunded: AlertCircle,
 };
 
+/**
+ * NotificationBell - Renders a bell button with unread count badge and
+ * a dropdown notification list. Returns null if the user is not logged in.
+ */
 export default function NotificationBell() {
   const { isLoggedIn } = useApp();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -67,6 +76,10 @@ export default function NotificationBell() {
     };
   }, [isLoggedIn]);
 
+  /**
+   * markAsRead - Marks a single notification as read in Supabase and state.
+   * @param id - The notification UUID.
+   */
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ read: true }).eq("id", id);
     setNotifications((prev) =>
@@ -74,6 +87,9 @@ export default function NotificationBell() {
     );
   };
 
+  /**
+   * markAllRead - Marks all unread notifications as read in bulk.
+   */
   const markAllRead = async () => {
     const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
     if (unreadIds.length === 0) return;
@@ -86,6 +102,11 @@ export default function NotificationBell() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
+  /**
+   * formatTime - Converts an ISO date string to a human-readable relative time.
+   * @param dateStr - ISO 8601 date string.
+   * @returns A string like "Just now", "5m ago", "2h ago", or "3d ago".
+   */
   const formatTime = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);

@@ -1,3 +1,4 @@
+/** CashbackPage - Cashback rewards program with tiered rates, balance tracking, and redemption */
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Gift, TrendingUp, History, PiggyBank, Trophy, Star, ArrowUpRight, Loader2, ChevronRight, RefreshCw } from "lucide-react";
@@ -37,6 +38,7 @@ const PROMOS = [
   { id: "2", title: "Referral Bonus", description: "Get $10 for each friend you refer", expires: "Ongoing" },
 ];
 
+/** CashbackPage component - Shows cashback balance, tier progress, promotions, activity history, and redeem flow */
 export default function CashbackPage() {
   const { isLoggedIn, login, wallet, walletAddress } = useApp();
   const [loading, setLoading] = useState(true);

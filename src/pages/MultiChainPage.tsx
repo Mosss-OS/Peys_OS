@@ -1,3 +1,4 @@
+/** MultiChainPage - Multi-chain network management with network selection, auto-switch toggle, and production status */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +68,7 @@ const networks: Network[] = [
   },
 ];
 
+/** MultiChainPage component - Displays available blockchain networks, toggles active networks, and shows production status */
 export default function MultiChainPage() {
   const [activeNetworks, setActiveNetworks] = useState(["base", "ethereum", "celo"]);
   const [autoSwitch, setAutoSwitch] = useState(true);

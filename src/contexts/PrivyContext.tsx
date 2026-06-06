@@ -1,9 +1,13 @@
+/**
+ * @file Privy authentication wrapper providing login, logout, wallet, and user info.
+ */
+
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { PrivyProvider as PrivyReactProvider, usePrivy, useWallets } from '@privy-io/react-auth';
 import { defineChain } from 'viem';
 import { baseSepolia } from 'viem/chains';
 
-// Base Sepolia chain definition
+/** Base Sepolia chain definition used as the default chain. */
 const baseSepoliaChain = defineChain({
   ...baseSepolia,
   testnet: true,
@@ -11,10 +15,12 @@ const baseSepoliaChain = defineChain({
 
 const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID;
 
+// Warn if the required Privy app ID is missing from environment
 if (!PRIVY_APP_ID) {
   console.error("CRITICAL: VITE_PRIVY_APP_ID environment variable is not set. Authentication will not work.");
 }
 
+/** A simplified user object derived from Privy's user data. */
 interface PeysUser {
   id: string;
   email?: string;
@@ -22,6 +28,7 @@ interface PeysUser {
   walletAddress?: string;
 }
 
+/** Shape of the authentication context exposed to consumers. */
 interface PrivyAuthContextType {
   user: PeysUser | null;
   isLoggedIn: boolean;
@@ -35,6 +42,7 @@ interface PrivyAuthContextType {
 
 const PrivyAuthContext = createContext<PrivyAuthContextType | null>(null);
 
+/** Internal component that bridges Privy hooks into the app's auth context. */
 function PrivyAuthInner({ children }: { children: ReactNode }) {
   const { login, logout: privyLogout, user: privyUser, ready, authenticated } = usePrivy();
   const { wallets } = useWallets();
@@ -42,6 +50,7 @@ function PrivyAuthInner({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
 
+  // Sync wallet address from Privy wallets array whenever it changes
   useEffect(() => {
     const eoaWallet = wallets.find(w => w.type === 'ethereum');
     if (eoaWallet) {
@@ -108,6 +117,10 @@ function PrivyAuthInner({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Top-level provider that wraps the app with Privy's authentication SDK
+ * and configures the supported login methods, embedded wallets, and chains.
+ */
 export function PrivyAppProvider({ children }: { children: ReactNode }) {
   return (
     <PrivyReactProvider
@@ -133,6 +146,9 @@ export function PrivyAppProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook to access authentication state, user info, wallet address, and login/logout actions.
+ */
 export function usePrivyAuth() {
   const ctx = useContext(PrivyAuthContext);
   if (!ctx) throw new Error('usePrivyAuth must be inside PrivyAppProvider');

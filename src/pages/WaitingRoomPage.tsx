@@ -1,8 +1,10 @@
+/** WaitingRoomPage - Displays an empty waiting room state for queued events/live sessions */
 import { Card, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 
+/** WaitingRoomPage component - Shows a placeholder when there are no active queues */
 export default function WaitingRoomPage() {
   const [refreshInterval, setRefreshInterval] = useState(10);
   const [showTips, setShowTips] = useState(true);

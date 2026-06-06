@@ -1,3 +1,4 @@
+/** SkeletonLoader - Animated loading placeholders with variants: card, list, text, and form layouts */
 import { motion } from "framer-motion";
 
 interface SkeletonProps {
@@ -89,6 +90,11 @@ export function SkeletonForm() {
   );
 }
 
+/**
+ * SkeletonLoader - Renders animated placeholder layouts based on type.
+ * @param type - Layout variant: "card" | "list" | "text" | "form" (default "card")
+ * @param count - Number of skeleton items to render (default 1, used for card/list/text)
+ */
 export default function SkeletonLoader({ type = "card", count = 1 }: SkeletonLoaderProps) {
   const components = {
     card: SkeletonCard,

@@ -1,3 +1,4 @@
+/** HelpFAQPage - FAQ, help articles, and support contact page with ticket submission. */
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import Footer from "@/components/Footer";
 
 
 
+/** Help and support page with FAQ tab, articles tab, and contact/ticket submission form. */
 export default function HelpFAQPage() {
   return (
     <div className="min-h-screen bg-background">

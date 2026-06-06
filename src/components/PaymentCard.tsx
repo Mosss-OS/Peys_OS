@@ -1,3 +1,8 @@
+/**
+ * PaymentCard - Visual card displaying payment details (amount, token,
+ * memo, sender) with a branded claim CTA. Used in the success step
+ * of SendPaymentForm and on the claim page.
+ */
 import { motion } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -21,6 +26,18 @@ interface PaymentCardProps {
   onClose?: () => void;
 }
 
+/**
+ * PaymentCard - Renders a shareable payment card with Peys branding,
+ * amount, optional memo, and a claim call-to-action.
+ * @param props.payment - Full payment object (id, amount, token, etc.).
+ * @param props.sender - Display name or address of the sender.
+ * @param props.amount - Numeric amount (overrides payment.amount).
+ * @param props.token - Token symbol (overrides payment.token).
+ * @param props.memo - Optional note (overrides payment.memo).
+ * @param props.claimId - Claim identifier for the link.
+ * @param props.link - Full claim URL.
+ * @param props.onClose - Callback to dismiss the card.
+ */
 export default function PaymentCard({ payment, sender, amount, token, memo, claimId, link, onClose }: PaymentCardProps) {
   const { theme } = useTheme();
   const pAmount = payment?.amount ?? amount ?? 0;

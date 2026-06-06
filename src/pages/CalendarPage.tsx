@@ -1,3 +1,4 @@
+/** CalendarPage - Calendar view of transaction history with daily event indicators. */
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowUpRight, ArrowDownLeft, Clock, X } from "lucide-react";
@@ -37,6 +38,7 @@ interface DayEvent {
   transaction: Transaction;
 }
 
+/** Interactive calendar view for browsing transaction history by date. */
 export default function CalendarPage() {
   const { isLoggedIn, login, transactions, transactionsLoading } = useApp();
   const today = new Date();

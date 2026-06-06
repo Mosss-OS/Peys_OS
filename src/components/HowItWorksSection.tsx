@@ -1,3 +1,4 @@
+/** HowItWorksSection - Four-step walkthrough showing how to send and claim payments via magic links */
 import { motion } from "framer-motion";
 import { Send, Link2, Mail, Wallet } from "lucide-react";
 

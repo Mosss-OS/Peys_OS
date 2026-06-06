@@ -1,3 +1,4 @@
+/** NetworkGasPage - Live gas price tracker and gas saving tips across supported networks. */
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Fuel,
@@ -9,6 +10,7 @@ import Footer from "@/components/Footer";
 
 
 
+/** Page displaying live gas tracker placeholder and gas-saving tips. */
 export default function NetworkGasPage() {
   return (
     <div className="min-h-screen bg-background">

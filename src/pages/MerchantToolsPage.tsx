@@ -1,3 +1,4 @@
+/** MerchantToolsPage - Merchant dashboard with payment button generator, QR codes, and payout tools. */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Store, QrCode, BarChart3, DollarSign, Link2, Copy, Download, Settings, ShoppingCart, CreditCard, TrendingUp, TrendingDown, ExternalLink, Check, Loader2, FileText, Calculator } from "lucide-react";
@@ -15,6 +16,7 @@ interface Sale {
   status: "completed" | "pending" | "refunded";
 }
 
+/** Merchant tools page with sales dashboard, payment button generator, QR codes, and payout calculator. */
 export default function MerchantToolsPage() {
   const { isLoggedIn, login } = useApp();
   const [activeTab, setActiveTab] = useState<"dashboard" | "button" | "qr" | "payouts">("dashboard");

@@ -1,8 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Flutterwave payment gateway integration.
+ * Provides fiat on/off-ramp, bill payments, bank transfers, P2P marketplace, and virtual accounts.
+ */
+
 const FLUTTERWAVE_API_BASE = "https://api.flutterwave.com/v3";
 const SANDBOX_API_BASE = "https://developersandbox-api.flutterwave.com/v3";
 
+/** A saved bank account linked to a user for fiat withdrawals. */
 interface BankAccount {
   id: string;
   user_id: string;
@@ -16,6 +22,7 @@ interface BankAccount {
   created_at: string;
 }
 
+/** A bill payment category (airtime, data, electricity, TV, etc.). */
 interface BillPayment {
   id: string;
   type: string;
@@ -24,12 +31,14 @@ interface BillPayment {
   icon?: string;
 }
 
+/** Mobile money account details for transfers. */
 interface MobileMoneyAccount {
   phone: string;
   network: string;
   country: string;
 }
 
+/** Exchange rate details for a fiat-to-fiat transfer. */
 interface ExchangeRate {
   source_currency: string;
   destination_currency: string;
@@ -38,21 +47,25 @@ interface ExchangeRate {
   net_amount: number;
 }
 
+/** Service class wrapping all Flutterwave API interactions. */
 export class FlutterwaveService {
   private secretKey: string;
   private publicKey: string;
   private isSandbox: boolean;
 
+  /** Initializes the service with Flutterwave API keys and sandbox mode from environment variables. */
   constructor() {
     this.publicKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY || "";
     this.secretKey = import.meta.env.VITE_FLUTTERWAVE_SECRET_KEY || "";
     this.isSandbox = import.meta.env.VITE_FLUTTERWAVE_ENVIRONMENT === "sandbox";
   }
 
+  /** Returns the correct API base URL depending on sandbox or production mode. */
   private getBaseUrl(): string {
     return this.isSandbox ? SANDBOX_API_BASE : FLUTTERWAVE_API_BASE;
   }
 
+  /** Builds request headers. Uses the secret key for server-side calls and public key for client-side calls. */
   private getHeaders(isServer = false) {
     const key = isServer ? this.secretKey : this.publicKey;
     return {
@@ -61,6 +74,7 @@ export class FlutterwaveService {
     };
   }
 
+  /** Fetches the list of countries supported by Flutterwave. */
   async getSupportedCountries(): Promise<any[]> {
     try {
       const response = await fetch(`${this.getBaseUrl()}/countries`, {
@@ -74,6 +88,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Fetches the list of banks available for a given country code. */
   async getBanks(countryCode: string): Promise<any[]> {
     try {
       const baseUrl = this.getBaseUrl();
@@ -100,6 +115,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Resolves a bank account number and returns the account holder name and validity. */
   async resolveAccount(
     bankCode: string,
     accountNumber: string,
@@ -129,6 +145,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Gets the exchange rate and fee for a fiat transfer between two currencies. */
   async getExchangeRate(
     sourceCurrency: string,
     destinationCurrency: string,
@@ -150,7 +167,7 @@ export class FlutterwaveService {
       if (data.status === "success") {
         const rate = parseFloat(data.data.rate);
         const sourceAmount = parseFloat(data.data.source.amount);
-        const feePercentage = 0.01;
+        const feePercentage = 0.01; // 1% flat fee on source amount
         const fee = sourceAmount * feePercentage;
         return {
           source_currency: sourceCurrency,
@@ -167,6 +184,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Initiates a single bank transfer to a supplied account. */
   async initiateTransfer(
     amount: number,
     currency: string,
@@ -202,6 +220,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Creates a permanent virtual account number for a user to receive fiat deposits. */
   async createVirtualAccount(
     email: string,
     firstName: string,
@@ -245,6 +264,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Returns the static list of supported bill payment categories (airtime, data, electricity, TV, betting, subscriptions). */
   async getBillCategories(): Promise<BillPayment[]> {
     const categories: BillPayment[] = [
       {
@@ -419,6 +439,7 @@ export class FlutterwaveService {
     return categories;
   }
 
+  /** Returns data bundle plans for a given mobile network. */
   async getDataPlans(network: string): Promise<any[]> {
     const plans: Record<string, any[]> = {
       "mtn-data": [
@@ -461,6 +482,7 @@ export class FlutterwaveService {
     return plans[network] || [];
   }
 
+  /** Returns cable TV subscription plans for a given provider (DStv, GOtv, Startimes). */
   async getCablePlans(provider: string): Promise<any[]> {
     const plans: Record<string, any[]> = {
       dstv: [
@@ -489,6 +511,7 @@ export class FlutterwaveService {
     return plans[provider] || [];
   }
 
+  /** Pays a bill via Flutterwave and saves the payment record to Supabase. */
   async payBill(
     userId: string,
     billType: string,
@@ -522,6 +545,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Persists a completed bill payment record to the Supabase `bill_payments` table. */
   private async saveBillPayment(
     userId: string,
     billType: string,
@@ -545,6 +569,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Returns the list of mobile networks available for a given country. */
   async getMobileNetworks(country: string): Promise<any[]> {
     const networks: Record<string, any[]> = {
       NG: [
@@ -567,6 +592,7 @@ export class FlutterwaveService {
     return networks[country] || [];
   }
 
+  /** Calculates the transaction fee for a given amount and currency using the configured fee structure. */
   async getTransactionFee(amount: number, currency: string): Promise<number> {
     const feeStructure: Record<string, { percentage: number; min: number; max: number }> = {
       NGN: { percentage: 0.01, min: 50, max: 2500 },
@@ -579,9 +605,11 @@ export class FlutterwaveService {
       XAF: { percentage: 0.01, min: 100, max: 20000 },
     };
     const fee = feeStructure[currency] || { percentage: 0.01, min: 1, max: 100 };
+    // Clamp fee between min and max after applying percentage
     return Math.min(Math.max(amount * fee.percentage, fee.min), fee.max);
   }
 
+  /** Verifies the status of a transaction by its reference ID. */
   async verifyTransaction(reference: string): Promise<any> {
     try {
       const response = await fetch(
@@ -598,6 +626,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Creates a virtual account linked to a specific user (includes user narration). */
   async createVirtualAccountClient(
     userId: string,
     email: string,
@@ -644,6 +673,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Gets transfer rates including source/destination amounts and fee for a currency pair. */
   async getTransferRates(
     sourceCurrency: string,
     destinationCurrency: string,
@@ -680,6 +710,7 @@ export class FlutterwaveService {
     }
   }
 
+  /** Initiates a bulk transfer to multiple bank accounts in a single request. */
   async initiateBulkTransfer(
     transfers: Array<{
       bankCode: string;
@@ -720,8 +751,10 @@ export class FlutterwaveService {
   }
 }
 
+/** Singleton instance of the Flutterwave service for use across the app. */
 export const flutterwaveService = new FlutterwaveService();
 
+/** Saves a verified bank account for a user in Supabase. Returns the saved BankAccount or null on failure. */
 export async function saveBankAccount(
   userId: string,
   bankCode: string,
@@ -753,6 +786,7 @@ export async function saveBankAccount(
   }
 }
 
+/** Retrieves all bank accounts for a user, ordered by primary status and creation date. */
 export async function getUserBankAccounts(userId: string): Promise<BankAccount[]> {
   try {
     const { data, error } = await supabase
@@ -770,6 +804,7 @@ export async function getUserBankAccounts(userId: string): Promise<BankAccount[]
   }
 }
 
+/** Deletes a bank account record by its ID. Returns true on success. */
 export async function deleteBankAccount(accountId: string): Promise<boolean> {
   try {
     const { error } = await supabase
@@ -785,6 +820,7 @@ export async function deleteBankAccount(accountId: string): Promise<boolean> {
   }
 }
 
+/** Creates a fiat withdrawal record in Supabase with pending status. */
 export async function createWithdrawal(
   userId: string,
   amount: number,
@@ -820,6 +856,7 @@ export async function createWithdrawal(
   }
 }
 
+/** Returns the 50 most recent fiat withdrawals for a user, including joined bank account data. */
 export async function getUserWithdrawals(userId: string): Promise<any[]> {
   try {
     const { data, error } = await supabase
@@ -837,6 +874,7 @@ export async function getUserWithdrawals(userId: string): Promise<any[]> {
   }
 }
 
+/** Fetches active P2P marketplace orders filtered by type and currency. */
 export async function getP2POrders(
   type: "buy" | "sell",
   currency: string,
@@ -861,6 +899,7 @@ export async function getP2POrders(
   }
 }
 
+/** Creates a new P2P buy/sell order in Supabase. */
 export async function createP2POrder(
   userId: string,
   type: "buy" | "sell",
@@ -893,6 +932,7 @@ export async function createP2POrder(
   }
 }
 
+/** Matches a P2P order via the edge function, with idempotency key support. */
 export async function matchP2POrder(
   orderId: string,
   matcherId: string,
@@ -933,6 +973,7 @@ export async function matchP2POrder(
   }
 }
 
+/** Saves a bill payment record to Supabase with phone number. */
 export async function saveBillPaymentRecord(
   userId: string,
   billType: string,
@@ -958,6 +999,7 @@ export async function saveBillPaymentRecord(
   }
 }
 
+/** Returns recent bill payment records for a user, ordered by creation date. */
 export async function getUserBillPayments(
   userId: string,
   limit: number = 20
@@ -978,6 +1020,7 @@ export async function getUserBillPayments(
   }
 }
 
+/** List of African countries supported by the fiat on/off-ramp and P2P marketplace. */
 export const SUPPORTED_COUNTRIES = [
   { code: "NG", name: "Nigeria", currency: "NGN", flag: "🇳🇬" },
   { code: "GH", name: "Ghana", currency: "GHS", flag: "🇬🇭" },
@@ -996,6 +1039,7 @@ export const SUPPORTED_COUNTRIES = [
   { code: "ZW", name: "Zimbabwe", currency: "ZWL", flag: "🇿🇼" },
 ];
 
+/** Maps currency codes to their display symbols for formatting fiat amounts. */
 export const CURRENCY_SYMBOLS: Record<string, string> = {
   NGN: "₦",
   GHS: "₵",
@@ -1012,6 +1056,7 @@ export const CURRENCY_SYMBOLS: Record<string, string> = {
   ZWL: "$",
 };
 
+/** Formats a fiat amount with the currency symbol and 2 decimal places. */
 export function formatCurrency(amount: number, currency: string): string {
   const symbol = CURRENCY_SYMBOLS[currency] || currency + " ";
   return `${symbol}${amount.toLocaleString(undefined, {

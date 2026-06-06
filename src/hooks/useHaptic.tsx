@@ -1,5 +1,10 @@
+/**
+ * @file Provides haptic (vibration) feedback via the Vibration API with a context-based provider.
+ */
+
 import { useCallback, useContext, useEffect, useRef, useState, createContext, ReactNode } from "react";
 
+/** The set of haptic feedback types mapping to different vibration patterns. */
 export type HapticType = "success" | "error" | "warning" | "navigation" | "toggle" | "impact";
 
 interface HapticContextType {
@@ -25,6 +30,10 @@ const HAPTIC_INTENSITY: Record<string, number> = {
   heavy: 100,
 };
 
+/**
+ * Provider that wraps the app and exposes haptic feedback controls via context.
+ * Uses the Navigator Vibration API.
+ */
 export function HapticProvider({ children }: { children: ReactNode }) {
   const [hapticsEnabled, setHapticsEnabled] = useState(() => localStorage.getItem("peys_haptics_enabled") !== "false");
 
@@ -52,12 +61,18 @@ export function HapticProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook to access the haptic context (whether haptics are enabled and the triggerHaptic function).
+ */
 export function useHaptics() {
   const ctx = useContext(HapticContext);
   if (!ctx) throw new Error("useHaptics must be inside HapticProvider");
   return ctx;
 }
 
+/**
+ * Alias for useHaptics — kept for backwards compatibility.
+ */
 export function useHaptic() {
   return useHaptics();
 }

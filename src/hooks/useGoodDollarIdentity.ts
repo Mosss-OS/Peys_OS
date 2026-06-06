@@ -1,3 +1,7 @@
+/**
+ * @file Checks and requests GoodDollar identity verification on Celo Alfajores.
+ */
+
 import { useState, useEffect, useCallback } from "react";
 import { useChainId } from "wagmi";
 import { usePrivyAuth } from "@/contexts/PrivyContext";
@@ -5,6 +9,7 @@ import { createPublicClient, http } from "viem";
 import { celoAlfajores } from "viem/chains";
 import { getChainConfig } from "@/lib/chains";
 
+/** The user's GoodDollar identity and verification status. */
 export interface GoodDollarIdentity {
   isVerified: boolean;
   isRegistered: boolean;
@@ -14,7 +19,7 @@ export interface GoodDollarIdentity {
   lastVerified?: Date;
 }
 
-// GoodDollar Identity is deployed on Celo Alfajores
+/** The chain ID where GoodDollar Identity is deployed (Celo Alfajores). */
 const IDENTITY_CHAIN_ID = 44787;
 const IDENTITY_ADDRESS = getChainConfig(IDENTITY_CHAIN_ID).identityAddress || "";
 const IDENTITY_RPC = getChainConfig(IDENTITY_CHAIN_ID).rpcUrl;
@@ -48,6 +53,10 @@ const GDOLLAR_IDENTITY_ABI = [
   },
 ] as const;
 
+/**
+ * Hook that reads and manages the user's GoodDollar identity verification status.
+ * Queries the GoodDollar Identity contract on Celo Alfajores.
+ */
 export function useGoodDollarIdentity() {
   const { walletAddress } = usePrivyAuth();
   const wagmiChainId = useChainId();
@@ -60,6 +69,9 @@ export function useGoodDollarIdentity() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Read the user's identity status from the GoodDollar contract.
+   */
   const checkIdentity = useCallback(async () => {
     if (!walletAddress || !IDENTITY_ADDRESS) {
       setIdentity({
@@ -119,6 +131,9 @@ export function useGoodDollarIdentity() {
     checkIdentity();
   }, [checkIdentity]);
 
+  /**
+   * Open the GoodDollar verification portal and poll until the user's identity is verified.
+   */
   const requestVerification = useCallback(async () => {
     if (!IDENTITY_ADDRESS) {
       throw new Error("GoodDollar Identity not deployed on this network yet");

@@ -1,3 +1,4 @@
+/** SecurityPage - Comprehensive security settings with 2FA, biometric auth, password change, devices, and activity log */
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -38,6 +39,7 @@ interface SecurityLog {
   status: "success" | "warning" | "failed";
 }
 
+/** SecurityPage component - Tabs-based security management covering authentication, trusted devices, and security activity logs */
 export default function SecurityPage() {
   const { isLoggedIn, walletAddress } = useApp();
   const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>([]);

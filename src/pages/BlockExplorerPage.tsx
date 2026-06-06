@@ -1,3 +1,4 @@
+/** BlockExplorerPage - Search transactions and wallet addresses on supported block explorers. */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, ExternalLink, ArrowLeft, Activity } from "lucide-react";
@@ -8,6 +9,7 @@ import Footer from "@/components/Footer";
 import { getChainConfig } from "@/lib/chains";
 import { toast } from "sonner";
 
+/** Page for searching transaction hashes and wallet addresses on external block explorers. */
 export default function BlockExplorerPage() {
   const { isLoggedIn, login } = useApp();
   const [searchQuery, setSearchQuery] = useState("");

@@ -1,3 +1,4 @@
+/** MiniGamesPage - Play mini games (spin wheel, scratch card), complete challenges, and earn badges. */
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -48,6 +49,7 @@ interface LeaderboardEntry {
   isYou?: boolean;
 }
 
+/** Mini games page with spin wheel, scratch card, challenges, badges, and leaderboard tabs. */
 export default function MiniGamesPage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

@@ -1,3 +1,4 @@
+/** shared/index - Reusable UI primitives: Button, Input, Card (with subcomponents), Modal, Toast, Skeleton, and LoadingOverlay */
 import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,14 @@ interface ButtonProps
   rightIcon?: React.ReactNode;
 }
 
+/**
+ * Button - Versatile button with variants, sizes, loading state, and optional left/right icons.
+ * @param variant - Visual style: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "success" | "warning"
+ * @param size - Button size: "default" | "sm" | "lg" | "xl" | "icon"
+ * @param isLoading - Shows a spinner and disables the button when true
+ * @param leftIcon - Icon rendered before children
+ * @param rightIcon - Icon rendered after children
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, isLoading, leftIcon, rightIcon, children, disabled, ...props }, ref) => {
     return (
@@ -67,6 +76,12 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
 }
 
+/**
+ * Input - Form input with optional label, error message, and helper text.
+ * @param label - Label text displayed above the input
+ * @param error - Error message displayed below the input
+ * @param helperText - Helper text displayed below the input (hidden when error is set)
+ */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, label, error, helperText, id, ...props }, ref) => {
     const generatedId = React.useId();
@@ -107,6 +122,10 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "elevated" | "outlined";
 }
 
+/**
+ * Card - Container card with variant styles.
+ * @param variant - Card style: "default" | "elevated" | "outlined"
+ */
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", ...props }, ref) => {
     const variantStyles = {
@@ -174,6 +193,13 @@ interface ModalProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
+/**
+ * Modal - Overlay modal dialog with configurable size and title.
+ * @param isOpen - Whether the modal is visible
+ * @param onClose - Callback when the modal is dismissed
+ * @param title - Optional title displayed in the modal header
+ * @param size - Modal width: "sm" | "md" | "lg" | "xl" (default "md")
+ */
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = "md" }) => {
   const sizeStyles = {
     sm: "max-w-sm",
@@ -218,6 +244,13 @@ interface ToastProps {
   onClose: () => void;
 }
 
+/**
+ * Toast - Auto-dismissing notification popup with type-based styling.
+ * @param message - Notification text
+ * @param type - Style variant: "success" | "error" | "warning" | "info" (default "info")
+ * @param duration - Auto-dismiss timeout in ms (default 3000)
+ * @param onClose - Callback when the toast is dismissed
+ */
 const Toast: React.FC<ToastProps> = ({ message, type = "info", duration = 3000, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);
@@ -246,11 +279,15 @@ const Toast: React.FC<ToastProps> = ({ message, type = "info", duration = 3000, 
   );
 };
 
-// Skeleton Loader Component
+
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "text" | "circular" | "rectangular";
 }
 
+/**
+ * Skeleton - Animated placeholder for loading content.
+ * @param variant - Shape variant: "text" | "circular" | "rectangular"
+ */
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, variant = "text", ...props }, ref) => {
     const variantStyles = {
@@ -280,6 +317,11 @@ interface LoadingOverlayProps {
   message?: string;
 }
 
+/**
+ * LoadingOverlay - Full-screen loading overlay with spinner and optional message.
+ * @param isLoading - Whether the overlay is visible
+ * @param message - Optional loading text displayed below the spinner
+ */
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading, message }) => {
   if (!isLoading) return null;
 

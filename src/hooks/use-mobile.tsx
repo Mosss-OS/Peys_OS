@@ -1,7 +1,16 @@
+/**
+ * @file Detects whether the viewport width is below the mobile breakpoint.
+ */
+
 import * as React from "react";
 
+/** Pixel width threshold below which the device is considered mobile. */
 const MOBILE_BREAKPOINT = 768;
 
+/**
+ * Hook that returns true when the viewport is narrower than the mobile breakpoint.
+ * Listens to matchMedia changes so it updates reactively on resize.
+ */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
 

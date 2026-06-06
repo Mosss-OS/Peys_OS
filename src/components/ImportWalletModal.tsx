@@ -1,3 +1,8 @@
+/**
+ * ImportWalletModal - Modal for importing an external wallet using a
+ * private key or 12/24-word seedphrase. Includes security warnings,
+ * input visibility toggle, and client-side validation.
+ */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wallet, Key, AlertTriangle, Eye, EyeOff, X, Plus, Check } from "lucide-react";
@@ -9,6 +14,14 @@ interface ImportWalletModalProps {
   onImport: (address: string, source: 'privateKey' | 'seedphrase') => void;
 }
 
+/**
+ * ImportWalletModal - Renders the import wallet dialog with method toggle
+ * (private key / seedphrase), masked input, security acknowledgment, and
+ * format validation before calling onImport.
+ * @param props.open - Whether the modal is visible.
+ * @param props.onClose - Callback to close the modal.
+ * @param props.onImport - Callback with (address, source) after successful import.
+ */
 export default function ImportWalletModal({ open, onClose, onImport }: ImportWalletModalProps) {
   const [importMethod, setImportMethod] = useState<'privateKey' | 'seedphrase'>('privateKey');
   const [inputValue, setInputValue] = useState('');
@@ -16,6 +29,11 @@ export default function ImportWalletModal({ open, onClose, onImport }: ImportWal
   const [isImporting, setIsImporting] = useState(false);
   const [agreedToWarning, setAgreedToWarning] = useState(false);
 
+  /**
+   * handleImport - Validates the input format (hex key or 12/24-word phrase),
+   * ensures the security warning is acknowledged, then calls onImport.
+   * Clears sensitive state on success or error.
+   */
   const handleImport = async () => {
     if (!inputValue.trim()) {
       toast.error("Please enter your " + (importMethod === 'privateKey' ? 'private key' : 'seedphrase'));

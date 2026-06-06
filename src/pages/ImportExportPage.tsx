@@ -1,3 +1,4 @@
+/** ImportExportPage - Import contacts from CSV and export transaction history in CSV or PDF. */
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Download, Upload, FileText, Check, AlertCircle, Loader2, Calendar, Users, X, File, CheckCircle } from "lucide-react";
@@ -20,6 +21,7 @@ interface ExportOptions {
   includePending: boolean;
 }
 
+/** Page for importing contacts from CSV and exporting transaction history in CSV or PDF format. */
 export default function ImportExportPage() {
   const { isLoggedIn, login } = useApp();
   const [importing, setImporting] = useState(false);

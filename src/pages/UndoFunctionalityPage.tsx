@@ -1,3 +1,4 @@
+/** UndoFunctionalityPage - Undo action history with configurable timeout and settings. */
 import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ interface UndoableAction {
   data: unknown;
 }
 
+/** Page showing undoable action history with configurable timeout and toggle settings. */
 export default function UndoFunctionalityPage() {
   const [undoEnabled, setUndoEnabled] = useState(true);
   const [undoTimeout, setUndoTimeout] = useState(10);

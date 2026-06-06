@@ -1,3 +1,8 @@
+/**
+ * WithdrawModal - Bottom-sheet modal for withdrawing crypto to an external
+ * wallet or bank account. Supports USDC/USDT/G$ withdrawal via wallet transfer
+ * or Flutterwave-powered instant bank transfer.
+ */
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ExternalLink, ArrowRight, Check, Wallet, Building2, Search, Zap, Loader2, AlertCircle, ShieldCheck, ChevronDown } from "lucide-react";
@@ -20,6 +25,15 @@ interface Bank {
   name: string;
 }
 
+/**
+ * WithdrawModal - Renders a multi-step withdrawal flow: form, confirmation,
+ * and success. Handles bank account verification and fiat conversion display.
+ * @param props.open - Whether the modal is visible.
+ * @param props.onClose - Callback to close the modal.
+ * @param props.balanceUSDC - User's USDC balance for max-amount button.
+ * @param props.balanceUSDT - User's USDT balance.
+ * @param props.balanceG$ - User's G$ balance.
+ */
 export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT }: WithdrawModalProps) {
   const [step, setStep] = useState<"form" | "confirm" | "done">("form");
   const [method, setMethod] = useState<WithdrawMethod>("wallet");
@@ -69,11 +83,19 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
     }
   }, [accountNumber, selectedBank]);
 
+  /**
+   * fetchBanks - Loads the list of supported banks for the selected country
+   * from Flutterwave.
+   */
   const fetchBanks = async () => {
     const banksList = await flutterwaveService.getBanks(country);
     setBanks(banksList);
   };
 
+  /**
+   * verifyAccount - Resolves the bank account number against Flutterwave
+   * to confirm the account name and validity.
+   */
   const verifyAccount = async () => {
     if (!selectedBank || accountNumber.length < 10) return;
     setVerifying(true);
@@ -99,6 +121,10 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
     }
   };
 
+  /**
+   * handleSelectBank - Sets the selected bank and resets account verification state.
+   * @param bank - The bank chosen by the user.
+   */
   const handleSelectBank = (bank: Bank) => {
     setSelectedBank(bank);
     setShowBankDropdown(false);
@@ -109,6 +135,9 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
     setVerificationError("");
   };
 
+  /**
+   * reset - Clears all form and state fields to their defaults.
+   */
   const reset = () => {
     setStep("form");
     setAmount("");
@@ -121,11 +150,18 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
     setVerificationError("");
   };
 
+  /**
+   * handleClose - Resets form state then calls the parent onClose callback.
+   */
   const handleClose = () => {
     reset();
     onClose();
   };
 
+  /**
+   * handleConfirm - Simulates processing the withdrawal and transitions
+   * to the success (done) step.
+   */
   const handleConfirm = () => {
     setProcessing(true);
     setProcessing(false);

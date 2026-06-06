@@ -1,3 +1,4 @@
+/** BiometricAuthModal - Authentication modal supporting biometric (WebAuthn) and PIN-based verification with lockout protection */
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Fingerprint, Shield, Lock, AlertTriangle, CheckCircle, X, Eye, EyeOff } from "lucide-react";
@@ -17,6 +18,14 @@ interface BiometricAuthModalProps {
   reason?: string;
 }
 
+/**
+ * BiometricAuthModal - Modal dialog for biometric or PIN-based authentication with setup wizard and lockout protection.
+ * @param open - Whether the modal is visible
+ * @param onClose - Callback when the modal is closed
+ * @param onSuccess - Callback on successful authentication
+ * @param onSetupComplete - Optional callback when PIN/biometric setup completes
+ * @param reason - Display reason for authentication prompt (default "Authenticate to continue")
+ */
 export default function BiometricAuthModal({
   open,
   onClose,
