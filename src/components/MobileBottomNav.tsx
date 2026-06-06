@@ -5,7 +5,7 @@
  */
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Home, Send, LayoutDashboard, Users, BarChart3, MessageCircle, MoreHorizontal, Zap, Building2, Wallet, FileText, Code, ChevronDown, ChevronRight, Globe, Calendar, Shield, RefreshCw, Coffee, Package, Activity, Tag, Gift, ShieldCheck, AlertTriangle, Clock, Trophy, Heart, Smartphone, Vault, Palette, Receipt, Split, HandHeart, FileSpreadsheet, PiggyBank, LayoutTemplate, UserCircle, Store, BadgeCheck, TrendingUp, CreditCard, QrCode, Settings, Clipboard, ShieldIcon, ClockIcon, UsersIcon, Camera, ArrowDownToLine, ArrowUpFromLine, Bell, UsersRound, AlertCircle, Fuel, HelpCircle, KeyRound, Keyboard, Accessibility as AccessibilityIcon, Fingerprint, Languages, Wifi, Database, Gauge, Hand, Undo2, Mic } from "lucide-react";
+import { Home, Send, LayoutDashboard, Users, BarChart3, MessageCircle, MoreHorizontal, Zap, Building2, Wallet, FileText, Code, ChevronDown, ChevronRight, Globe, Calendar, Shield, RefreshCw, Coffee, Package, Activity, Tag, Gift, ShieldCheck, AlertTriangle, Clock, Trophy, Heart, Smartphone, Vault, Palette, Receipt, Split, HandHeart, FileSpreadsheet, PiggyBank, LayoutTemplate, UserCircle, Store, BadgeCheck, TrendingUp, CreditCard, QrCode, Settings, Clipboard, ShieldIcon, ClockIcon, UsersIcon, Camera, ArrowDownToLine, ArrowUpFromLine, Bell, UsersRound, AlertCircle, Fuel, HelpCircle, KeyRound, Keyboard, Accessibility as AccessibilityIcon, Fingerprint, Languages, Wifi, Database, Gauge, Hand, Undo2, Mic, Webhook as WebhookIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -84,12 +84,14 @@ const moreItems = [
   { to: "/request", label: "Request", icon: Wallet },
 ];
 
-const devItems = [
-  { to: "/docs", label: "Docs", icon: Globe, coming: false },
-  { to: "/docs/quickstart", label: "Quick Start", icon: Zap, coming: false },
-  { to: "/docs/api/payments", label: "API", icon: Code, coming: false },
-  { to: "/docs/sdks/javascript", label: "SDKs", icon: Code, coming: false },
-];
+ const devItems = [
+   { to: "/docs", label: "Docs", icon: Globe, coming: false },
+   { to: "/docs/quickstart", label: "Quick Start", icon: Zap, coming: false },
+   { to: "/docs/api/payments", label: "API", icon: Code, coming: false },
+   { to: "/api-keys", label: "API Keys", icon: KeyRound, coming: false },
+   { to: "/webhooks", label: "Webhooks", icon: WebhookIcon, coming: false },
+   { to: "/docs/sdks/javascript", label: "SDKs", icon: Code, coming: false },
+ ];
 
 /**
  * MobileBottomNav - Renders a fixed bottom nav on mobile (xl:hidden)

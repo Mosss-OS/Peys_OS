@@ -5,7 +5,7 @@
  */
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock } from "lucide-react";
+import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock, Key, Webhook } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -44,6 +44,8 @@ export default function AppHeader() {
   const devItems = [
     { to: "/docs", label: "Documentation", desc: "Full developer docs", icon: Globe, coming: false },
     { to: "/docs/quickstart", label: "Quick Start", desc: "Get started in 5 min", icon: Zap, coming: false },
+    { to: "/api-keys", label: "API Keys", desc: "Manage your API keys", icon: Key, coming: false },
+    { to: "/webhooks", label: "Webhooks", desc: "Configure webhook endpoints", icon: Webhook, coming: false },
     { to: "/docs/api/payments", label: "API Reference", desc: "REST API endpoints", icon: Code, coming: false },
     { to: "/docs/sdks/javascript", label: "SDKs", desc: "JS, Python, Go", icon: Terminal, coming: false },
     { to: "/docs/sdks/pricing", label: "SDK Pricing", desc: "Pricing for SDKs", icon: CreditCard, coming: true },

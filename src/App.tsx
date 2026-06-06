@@ -115,6 +115,7 @@ import MultiChainPage from "./pages/MultiChainPage";
 import WhatsAppPage from "./pages/WhatsAppPage";
 import WhatsAppRegisterPage from "./pages/WhatsAppRegisterPage";
 import WebhooksPage from "./pages/WebhooksPage";
+import ApiKeysPage from "./pages/ApiKeysPage";
 import DocsPage from "./pages/docs/DocsPage";
 import NotFound from "./pages/NotFound";
 
@@ -233,6 +234,7 @@ export default function App() {
                             <Route path="/whatsapp" element={<WhatsAppPage />} />
                             <Route path="/whatsapp-register" element={<WhatsAppRegisterPage />} />
                             <Route path="/webhooks" element={<WebhooksPage />} />
+                            <Route path="/api-keys" element={<ApiKeysPage />} />
                             <Route path="/docs" element={<DocsPage />} />
                             <Route path="/docs/:slug" element={<DocsPage />} />
                             <Route path="*" element={<NotFound />} />
