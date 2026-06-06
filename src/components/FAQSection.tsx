@@ -6,7 +6,7 @@ import { Plus, Minus } from "lucide-react";
 const faqs = [
   {
     q: "What is Peys?",
-    a: "Peys is a peer-to-peer stablecoin payments app built on Base (Ethereum L2). Send USDC to anyone via a shareable link — no wallet or crypto knowledge required. USDT support coming soon.",
+    a: "Peys is a peer-to-peer stablecoin and G$ payments app built on Celo and Base (Ethereum L2). Send USDC or G$ (GoodDollar) to anyone via a shareable link — no wallet or crypto knowledge required. USDT support coming soon.",
   },
   {
     q: "How do Magic Claim Links work?",
@@ -21,12 +21,16 @@ const faqs = [
     a: "Unclaimed payments are automatically refunded to the sender after 7 days. Your funds are never at risk.",
   },
   {
-    q: "Which stablecoins are supported?",
-    a: "Peys supports USDC on Base Sepolia. USDT support coming soon.",
+    q: "Which tokens are supported?",
+    a: "Peys supports USDC on Base Sepolia and G$ (GoodDollar) on Celo Alfajores. USDT support coming soon. G$ is a universal basic income cryptocurrency you can earn, send, and receive.",
   },
   {
     q: "What are the fees?",
-    a: "Transaction fees on Base are minimal — typically less than $0.01. Peys charges no additional fees.",
+    a: "Transaction fees on Base and Celo are minimal — typically less than $0.01. Peys charges no additional fees.",
+  },
+  {
+    q: "What is GoodDollar (G$)?",
+    a: "GoodDollar is an open-source protocol that provides universal basic income via cryptocurrency. Every person can claim a daily G$ stipend through the GoodDollar App. Peys integrates G$ for sending, receiving, and community governance through the GoodCollective.",
   },
 ];
 

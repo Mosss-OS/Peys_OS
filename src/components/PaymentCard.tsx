@@ -57,7 +57,7 @@ export default function PaymentCard({ payment, sender, amount, token, memo, clai
       <div className="p-6 sm:p-8">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-6">
-          <img src={theme === "dark" ? "/peys_black_background.png" : "/peys_logo_alone.png"} alt="Peys" className="h-10 w-10 rounded-lg" />
+          <img src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" alt="Peys" className="h-10 w-10 rounded-lg" />
           <span className="text-sm font-semibold text-foreground">Peys</span>
           <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             Payment Link

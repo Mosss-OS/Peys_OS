@@ -27,15 +27,16 @@ export default function HeroSection() {
             className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-5 py-2 shadow-sm"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-muted-foreground">G$ · USDC · Open</span>
           </motion.div>
 
           <h1 className="mx-auto max-w-4xl font-display text-4xl leading-[1.1] text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
-            The stablecoin{" "}
+            The <span className="text-gd">G$</span> stablecoin{" "}
             <span className="text-muted-foreground/40">payment OS</span>
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-7 sm:text-base">
-            Products built on open infrastructure to deliver better stablecoin payments to every individual, business, and developer.
+            Products built on open infrastructure to deliver better stablecoin and G$ payments to every individual, business, and developer. Powered by GoodDollar.
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center">

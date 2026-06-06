@@ -45,6 +45,8 @@
     --sidebar-border: 230 10% 90%;
     --sidebar-ring: 250 65% 52%;
 
+    --gd: 145 65% 45%;
+    --gd-foreground: 0 0% 100%;
     --success: 155 70% 42%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
@@ -100,6 +102,8 @@
     --sidebar-border: 230 12% 20%;
     --sidebar-ring: 250 65% 60%;
 
+    --gd: 145 55% 48%;
+    --gd-foreground: 0 0% 100%;
     --success: 155 60% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 80% 50%;

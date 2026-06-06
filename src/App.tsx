@@ -20,6 +20,7 @@ import { WakeLockProvider } from "@/hooks/useWakeLock";
 import ScrollToTop from "@/components/ScrollToTop";
 import AIChatBubble from "@/components/AIChatBubble";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { RouteGuard } from "@/components/RouteGuard";
 
 import Index from "./pages/Index";
 import SendPage from "./pages/SendPage";
@@ -139,7 +140,8 @@ export default function App() {
                         <Sonner />
                         <BrowserRouter>
                           <ScrollToTop />
-                          <Routes>
+                          <RouteGuard>
+                            <Routes>
                             <Route path="/" element={<Index />} />
                             <Route path="/send" element={<SendPage />} />
                             <Route path="/public" element={<PublicPaymentPage />} />
@@ -239,6 +241,7 @@ export default function App() {
                             <Route path="/docs/:slug" element={<DocsPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
+                          </RouteGuard>
                           <MobileBottomNav />
                           <AIChatBubble />
                         </BrowserRouter>

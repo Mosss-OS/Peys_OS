@@ -883,7 +883,7 @@ export async function getP2POrders(
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const response = await fetch(
-      `${supabaseUrl}/functions/v1/p2p-marketplace/orders?type=${type}&currency=${currency}&limit=${limit}`,
+      `${supabaseUrl}/functions/v1/peys-p2p-marketplace/orders?type=${type}&currency=${currency}&limit=${limit}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -943,7 +943,7 @@ export async function matchP2POrder(
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const { data: { session } } = await supabase.auth.getSession();
     
-    const response = await fetch(`${supabaseUrl}/functions/v1/p2p-marketplace/match`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/peys-p2p-marketplace/match`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

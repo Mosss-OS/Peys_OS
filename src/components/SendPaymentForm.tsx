@@ -257,7 +257,6 @@ export default function SendPaymentForm() {
    */
   const handleNetworkChange = async (networkId: number) => {
     setSelectedNetwork(networkId);
-    setShowNetworkSelector(false);
     if (networkId !== walletChainId) {
       try {
         await switchNetwork(networkId);
@@ -520,7 +519,7 @@ export default function SendPaymentForm() {
 
         // 6. Send email notification via Supabase Edge Function
         try {
-          const { data, error } = await supabase.functions.invoke("send-payment-notification", {
+          const { data, error } = await supabase.functions.invoke("peys-send-payment-notification", {
             body: {
               recipientEmail: recipient,
               senderEmail: walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : "Someone",

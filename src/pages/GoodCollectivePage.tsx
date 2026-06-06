@@ -82,6 +82,14 @@ export default function GoodCollectivePage() {
     }
   };
 
+  const [stats, setStats] = useState<CollectiveStats>({
+    totalMembers: 0,
+    activeProposals: 0,
+    treasuryBalance: 0,
+    totalDistributed: 0,
+    participationRate: 0,
+  });
+
   const fetchUserVotes = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -96,20 +104,46 @@ export default function GoodCollectivePage() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const { data: voters } = await supabase
+        .from("collective_votes")
+        .select("user_id");
+
+      const uniqueVoters = new Set((voters || []).map(v => v.user_id)).size;
+
+      const { count: totalDistinctVoters } = await supabase
+        .from("collective_votes")
+        .select("user_id", { count: "exact", head: true });
+
+      const { data: payments } = await supabase
+        .from("payments")
+        .select("amount")
+        .eq("token", "G$");
+
+      const totalDistributed = (payments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+      setStats({
+        totalMembers: totalDistinctVoters || 0,
+        activeProposals: 0,
+        treasuryBalance: 0,
+        totalDistributed,
+        participationRate: uniqueVoters > 0 ? 100 : 0,
+      });
+    } catch {
+      // Stats stay at defaults
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchProposals();
       fetchUserVotes();
+      fetchStats();
     }
   }, [isLoggedIn]);
 
-  const stats: CollectiveStats = {
-    totalMembers: 0,
-    activeProposals: proposals.filter(p => p.status === "active").length,
-    treasuryBalance: 0,
-    totalDistributed: 0,
-    participationRate: 0,
-  };
+  const activeCount = proposals.filter(p => p.status === "active").length;
 
   const handleVote = async (proposalId: string, support: boolean) => {
     if (!isLoggedIn) { login(); return; }
@@ -333,17 +367,17 @@ export default function GoodCollectivePage() {
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">
             <Vote className="mx-auto mb-1 h-5 w-5 text-primary" />
-            <p className="text-lg font-bold text-foreground">{stats.activeProposals}</p>
+            <p className="text-lg font-bold text-foreground">{activeCount}</p>
             <p className="text-xs text-muted-foreground">Active</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">
             <Wallet className="mx-auto mb-1 h-5 w-5 text-primary" />
-            <p className="text-lg font-bold text-foreground">{stats.treasuryBalance.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">Treasury</p>
+            <p className="text-lg font-bold text-foreground">{stats.treasuryBalance > 0 ? stats.treasuryBalance.toLocaleString() : "—"}</p>
+            <p className="text-xs text-muted-foreground">Treasury (G$)</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">
             <TrendingUp className="mx-auto mb-1 h-5 w-5 text-primary" />
-            <p className="text-lg font-bold text-foreground">{stats.totalDistributed.toLocaleString()}</p>
+            <p className="text-lg font-bold text-foreground">{stats.totalDistributed.toLocaleString()} G$</p>
             <p className="text-xs text-muted-foreground">Distributed</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">

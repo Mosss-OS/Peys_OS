@@ -8,32 +8,34 @@
     <meta name="author" content="Peys Team v2" />
     <meta name="theme-color" content="#6C3FE4" />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/peys_logo_alone.png" />
-    <link id="favicon" rel="icon" href="/peys_logo_alone.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" />
+    <link id="favicon" rel="icon" href="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" type="image/png" />
     <script>
       (function() {
         const stored = localStorage.getItem('pey-theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const isDark = stored ? stored === 'dark' : prefersDark;
-        document.getElementById('favicon').href = isDark ? '/peys_black_background.png' : '/peys_logo_alone.png';
+        document.getElementById('favicon').href = isDark 
+          ? 'https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png' 
+          : 'https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png';
       })();
     </script>
 
     
     
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/FBUFzE5oWJRhxMhImFNZIBiWh1j2/social-images/social-1773015315336-peys_logo_on_transparent_background.webp" />
-    <meta property="og:url" content="https://peys.io" />
+    <meta property="og:image" content="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" />
+    <meta property="og:url" content="https://peys-armj8d0rg-mosss-os-projects.vercel.app" />
     <meta property="og:site_name" content="Peys" />
     <meta property="whatsapp:card" content="summary_large_image" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@paboracle" />
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/FBUFzE5oWJRhxMhImFNZIBiWh1j2/social-images/social-1773015315336-peys_logo_on_transparent_background.webp">
-    <meta property="og:title" content="Peys — Stablecoin Payments">
-  <meta name="twitter:title" content="Peys — Stablecoin Payments">
-  <meta property="og:description" content="Send stablecoins to anyone with a magic link. No wallet needed.">
-    <meta name="twitter:description" content="Send stablecoins to anyone with a magic link. No wallet needed.">
+    <meta name="twitter:image" content="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png">
+    <meta property="og:title" content="Peys — G$ Stablecoin Payments">
+    <meta name="twitter:title" content="Peys — G$ Stablecoin Payments">
+    <meta property="og:description" content="Send G$ to anyone with a magic link. No wallet needed. Gasless claims.">
+    <meta name="twitter:description" content="Send G$ to anyone with a magic link. No wallet needed. Gasless claims.">
     
     <!-- WhatsApp Deep Link Support -->
     <meta property="al:android:package" content="io.peys.app" />

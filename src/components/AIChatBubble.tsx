@@ -25,7 +25,7 @@ const SUGGESTIONS = [
 const IS_DEV = import.meta.env.DEV || import.meta.env.MODE === 'development';
 const CHAT_URL = IS_DEV 
   ? '/api/ai'  // Proxied to Ollama in dev mode
-  : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payment-assistant`;
+  : `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/peys-payment-assistant`;
 
 // Ollama model configuration - change this to use different models
 // Available models: qwen2.5-coder:1.5b, llama2, mistral, etc.
@@ -435,7 +435,7 @@ export default function AIChatBubble() {
                 {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
-                    onClick={() => setInput(s)}
+                    onClick={() => handleSuggestion(s)}
                     className="shrink-0 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   >
                     {s}

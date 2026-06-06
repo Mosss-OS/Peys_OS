@@ -23,7 +23,7 @@ export function useGaslessClaim() {
     secret: string,
     chainId?: number
   ): Promise<GaslessClaimResult> => {
-    const { data, error } = await supabase.functions.invoke("blockchain-signer", {
+    const { data, error } = await supabase.functions.invoke("peys-blockchain-signer", {
       body: {
         action: "claim",
         paymentId,
