@@ -5,12 +5,13 @@
  */
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock, Key, Webhook } from "lucide-react";
+import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock, Key, Webhook, AlertCircle } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import NotificationBell from "@/components/NotificationBell";
+import { isDisabledRoute, getDisabledRouteInfo, isCoreRoute } from "@/config/coreRoutes";
 
 /**
  * AppHeader - Renders the site-wide header with responsive navigation,
@@ -26,29 +27,29 @@ export default function AppHeader() {
   const [devOpen, setDevOpen] = useState(false);
 
   const personalItems = [
-    { to: "/pay", label: "Pay Someone", desc: "Pay without account", icon: Send },
-    { to: "/send", label: "Send Money", desc: "Send via link or address", icon: Send },
-    { to: "/request", label: "Request", desc: "Create payment request", icon: FileText },
-    { to: "/contacts", label: "Contacts", desc: "Manage recipients", icon: Users },
+    { to: "/pay", label: "Pay Someone", desc: "Pay without account", icon: Send, disabled: true },
+    { to: "/send", label: "Send Money", desc: "Send via link or address", icon: Send, disabled: false },
+    { to: "/request", label: "Request", desc: "Create payment request", icon: FileText, disabled: true },
+    { to: "/contacts", label: "Contacts", desc: "Manage recipients", icon: Users, disabled: true },
   ];
 
   const orgItems = [
-    { to: "/batch", label: "Batch Payments", desc: "Pay multiple people", icon: CreditCard },
-    { to: "/escrow", label: "Escrow", desc: "Manage pending payments", icon: Lock },
-    { to: "/streaming", label: "Streaming", desc: "Stream payments", icon: Zap },
-    { to: "/analytics", label: "Analytics", desc: "Track & report", icon: BarChart3 },
-    { to: "/dashboard", label: "Dashboard", desc: "Overview", icon: Building2 },
-    { to: "/organizations", label: "Organizations", desc: "Team & business", icon: Building2 },
+    { to: "/batch", label: "Batch Payments", desc: "Pay multiple people", icon: CreditCard, disabled: true },
+    { to: "/escrow", label: "Escrow", desc: "Manage pending payments", icon: Lock, disabled: true },
+    { to: "/streaming", label: "Streaming", desc: "Stream payments", icon: Zap, disabled: true },
+    { to: "/analytics", label: "Analytics", desc: "Track & report", icon: BarChart3, disabled: true },
+    { to: "/dashboard", label: "Dashboard", desc: "Overview", icon: Building2, disabled: false },
+    { to: "/organizations", label: "Organizations", desc: "Team & business", icon: Building2, disabled: true },
   ];
 
   const devItems = [
-    { to: "/docs", label: "Documentation", desc: "Full developer docs", icon: Globe, coming: false },
-    { to: "/docs/quickstart", label: "Quick Start", desc: "Get started in 5 min", icon: Zap, coming: false },
-    { to: "/api-keys", label: "API Keys", desc: "Manage your API keys", icon: Key, coming: false },
-    { to: "/webhooks", label: "Webhooks", desc: "Configure webhook endpoints", icon: Webhook, coming: false },
-    { to: "/docs/api/payments", label: "API Reference", desc: "REST API endpoints", icon: Code, coming: false },
-    { to: "/docs/sdks/javascript", label: "SDKs", desc: "JS, Python, Go", icon: Terminal, coming: false },
-    { to: "/docs/sdks/pricing", label: "SDK Pricing", desc: "Pricing for SDKs", icon: CreditCard, coming: true },
+    { to: "/docs", label: "Documentation", desc: "Full developer docs", icon: Globe, disabled: false },
+    { to: "/docs/quickstart", label: "Quick Start", desc: "Get started in 5 min", icon: Zap, disabled: false },
+    { to: "/api-keys", label: "API Keys", desc: "Manage your API keys", icon: Key, disabled: false },
+    { to: "/webhooks", label: "Webhooks", desc: "Configure webhook endpoints", icon: Webhook, disabled: true },
+    { to: "/docs/api/payments", label: "API Reference", desc: "REST API endpoints", icon: Code, disabled: false },
+    { to: "/docs/sdks/javascript", label: "SDKs", desc: "JS, Python, Go", icon: Terminal, disabled: false },
+    { to: "/docs/sdks/pricing", label: "SDK Pricing", desc: "Pricing for SDKs", icon: CreditCard, disabled: true },
   ];
 
   /**
@@ -73,7 +74,7 @@ export default function AppHeader() {
         <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:h-16 lg:px-8">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
-              src={theme === "dark" ? "/peys_black_background.png" : "/peys_logo_alone.png"}
+              src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png"
               alt="Peys"
               className="h-10 w-10 rounded-lg sm:h-11 sm:w-11"
             />
@@ -124,29 +125,35 @@ export default function AppHeader() {
                       <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Individuals
                       </p>
-                      {personalItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={item.to}
-                            to={item.to}
-                            onClick={() => setPersonalOpen(false)}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                              location.pathname === item.to
-                                ? "bg-primary/10 text-primary font-medium"
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                            }`}
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                              <Icon className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-foreground">{item.label}</div>
-                              <div className="text-xs text-muted-foreground">{item.desc}</div>
-                            </div>
-                          </Link>
-                        );
-                      })}
+                       {personalItems.map((item) => {
+                         const Icon = item.icon;
+                         const disabled = item.disabled;
+                         return (
+                           <Link
+                             key={item.to}
+                             to={disabled ? "#" : item.to}
+                             onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setPersonalOpen(false); } }}
+                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                               disabled
+                                 ? "text-muted-foreground/50 cursor-not-allowed"
+                                 : location.pathname === item.to
+                                   ? "bg-primary/10 text-primary font-medium"
+                                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                             }`}
+                           >
+                             <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
+                               <Icon className="h-4 w-4" />
+                             </div>
+                             <div>
+                               <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
+                               <div className="text-xs text-muted-foreground">{item.desc}</div>
+                             </div>
+                             {disabled && (
+                               <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                             )}
+                           </Link>
+                         );
+                       })}
                     </div>
                   </motion.div>
                 )}
@@ -183,29 +190,35 @@ export default function AppHeader() {
                       <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Teams & Business
                       </p>
-                      {orgItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={item.to}
-                            to={item.to}
-                            onClick={() => setOrgOpen(false)}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                              location.pathname === item.to
-                                ? "bg-primary/10 text-primary font-medium"
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                            }`}
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                              <Icon className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-foreground">{item.label}</div>
-                              <div className="text-xs text-muted-foreground">{item.desc}</div>
-                            </div>
-                          </Link>
-                        );
-                      })}
+                       {orgItems.map((item) => {
+                         const Icon = item.icon;
+                         const disabled = item.disabled;
+                         return (
+                           <Link
+                             key={item.to}
+                             to={disabled ? "#" : item.to}
+                             onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setOrgOpen(false); } }}
+                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                               disabled
+                                 ? "text-muted-foreground/50 cursor-not-allowed"
+                                 : location.pathname === item.to
+                                   ? "bg-primary/10 text-primary font-medium"
+                                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                             }`}
+                           >
+                             <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
+                               <Icon className="h-4 w-4" />
+                             </div>
+                             <div>
+                               <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
+                               <div className="text-xs text-muted-foreground">{item.desc}</div>
+                             </div>
+                             {disabled && (
+                               <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                             )}
+                           </Link>
+                         );
+                       })}
                     </div>
                   </motion.div>
                 )}
@@ -244,41 +257,45 @@ export default function AppHeader() {
                           For Developers
                         </p>
                       </div>
-                      {devItems.map((item) => {
-                        const Icon = item.icon;
-                        const handleClick = (e: React.MouseEvent) => {
-                          if (item.coming) {
-                            e.preventDefault();
-                            toast.info("Coming soon! Developer features will be available soon.");
-                          }
-                          setDevOpen(false);
-                        };
-                        return (
-                          <Link
-                            key={item.to}
-                            to={item.coming ? "#" : item.to}
-                            onClick={handleClick}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                              item.coming
-                                ? "text-muted-foreground/50 cursor-not-allowed"
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                            }`}
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                              <Icon className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-foreground flex items-center gap-2">
-                                {item.label}
-                                {item.coming && (
-                                  <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                                    Soon
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-xs text-muted-foreground">{item.desc}</div>
-                            </div>
-                          </Link>
+                       {devItems.map((item) => {
+                         const Icon = item.icon;
+                         const disabled = item.disabled;
+                         const handleClick = (e: React.MouseEvent) => {
+                           if (disabled) {
+                             e.preventDefault();
+                             toast.info("This feature is disabled for MVP. Core send→claim flow only.");
+                           }
+                           setDevOpen(false);
+                         };
+                         return (
+                           <Link
+                             key={item.to}
+                             to={disabled ? "#" : item.to}
+                             onClick={handleClick}
+                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                               disabled
+                                 ? "text-muted-foreground/50 cursor-not-allowed"
+                                 : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                             }`}
+                           >
+                             <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
+                               <Icon className="h-4 w-4" />
+                             </div>
+                             <div>
+                               <div className={`font-medium flex items-center gap-2 ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>
+                                 {item.label}
+                                 {disabled && (
+                                   <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                                     Disabled
+                                   </span>
+                                 )}
+                               </div>
+                               <div className="text-xs text-muted-foreground">{item.desc}</div>
+                             </div>
+                             {disabled && (
+                               <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                             )}
+                           </Link>
                         );
                       })}
                     </div>
@@ -413,28 +430,36 @@ export default function AppHeader() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="grid grid-cols-1 gap-1 p-1">
-                        {personalItems.map((item) => (
-                          <Link
-                            key={item.to}
-                            to={item.to}
-                            onClick={() => { setMobileOpen(false); setPersonalOpen(false); }}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                              location.pathname === item.to 
-                                ? "bg-primary/10 text-primary" 
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                            }`}
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                              <item.icon className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-foreground">{item.label}</div>
-                              <div className="text-xs text-muted-foreground">{item.desc}</div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
+                       <div className="grid grid-cols-1 gap-1 p-1">
+                         {personalItems.map((item) => {
+                           const disabled = item.disabled;
+                           return (
+                             <Link
+                               key={item.to}
+                               to={disabled ? "#" : item.to}
+                               onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setMobileOpen(false); setPersonalOpen(false); } }}
+                               className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                 disabled
+                                   ? "text-muted-foreground/50 cursor-not-allowed"
+                                   : location.pathname === item.to 
+                                     ? "bg-primary/10 text-primary" 
+                                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                               }`}
+                             >
+                               <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
+                                 <item.icon className="h-4 w-4" />
+                               </div>
+                               <div>
+                                 <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
+                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
+                               </div>
+                               {disabled && (
+                                 <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                               )}
+                             </Link>
+                           );
+                         })}
+                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -455,28 +480,36 @@ export default function AppHeader() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="grid grid-cols-1 gap-1 p-1">
-                        {orgItems.map((item) => (
-                          <Link
-                            key={item.to}
-                            to={item.to}
-                            onClick={() => { setMobileOpen(false); setOrgOpen(false); }}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                              location.pathname === item.to 
-                                ? "bg-primary/10 text-primary" 
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                            }`}
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                              <item.icon className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-foreground">{item.label}</div>
-                              <div className="text-xs text-muted-foreground">{item.desc}</div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
+                       <div className="grid grid-cols-1 gap-1 p-1">
+                         {orgItems.map((item) => {
+                           const disabled = item.disabled;
+                           return (
+                             <Link
+                               key={item.to}
+                               to={disabled ? "#" : item.to}
+                               onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setMobileOpen(false); setOrgOpen(false); } }}
+                               className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                 disabled
+                                   ? "text-muted-foreground/50 cursor-not-allowed"
+                                   : location.pathname === item.to 
+                                     ? "bg-primary/10 text-primary" 
+                                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                               }`}
+                             >
+                               <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
+                                 <item.icon className="h-4 w-4" />
+                               </div>
+                               <div>
+                                 <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
+                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
+                               </div>
+                               {disabled && (
+                                 <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                               )}
+                             </Link>
+                           );
+                         })}
+                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -497,41 +530,45 @@ export default function AppHeader() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="grid grid-cols-1 gap-1 p-1">
-                        {devItems.map((item) => {
-                          const Icon = item.icon;
-                          const handleClick = (e: React.MouseEvent) => {
-                            if (item.coming) {
-                              e.preventDefault();
-                              toast.info("Coming soon! Developer features will be available soon.");
-                              return;
-                            }
-                            setMobileOpen(false);
-                            setDevOpen(false);
-                          };
-                          return (
-                            <Link
-                              key={item.to}
-                              to={item.coming ? "#" : item.to}
-                              onClick={handleClick}
-                              className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                                item.coming 
-                                  ? "text-muted-foreground/50 cursor-not-allowed" 
-                                  : location.pathname === item.to 
-                                    ? "bg-primary/10 text-primary" 
-                                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                              }`}
-                            >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                                <Icon className="h-4 w-4" />
+                       <div className="grid grid-cols-1 gap-1 p-1">
+                         {devItems.map((item) => {
+                           const Icon = item.icon;
+                           const disabled = item.disabled;
+                           const handleClick = (e: React.MouseEvent) => {
+                             if (disabled) {
+                               e.preventDefault();
+                               toast.info("This feature is disabled for MVP. Core send→claim flow only.");
+                               return;
+                             }
+                             setMobileOpen(false);
+                             setDevOpen(false);
+                           };
+                           return (
+                             <Link
+                               key={item.to}
+                               to={disabled ? "#" : item.to}
+                               onClick={handleClick}
+                               className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                 disabled
+                                   ? "text-muted-foreground/50 cursor-not-allowed" 
+                                   : location.pathname === item.to 
+                                     ? "bg-primary/10 text-primary" 
+                                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                               }`}
+                             >
+                               <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
+                                 <Icon className="h-4 w-4" />
                               </div>
-                              <div className="flex flex-col">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-foreground">{item.label}</span>
-                                  {item.coming && <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Soon</span>}
-                                </div>
-                                <div className="text-xs text-muted-foreground">{item.desc}</div>
-                              </div>
+                               <div className="flex flex-col">
+                                 <div className="flex items-center gap-2">
+                                   <span className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</span>
+                                   {disabled && <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Disabled</span>}
+                                 </div>
+                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
+                               </div>
+                               {disabled && (
+                                 <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                               )}
                             </Link>
                           );
                         })}

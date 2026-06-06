@@ -51,6 +51,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        gd: {
+          DEFAULT: "hsl(var(--gd))",
+          foreground: "hsl(var(--gd-foreground))",
+        },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",

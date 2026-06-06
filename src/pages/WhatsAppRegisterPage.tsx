@@ -34,7 +34,7 @@ export default function WhatsAppRegisterPage() {
     if (!user) return;
     
     try {
-      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-user`, {
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/peys-sync-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

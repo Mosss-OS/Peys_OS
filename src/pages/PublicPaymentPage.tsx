@@ -236,7 +236,7 @@ export default function PublicPaymentPage() {
 
         // Send email notification
         try {
-          const { data, error: emailError } = await supabase.functions.invoke("send-payment-notification", {
+          const { data, error: emailError } = await supabase.functions.invoke("peys-send-payment-notification", {
             body: {
               recipientEmail: recipientValue,
               senderEmail: walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : "Someone",

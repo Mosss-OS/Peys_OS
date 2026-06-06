@@ -141,7 +141,7 @@ export default function ReceiveDepositsPage() {
       const firstName = names[0] || "User";
       const lastName = names.slice(1).join(" ") || "Peydot";
 
-      const { data, error } = await supabase.functions.invoke("create-virtual-account", {
+      const { data, error } = await supabase.functions.invoke("peys-create-virtual-account", {
         body: {
           userId: user.id,
           email: userProfile.email || user.email,

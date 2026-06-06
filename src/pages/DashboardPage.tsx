@@ -138,7 +138,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">Overall Balance</p>
             <button
-              onClick={() => { navigator.clipboard.writeText("0x1a2B3c4D5e6F7a8B9c0D1e2F3a4B5c6D7e8F9a4E"); toast.success("Wallet address copied!"); }}
+              onClick={() => { if (wallet.address) navigator.clipboard.writeText(wallet.address); toast.success("Wallet address copied!"); }}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               {wallet.address}

@@ -54,6 +54,9 @@ verify_jwt = false
 [functions.peys-send-email]
 verify_jwt = false
 
+[functions.peys-send-payment-link]
+verify_jwt = false
+
 [functions.peys-sync-user]
 verify_jwt = false
 

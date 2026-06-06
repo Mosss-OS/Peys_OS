@@ -153,7 +153,7 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
       const firstName = names[0] || "User";
       const lastName = names.slice(1).join(" ") || "Peydot";
 
-      const { data, error } = await supabase.functions.invoke("create-virtual-account", {
+      const { data, error } = await supabase.functions.invoke("peys-create-virtual-account", {
         body: {
           userId: user.id,
           email: userProfile.email || user.email,
@@ -246,7 +246,7 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
 
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke("send-payment-link", {
+      const { error } = await supabase.functions.invoke("peys-send-payment-link", {
         body: {
           email: shareEmail,
           paymentLink: createdPaymentLink,
