@@ -1,3 +1,7 @@
+/**
+ * @file Manages bookmarks, categories, and quick-access items persisted to localStorage.
+ */
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -8,6 +12,7 @@ import {
 import { useLocation, Link } from "react-router-dom";
 import { toast } from "sonner";
 
+/** A single saved bookmark with optional category and favorite status. */
 interface BookmarkItem {
   id: string;
   title: string;
@@ -18,12 +23,14 @@ interface BookmarkItem {
   isFavorite: boolean;
 }
 
+/** A named category used to group bookmarks together. */
 interface BookmarkCategory {
   id: string;
   name: string;
   color: string;
 }
 
+/** A shortcut item shown in the quick-access bar. */
 interface QuickAccessItem {
   id: string;
   title: string;
@@ -43,11 +50,16 @@ const QUICK_ACCESS_DEFAULT = [
   { id: "3", title: "Contacts", url: "/contacts", icon: "👥" },
 ];
 
+/**
+ * Hook for managing bookmarks, categories, and quick-access items.
+ * All data is persisted to localStorage.
+ */
 export function useBookmarks() {
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [categories, setCategories] = useState<BookmarkCategory[]>([]);
   const [quickAccess, setQuickAccess] = useState<QuickAccessItem[]>([]);
 
+  // Hydrate state from localStorage on mount (or use defaults)
   useEffect(() => {
     const savedBookmarks = localStorage.getItem("peys_bookmarks");
     const savedCategories = localStorage.getItem("peys_categories");
@@ -75,6 +87,7 @@ export function useBookmarks() {
     localStorage.setItem("peys_quick_access", JSON.stringify(quickAccess));
   }, [quickAccess]);
 
+  /** Add a new bookmark with an auto-generated ID and timestamp. */
   const addBookmark = (bookmark: Omit<BookmarkItem, "id" | "createdAt" | "isFavorite">) => {
     const newBookmark: BookmarkItem = {
       ...bookmark,
@@ -87,17 +100,20 @@ export function useBookmarks() {
     return newBookmark;
   };
 
+  /** Remove a bookmark by its ID. */
   const removeBookmark = (id: string) => {
     setBookmarks(prev => prev.filter(b => b.id !== id));
     toast.success("Bookmark removed");
   };
 
+  /** Toggle a bookmark's favorite status. */
   const toggleFavorite = (id: string) => {
     setBookmarks(prev => prev.map(b =>
       b.id === id ? { ...b, isFavorite: !b.isFavorite } : b
     ));
   };
 
+  /** Create a new bookmark category. */
   const addCategory = (name: string, color: string) => {
     const newCategory: BookmarkCategory = {
       id: crypto.randomUUID(),
@@ -108,6 +124,7 @@ export function useBookmarks() {
     return newCategory;
   };
 
+  /** Delete a category; bookmarks in it are reassigned to "general". */
   const removeCategory = (id: string) => {
     if (id === "general") {
       toast.error("Cannot remove default category");
@@ -120,6 +137,7 @@ export function useBookmarks() {
     ));
   };
 
+  /** Move a bookmark to a different category. */
   const updateBookmarkCategory = (bookmarkId: string, categoryId: string) => {
     setBookmarks(prev => prev.map(b =>
       b.id === bookmarkId ? { ...b, categoryId } : b
@@ -139,7 +157,10 @@ export function useBookmarks() {
   };
 }
 
-// Quick Access Bar Component
+/**
+ * A floating bottom bar displaying quick-access shortcuts.
+ * Navigates to the selected URL when a button is pressed.
+ */
 export function QuickAccessBar({ onSelect }: { onSelect: (url: string) => void }) {
   const { quickAccess } = useBookmarks();
 
@@ -159,13 +180,17 @@ export function QuickAccessBar({ onSelect }: { onSelect: (url: string) => void }
   );
 }
 
-// Bookmarks List Component
+/**
+ * A modal overlay that lists all bookmarks with search and management controls.
+ * Only renders when `show` is true.
+ */
 export function BookmarksList({ show }: { show: boolean }) {
   const { bookmarks, categories, removeBookmark, toggleFavorite } = useBookmarks();
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!show) return null;
 
+  // Filter bookmarks by the current search query (case-insensitive)
   const filteredBookmarks = bookmarks.filter(b =>
     b.title.toLowerCase().includes(searchQuery.toLowerCase())
   );

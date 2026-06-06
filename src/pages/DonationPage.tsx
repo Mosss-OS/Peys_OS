@@ -1,3 +1,4 @@
+/** DonationPage - Crypto donation campaigns with progress tracking and quick-amount giving */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Heart, DollarSign, Users, Gift, TrendingUp, Loader2, ExternalLink, Share2 } from "lucide-react";
@@ -44,6 +45,7 @@ const SAMPLE_CAMPAIGNS: DonationCampaign[] = [
   },
 ];
 
+/** DonationPage component - Displays donation campaigns, handles donation amounts, and processes contributions */
 export default function DonationPage() {
   const { isLoggedIn, login } = useApp();
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>(SAMPLE_CAMPAIGNS);

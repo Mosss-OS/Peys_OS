@@ -1,3 +1,4 @@
+/** AccountRecoveryPage - Multi-step account recovery flow with identity verification, trusted contacts, and PIN reset */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -34,6 +35,7 @@ interface TrustedContact {
   relation: string;
 }
 
+/** AccountRecoveryPage component - Guides users through identity verification, trusted contact approval, and PIN reset to regain account access */
 export default function AccountRecoveryPage() {
   const { isLoggedIn, login, logout } = useApp();
   const navigate = useNavigate();

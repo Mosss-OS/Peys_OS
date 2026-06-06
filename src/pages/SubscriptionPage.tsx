@@ -1,3 +1,4 @@
+/** SubscriptionPage - Recurring subscription management with create, pause/resume, cancel, and payment history */
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -39,6 +40,7 @@ const FREQUENCIES = [
   { id: "yearly", label: "Yearly", interval: 365, unit: "days" },
 ];
 
+/** SubscriptionPage component - Manages subscription lifecycle including creation, pausing, editing, and cancelling recurring payments */
 export default function SubscriptionPage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

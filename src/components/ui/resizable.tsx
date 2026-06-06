@@ -1,3 +1,4 @@
+/** shadcn/ui Resizable component */
 import { GripVertical } from "lucide-react";
 import * as ResizablePrimitive from "react-resizable-panels";
 

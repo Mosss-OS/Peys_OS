@@ -1,14 +1,27 @@
+/**
+ * GoodDollarIdentityCard - Displays the user's GoodDollar decentralized
+ * identity status. Allows requesting verification via the GoodDollar App
+ * and handles network switching to Celo Alfajores when needed.
+ */
 import { useState } from "react";
 import { Shield, CheckCircle, Loader2, UserCheck, Globe, ExternalLink, AlertCircle, RefreshCw, Network } from "lucide-react";
 import { toast } from "sonner";
 import { useGoodDollarIdentity } from "@/hooks/useGoodDollarIdentity";
 import { useSwitchChain } from "wagmi";
 
+/**
+ * GoodDollarIdentityCard - Renders a card with identity status,
+ * verification action, and error/loading states.
+ */
 export default function GoodDollarIdentityCard() {
   const { identity, loading, error, checkIdentity, requestVerification, isIdentityDeployed, needsNetworkSwitch, identityChainId } = useGoodDollarIdentity();
   const { switchChainAsync } = useSwitchChain();
   const [verifying, setVerifying] = useState(false);
 
+  /**
+   * handleVerify - Switches to the identity chain if needed, then
+   * triggers the GoodDollar identity verification flow.
+   */
   const handleVerify = async () => {
     if (needsNetworkSwitch) {
       try {

@@ -1,3 +1,4 @@
+/** HeroSection - Landing page hero with animated intro, badge, headline, CTA links, and rotating abstract shapes */
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";

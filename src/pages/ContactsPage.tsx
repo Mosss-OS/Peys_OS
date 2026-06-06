@@ -1,3 +1,4 @@
+/** ContactsPage - Contact management with Supabase persistence, search, add, and delete */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Search, Trash2, Send, Mail, Loader2 } from "lucide-react";
@@ -19,6 +20,7 @@ interface Contact {
   updated_at: string;
 }
 
+/** ContactsPage component - Manages saved contacts with search, add form, delete, and send-to navigation */
 export default function ContactsPage() {
   const { isLoggedIn, login } = useApp();
   const [contacts, setContacts] = useState<Contact[]>([]);

@@ -1,3 +1,4 @@
+/** PrivacyPage - Privacy settings for profile visibility, transaction privacy, contact sharing, data export, and account deletion */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, Eye, EyeOff, Lock, Users, Download, Trash2, AlertTriangle, Globe, Check, ChevronRight, ExternalLink, FileText } from "lucide-react";
@@ -13,6 +14,7 @@ interface ToggleOption {
   enabled: boolean;
 }
 
+/** PrivacyPage component - Toggle-based privacy controls across profile, transactions, contacts, data management, and danger zone */
 export default function PrivacyPage() {
   const { isLoggedIn, login } = useApp();
   const [profileVisibility, setProfileVisibility] = useState<ToggleOption[]>([

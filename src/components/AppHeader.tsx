@@ -1,3 +1,8 @@
+/**
+ * AppHeader - Top navigation bar with logo, desktop nav dropdowns
+ * (Personal, Organization, Developers), theme toggle, notification bell,
+ * login/logout buttons, and a mobile slide-out menu.
+ */
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock } from "lucide-react";
@@ -7,6 +12,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import NotificationBell from "@/components/NotificationBell";
 
+/**
+ * AppHeader - Renders the site-wide header with responsive navigation,
+ * theme switching, authentication controls, and notifications.
+ */
 export default function AppHeader() {
   const { isLoggedIn, login, logout, wallet } = useApp();
   const { theme, toggleTheme } = useTheme();
@@ -40,11 +49,17 @@ export default function AppHeader() {
     { to: "/docs/sdks/pricing", label: "SDK Pricing", desc: "Pricing for SDKs", icon: CreditCard, coming: true },
   ];
 
+  /**
+   * handleLogin - Triggers the login flow via AppContext and shows a welcome toast.
+   */
   const handleLogin = () => {
     login();
     toast.success("Welcome back! 👋");
   };
 
+  /**
+   * handleLogout - Signs the user out via AppContext and shows a confirmation toast.
+   */
   const handleLogout = () => {
     logout();
     toast("Signed out successfully");

@@ -1,3 +1,4 @@
+/** DashboardPage - Main wallet dashboard with balance overview, transaction history, and quick actions. */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ArrowDownLeft, Clock, Copy, ExternalLink, Send, Search, Filter, BarChart3, Zap, FileText, Users, RefreshCw, Loader2, QrCode, UserCircle, Wallet, Plus, Star } from "lucide-react";
@@ -30,6 +31,7 @@ function TxIcon({ type }: { type: Transaction["type"] }) {
 type StatusFilter = "all" | "sent" | "claimed" | "pending" | "starred";
 type TokenFilter = "all" | "USDC" | "USDT" | "G$";
 
+/** Main wallet dashboard showing balance, quick actions, filters, and transaction list. */
 export default function DashboardPage() {
   const { isLoggedIn, login, wallet, walletAddress, transactions, transactionsLoading, refreshTransactions } = useApp();
   const { isTransactionStarred, toggleStarTransaction } = useFavorites();

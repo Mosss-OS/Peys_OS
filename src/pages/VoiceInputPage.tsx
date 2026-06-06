@@ -1,3 +1,4 @@
+/** VoiceInputPage - Voice command interface with language settings and available commands. */
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ interface VoiceCommand {
   enabled: boolean;
 }
 
+/** Voice input page with listening interface, command list, language settings, and toggles. */
 export default function VoiceInputPage() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);

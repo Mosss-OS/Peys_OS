@@ -1,3 +1,4 @@
+/** WhitelabelPage - Brand customization with color, logo, font, and border radius settings with live preview */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Palette, Eye, Layout, Type, Save, CheckCircle } from "lucide-react";
@@ -15,6 +16,7 @@ interface WhitelabelSettings {
   borderRadius: string;
 }
 
+/** WhitelabelPage component - Manages brand identity settings with color pickers, live preview, and localStorage persistence */
 export default function WhitelabelPage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

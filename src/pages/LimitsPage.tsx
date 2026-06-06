@@ -1,3 +1,4 @@
+/** LimitsPage - Transaction limits management with tier-based limits, usage tracking, and increase requests */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, AlertTriangle, TrendingUp, DollarSign, Calendar, Clock, ChevronRight, Loader2, Check, ArrowUp, ArrowDown, Lock, Unlock, CreditCard } from "lucide-react";
@@ -16,6 +17,7 @@ interface LimitTier {
   color: string;
 }
 
+/** LimitsPage component - Displays current usage, available tiers, and handles limit increase requests */
 export default function LimitsPage() {
   const { isLoggedIn, login } = useApp();
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("monthly");

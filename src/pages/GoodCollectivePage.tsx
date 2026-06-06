@@ -1,3 +1,4 @@
+/** GoodCollectivePage - Community governance hub for creating and voting on proposals. */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -34,6 +35,7 @@ interface CollectiveStats {
 
 
 
+/** Community governance page for creating proposals, voting, and tracking treasury stats. */
 export default function GoodCollectivePage() {
   const { isLoggedIn, login } = useApp();
   const [proposals, setProposals] = useState<CollectiveProposal[]>([]);

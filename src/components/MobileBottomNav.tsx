@@ -1,3 +1,8 @@
+/**
+ * MobileBottomNav - Mobile-only bottom navigation bar with primary links
+ * (Home, Dashboard, Send) and an expandable "More" menu with nav items
+ * and a Developers sub-section.
+ */
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Home, Send, LayoutDashboard, Users, BarChart3, MessageCircle, MoreHorizontal, Zap, Building2, Wallet, FileText, Code, ChevronDown, ChevronRight, Globe, Calendar, Shield, RefreshCw, Coffee, Package, Activity, Tag, Gift, ShieldCheck, AlertTriangle, Clock, Trophy, Heart, Smartphone, Vault, Palette, Receipt, Split, HandHeart, FileSpreadsheet, PiggyBank, LayoutTemplate, UserCircle, Store, BadgeCheck, TrendingUp, CreditCard, QrCode, Settings, Clipboard, ShieldIcon, ClockIcon, UsersIcon, Camera, ArrowDownToLine, ArrowUpFromLine, Bell, UsersRound, AlertCircle, Fuel, HelpCircle, KeyRound, Keyboard, Accessibility as AccessibilityIcon, Fingerprint, Languages, Wifi, Database, Gauge, Hand, Undo2, Mic } from "lucide-react";
@@ -86,6 +91,10 @@ const devItems = [
   { to: "/docs/sdks/javascript", label: "SDKs", icon: Code, coming: false },
 ];
 
+/**
+ * MobileBottomNav - Renders a fixed bottom nav on mobile (xl:hidden)
+ * with primary routes and a slide-up "More" panel.
+ */
 export default function MobileBottomNav() {
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);

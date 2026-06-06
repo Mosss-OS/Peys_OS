@@ -1,3 +1,4 @@
+/** SocialProofSection - Stats bar and testimonial cards displaying social proof metrics and user quotes */
 import { motion } from "framer-motion";
 
 const stats = [

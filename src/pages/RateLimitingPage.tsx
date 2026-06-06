@@ -1,3 +1,4 @@
+/** RateLimitingPage - Monitor API rate limits, configure thresholds, and view request history. */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ interface RateLimitEvent {
   waitTime?: number;
 }
 
+/** Page for monitoring rate limit usage, configuring thresholds, and viewing request history. */
 export default function RateLimitingPage() {
   const [enableRateLimiting, setEnableRateLimiting] = useState(true);
   const [rateLimit, setRateLimit] = useState(100);

@@ -1,3 +1,8 @@
+/**
+ * AIChatBubble - Floating AI assistant that answers payment-related questions.
+ * Supports streaming responses via Ollama (dev) or Supabase Edge Functions (prod),
+ * with contextual awareness of the user's balance, transactions, and wallet.
+ */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
@@ -26,6 +31,11 @@ const CHAT_URL = IS_DEV
 // Available models: qwen2.5-coder:1.5b, llama2, mistral, etc.
 const OLLAMA_MODEL = import.meta.env.VITE_OLLAMA_MODEL || 'qwen2.5-coder:1.5b';
 
+/**
+ * AIChatBubble - Renders a chat bubble widget that opens a AI-powered
+ * payment assistant. Handles message streaming, suggestion chips,
+ * and persistent conversation state.
+ */
 export default function AIChatBubble() {
   const { isLoggedIn, wallet, walletAddress, transactions } = useApp();
   const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +53,11 @@ export default function AIChatBubble() {
     }
   }, [messages, isStreaming]);
 
+  /**
+   * buildContext - Assembles the current user context (wallet, balances,
+   * transactions) to pass to the AI model.
+   * @returns An object describing the user's session state.
+   */
   const buildContext = useCallback(() => ({
     isLoggedIn,
     walletAddress,
@@ -60,7 +75,12 @@ export default function AIChatBubble() {
     })),
   }), [isLoggedIn, walletAddress, wallet, transactions]);
 
-  // Build system prompt for Ollama (dev mode)
+  /**
+   * buildOllamaSystemPrompt - Builds a detailed system prompt for Ollama
+   * describing Peys capabilities, tokens, networks, and current user context.
+   * @param context - The user context returned by buildContext.
+   * @returns A formatted system prompt string.
+   */
   const buildOllamaSystemPrompt = useCallback((context: ReturnType<typeof buildContext>) => {
     let prompt = `You are Peys AI, a friendly and helpful payment assistant for the Peys app — a multi-chain payment platform for stablecoins and G$ (GoodDollar).
 
@@ -123,6 +143,11 @@ export default function AIChatBubble() {
     return prompt;
   }, []);
 
+  /**
+   * handleSend - Sends the user's message to the AI backend, handles
+   * streaming responses (Ollama JSON-lines or OpenAI SSE), and updates
+   * the message list in real time.
+   */
   const handleSend = async () => {
     const text = input.trim();
     if (!text || isStreaming) return;
@@ -299,6 +324,11 @@ export default function AIChatBubble() {
     }
   };
 
+  /**
+   * handleSuggestion - Fills the input with the suggested text and
+   * auto-submits the chat form after a brief delay.
+   * @param s - The suggestion string to send.
+   */
   const handleSuggestion = (s: string) => {
     setInput(s);
     // Auto-send after a tick

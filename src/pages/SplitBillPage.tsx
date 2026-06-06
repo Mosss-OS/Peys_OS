@@ -1,3 +1,4 @@
+/** SplitBillPage - Split expenses among multiple people with equal, exact, or percentage splits */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users, Plus, Minus, DollarSign, Loader2, Check, Copy, Share2 } from "lucide-react";
@@ -22,6 +23,7 @@ interface SplitBill {
   createdAt: string;
 }
 
+/** SplitBillPage component - Creates and manages bill splits with dynamic member management and multiple split types */
 export default function SplitBillPage() {
   const { isLoggedIn, login } = useApp();
   const [showCreate, setShowCreate] = useState(false);

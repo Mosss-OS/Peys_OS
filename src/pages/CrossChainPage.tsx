@@ -1,3 +1,4 @@
+/** CrossChainPage - Cross-chain bridge interface for transferring assets between networks. */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,7 @@ const bridgeRoutes: BridgeRoute[] = [
   { from: "Ethereum", to: "Base", fee: "0.1%", time: "10-30 min", minAmount: "$10", maxAmount: "$50,000" },
 ];
 
+/** Cross-chain bridge page for selecting source/destination chains and transferring assets. */
 export default function CrossChainPage() {
   const [fromChain, setFromChain] = useState("ethereum");
   const [toChain, setToChain] = useState("base");

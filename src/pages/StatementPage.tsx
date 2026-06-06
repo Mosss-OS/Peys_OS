@@ -1,3 +1,4 @@
+/** StatementPage - Transaction statement generation with category breakdown, PDF download, and email delivery */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText, Download, Mail, Calendar, Filter, PieChart, TrendingUp, Loader2, ChevronDown, Send, Eye } from "lucide-react";
@@ -24,6 +25,7 @@ interface CategoryBreakdown {
   count: number;
 }
 
+/** StatementPage component - Provides period selection, category breakdown, statement preview, PDF download, and email sending */
 export default function StatementPage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

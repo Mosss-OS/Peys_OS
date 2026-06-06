@@ -1,5 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * API client for communicating with Supabase Edge Functions.
+ * Handles payment creation, claiming, user syncing, and token queries.
+ */
+
+/** Record returned by the get-user-payments endpoint. */
 interface PaymentRecord {
   id: string;
   payment_id: string;
@@ -12,13 +18,16 @@ interface PaymentRecord {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const API_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1` : 'http://localhost:54321/functions/v1';
 
+/** HTTP client that wraps Supabase Edge Function calls with auth headers. */
 class ApiClient {
   private baseUrl: string;
 
+  /** @param baseUrl - Base URL for Supabase Edge Functions (defaults to API_URL). */
   constructor(baseUrl: string = API_URL) {
     this.baseUrl = baseUrl;
   }
 
+  /** Builds an auth headers object by reading the current Supabase session token. */
   private async getAuthHeaders(): Promise<Record<string, string>> {
     const { data: { session } } = await supabase.auth.getSession();
     const headers: Record<string, string> = {
@@ -32,6 +41,7 @@ class ApiClient {
     return headers;
   }
 
+  /** Generic request helper that prepends the base URL, attaches auth headers, and handles errors. */
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers = await this.getAuthHeaders();
@@ -52,6 +62,7 @@ class ApiClient {
     return response.json();
   }
 
+  /** Creates a new payment and returns the on-chain payment ID, transaction hash, claim link, and expiry. */
   async createPayment(data: {
     senderAddress: string;
     senderEmail?: string;
@@ -74,6 +85,7 @@ class ApiClient {
     });
   }
 
+  /** Retrieves a payment by its ID with full details including sender, amount, token, and status. */
   async getPayment(id: string) {
     return this.request<{
       id: string;
@@ -90,6 +102,7 @@ class ApiClient {
     });
   }
 
+  /** Claims an existing payment by providing the secret and recipient address. */
   async claimPayment(id: string, data: {
     secret: string;
     recipientAddress: string;
@@ -102,6 +115,7 @@ class ApiClient {
     });
   }
 
+  /** Returns all payments (sent and received) for a given wallet address. */
   async getUserPayments(walletAddress: string) {
     return this.request<PaymentRecord[]>('/get-user-payments', {
       method: 'POST',
@@ -109,6 +123,7 @@ class ApiClient {
     });
   }
 
+  /** Queries the token balance for a given wallet and token address, optionally on a specific chain. */
   async getTokenBalance(tokenAddress: string, walletAddress: string, chainId?: number) {
     return this.request<{ balance: string }>('/get-token-balance', {
       method: 'POST',
@@ -116,6 +131,7 @@ class ApiClient {
     });
   }
 
+  /** Queries the ERC-20 allowance granted to the escrow contract for a given owner. */
   async getAllowance(tokenAddress: string, ownerAddress: string, chainId?: number) {
     return this.request<{ allowance: string }>('/get-token-allowance', {
       method: 'POST',
@@ -123,6 +139,7 @@ class ApiClient {
     });
   }
 
+  /** Syncs a user's off-chain profile (Privy ID, email, wallet, etc.) with the backend. */
   async syncUser(data: {
     privyId: string;
     email?: string;
@@ -143,5 +160,6 @@ class ApiClient {
   }
 }
 
+/** Singleton instance of the API client for use across the app. */
 export const api = new ApiClient();
 export default api;

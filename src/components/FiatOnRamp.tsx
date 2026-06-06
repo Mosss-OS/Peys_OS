@@ -1,3 +1,8 @@
+/**
+ * FiatOnRamp - Bottom-sheet modal that lists fiat on-ramp providers
+ * (MoonPay, Stripe Crypto, Ramp Network) for buying crypto with
+ * credit card or bank transfer. Opens provider URLs in a new tab.
+ */
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CreditCard, Landmark, Apple, Wallet, ArrowRight, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -36,7 +41,19 @@ const providers = [
   }
 ];
 
+/**
+ * FiatOnRamp - Renders the on-ramp provider selection modal.
+ * @param props.isOpen - Whether the modal is visible.
+ * @param props.onClose - Callback to close the modal.
+ * @param props.token - The target token being purchased (default "USDC").
+ * @param props.network - The target network name (default "Base").
+ */
 export default function FiatOnRamp({ isOpen, onClose, token = "USDC", network = "Base" }: FiatOnRampProps) {
+  /**
+   * handleProviderSelect - Opens the provider URL in a new tab,
+   * shows an informational toast, and closes the modal.
+   * @param url - The provider's purchase URL.
+   */
   const handleProviderSelect = (url: string) => {
     window.open(url, "_blank");
     toast.info("Opening provider in a new tab. Complete your purchase there.");

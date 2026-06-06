@@ -1,3 +1,4 @@
+/** ProductsSection - Product cards showcasing Personal, Business, and Developer offerings with feature pills and CTAs */
 import { motion } from "framer-motion";
 import { ArrowUpRight, User, Building2, Send, Link2, Globe, Zap, Users, BarChart3, Shield, FileText, CreditCard, Repeat, Wallet, Receipt, MessageCircle, Code } from "lucide-react";
 import { Link } from "react-router-dom";

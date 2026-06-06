@@ -1,3 +1,4 @@
+/** CachingPage - Cache management dashboard with stats, configuration, and per-type clearing. */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ interface CacheType {
   hitRate: number;
 }
 
+/** Cache management page with overview stats, configuration, and per-type cache clearing. */
 export default function CachingPage() {
   const [cacheStats, setCacheStats] = useState<CacheStats>({
     totalSize: "0 MB",

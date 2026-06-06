@@ -1,3 +1,7 @@
+/**
+ * WalletReceiveCard - Collapsible card that displays the user's wallet
+ * address for receiving deposits, with copy and QR-code download actions.
+ */
 import { useState } from "react";
 import { Copy, Download, Check } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -20,10 +24,18 @@ interface WalletReceiveCardProps {
   address: string;
 }
 
+/**
+ * WalletReceiveCard - Renders a card with QR code, wallet address display,
+ * copy button, and QR image download.
+ * @param props.address - The wallet address to display and encode.
+ */
 export default function WalletReceiveCard({ address }: WalletReceiveCardProps) {
   const [copied, setCopied] = useState(false);
   const selectedNetwork = NETWORKS[0];
 
+  /**
+   * copyAddress - Copies the wallet address to the clipboard with feedback.
+   */
   const copyAddress = () => {
     navigator.clipboard.writeText(address);
     setCopied(true);
@@ -31,6 +43,9 @@ export default function WalletReceiveCard({ address }: WalletReceiveCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  /**
+   * downloadQR - Renders the QR SVG to a canvas and triggers a PNG download.
+   */
   const downloadQR = () => {
     const svg = document.getElementById("wallet-qr-code");
     if (!svg) return;

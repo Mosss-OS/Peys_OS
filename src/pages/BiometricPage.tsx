@@ -1,3 +1,4 @@
+/** BiometricPage - Biometric authentication management with enrollment, trusted devices, recovery codes, and fallback options */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, Fingerprint, ScanFace, Smartphone, Key, AlertTriangle, Check, Loader2, Clock, Settings, Trash2 } from "lucide-react";
@@ -19,6 +20,7 @@ interface RecoveryCode {
   used: boolean;
 }
 
+/** BiometricPage component - Manages WebAuthn biometric enrollment, trusted device list, recovery codes, and PIN fallback toggle */
 export default function BiometricPage() {
   const { isLoggedIn, login } = useApp();
   const [enrolling, setEnrolling] = useState(false);

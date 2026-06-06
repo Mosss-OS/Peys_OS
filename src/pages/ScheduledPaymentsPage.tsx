@@ -1,3 +1,4 @@
+/** ScheduledPaymentsPage - Automated recurring payment scheduling with pause/resume and execution history */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, Calendar, Repeat, DollarSign, Play, Pause, Edit, Trash2, AlertCircle, Check, Loader2, Bell, ChevronRight } from "lucide-react";
@@ -18,6 +19,7 @@ interface ScheduledPayment {
   description?: string;
 }
 
+/** ScheduledPaymentsPage component - Manages scheduled/recurring payments with create, toggle status, cancel, and history tracking */
 export default function ScheduledPaymentsPage() {
   const { isLoggedIn, login } = useApp();
   const [showCreate, setShowCreate] = useState(false);

@@ -1,3 +1,4 @@
+/** RoundUpSavingsPage - Micro-savings via transaction round-ups with multiplier and savings goals */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { PiggyBank, Plus, TrendingUp, TrendingDown, DollarSign, Target, ArrowUpRight, ArrowDownRight, Loader2, Check, History, RotateCcw, Settings } from "lucide-react";
@@ -23,6 +24,7 @@ interface SavingsTransaction {
   status: "pending" | "completed";
 }
 
+/** RoundUpSavingsPage component - Tracks auto round-up savings with goal creation, multiplier settings, and transaction history */
 export default function RoundUpSavingsPage() {
   const { isLoggedIn, login } = useApp();
   const [enabled, setEnabled] = useState(true);

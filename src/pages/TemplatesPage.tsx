@@ -1,3 +1,4 @@
+/** TemplatesPage - Reusable payment templates with create, edit, share, and quick-send functionality */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { LayoutTemplate, Plus, Send, Edit, Trash2, Share2, Copy, MoreVertical, DollarSign, User, Clock, Check, ExternalLink, Loader2 } from "lucide-react";
@@ -18,6 +19,7 @@ interface Template {
   createdAt: string;
 }
 
+/** TemplatesPage component - Manages payment templates including CRUD operations, sharing, and one-click sending */
 export default function TemplatesPage() {
   const { isLoggedIn, login } = useApp();
   const [templates, setTemplates] = useState<Template[]>([

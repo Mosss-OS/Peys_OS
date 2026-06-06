@@ -1,10 +1,18 @@
+/**
+ * @file Toast notification state management using a reducer + listener pattern.
+ * Based on shadcn/ui's use-toast implementation.
+ */
+
 import * as React from "react";
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
+/** Maximum number of toasts visible at once. */
 const TOAST_LIMIT = 1;
+/** Delay (ms) before a dismissed toast is removed from the DOM. */
 const TOAST_REMOVE_DELAY = 1000000;
 
+/** Internal representation of a toast including generated ID. */
 type ToasterToast = ToastProps & {
   id: string;
   title?: React.ReactNode;
@@ -12,6 +20,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement;
 };
 
+/** The set of reducer action types. */
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
@@ -19,8 +28,10 @@ const actionTypes = {
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const;
 
+/** Monotonically increasing counter for toast IDs. */
 let count = 0;
 
+/** Generate a unique, monotonically increasing toast ID. */
 function genId() {
   count = (count + 1) % Number.MAX_SAFE_INTEGER;
   return count.toString();
@@ -28,6 +39,7 @@ function genId() {
 
 type ActionType = typeof actionTypes;
 
+/** Discriminated union of all possible toast reducer actions. */
 type Action =
   | {
       type: ActionType["ADD_TOAST"];
@@ -50,8 +62,10 @@ interface State {
   toasts: ToasterToast[];
 }
 
+/** Map of toast IDs to their scheduled removal timeouts. */
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
+/** Schedule a toast for removal after the configured delay. */
 const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
     return;
@@ -68,6 +82,9 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout);
 };
 
+/**
+ * Toast state reducer handling add, update, dismiss, and remove actions.
+ */
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
@@ -121,10 +138,13 @@ export const reducer = (state: State, action: Action): State => {
   }
 };
 
+/** Active subscriber list for toast state changes. */
 const listeners: Array<(state: State) => void> = [];
 
+/** The current in-memory toast state (shared across all consumers). */
 let memoryState: State = { toasts: [] };
 
+/** Dispatch an action to the reducer and notify all listeners. */
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action);
   listeners.forEach((listener) => {
@@ -132,8 +152,13 @@ function dispatch(action: Action) {
   });
 }
 
+/** A toast object without the auto-generated ID (the caller provides all other fields). */
 type Toast = Omit<ToasterToast, "id">;
 
+/**
+ * Show a toast notification. Returns an object with the toast's ID,
+ * plus `dismiss` and `update` functions to control it after creation.
+ */
 function toast({ ...props }: Toast) {
   const id = genId();
 
@@ -163,6 +188,10 @@ function toast({ ...props }: Toast) {
   };
 }
 
+/**
+ * Hook that subscribes to the global toast state and provides
+ * convenience functions for showing, updating, and dismissing toasts.
+ */
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);
 

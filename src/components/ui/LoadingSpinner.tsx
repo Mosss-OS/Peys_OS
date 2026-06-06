@@ -1,3 +1,4 @@
+/** LoadingSpinner - Animated spinner with optional text and full-screen overlay mode */
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
@@ -13,6 +14,12 @@ const sizeClasses = {
   lg: "h-12 w-12",
 };
 
+/**
+ * LoadingSpinner - Animated loading spinner with configurable size, text, and full-screen mode.
+ * @param size - Spinner size: "sm" | "md" | "lg" (default "md")
+ * @param text - Optional loading message displayed below the spinner
+ * @param fullScreen - Whether to render as a full-screen overlay (default false)
+ */
 export default function LoadingSpinner({ size = "md", text, fullScreen = false }: LoadingSpinnerProps) {
   const spinner = (
     <motion.div

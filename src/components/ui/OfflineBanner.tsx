@@ -1,3 +1,4 @@
+/** OfflineBanner - Fixed top banner indicating offline status with queued transaction management and sync controls */
 import { useState, useEffect } from "react";
 import { WifiOff, Wifi, RefreshCw, ChevronDown, X, Trash2, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

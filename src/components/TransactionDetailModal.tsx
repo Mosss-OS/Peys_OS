@@ -1,3 +1,7 @@
+/**
+ * TransactionDetailModal - Dialog that displays full details of a single
+ * transaction (amount, status, counterparty, memo, dates, and claim link).
+ */
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowUpRight, ArrowDownLeft, Clock, Copy, ExternalLink } from "lucide-react";
 import type { Transaction } from "@/types/transaction";
@@ -15,6 +19,13 @@ const statusConfig = {
   pending: { label: "Pending", icon: Clock, class: "bg-warning/10 text-warning" },
 };
 
+/**
+ * TransactionDetailModal - Renders a dialog with transaction metadata,
+ * status badge, and an optional claim link with copy/open actions.
+ * @param props.transaction - The transaction object to display (null-safe).
+ * @param props.open - Whether the dialog is visible.
+ * @param props.onClose - Callback when the dialog is dismissed.
+ */
 export default function TransactionDetailModal({ transaction: tx, open, onClose }: Props) {
   if (!tx) return null;
 
@@ -22,6 +33,9 @@ export default function TransactionDetailModal({ transaction: tx, open, onClose 
   const StatusIcon = status.icon;
   const claimUrl = tx.claimLink ? `${window.location.origin}/claim/${tx.claimLink}` : null;
 
+  /**
+   * copyClaimLink - Copies the transaction's claim URL to the clipboard.
+   */
   const copyClaimLink = () => {
     if (claimUrl) {
       navigator.clipboard.writeText(claimUrl);
@@ -89,6 +103,12 @@ export default function TransactionDetailModal({ transaction: tx, open, onClose 
   );
 }
 
+/**
+ * Row - A single label-value pair used in the transaction details grid.
+ * @param props.label - The field label.
+ * @param props.value - The field value.
+ * @param props.warn - If true, renders the value in a warning/destructive color.
+ */
 function Row({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-4">

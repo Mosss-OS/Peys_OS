@@ -1,5 +1,10 @@
+/**
+ * @file Manages starred/favorite transactions and recipients persisted to localStorage.
+ */
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 
+/** A starred transaction or recipient saved as a favorite. */
 export interface StarredItem {
   id: string;
   type: "transaction" | "recipient";
@@ -12,6 +17,9 @@ export interface StarredItem {
 
 const STORAGE_KEY = "peys_favorites";
 
+/**
+ * Hook for managing starred/favorite transactions and recipients with localStorage persistence.
+ */
 export function useFavorites() {
   const [starredItems, setStarredItems] = useState<StarredItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +36,7 @@ export function useFavorites() {
     setLoading(false);
   }, []);
 
+  // Persist favorites to localStorage whenever they change (skip on initial load)
   useEffect(() => {
     if (!loading) {
       try {

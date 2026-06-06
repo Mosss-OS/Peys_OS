@@ -1,3 +1,4 @@
+/** FeaturesSection - Segmented feature grid toggling between individual, organization, and developer feature sets with animated transitions */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link2, Shield, Globe, Zap, Users, BarChart3, Wallet, Receipt, CreditCard, FileText, ArrowRight, MessageCircle, Code, Terminal, Box } from "lucide-react";

@@ -1,6 +1,11 @@
+/**
+ * @file Provides a gasless claim mechanism by invoking a Supabase Edge Function.
+ */
+
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+/** Result returned from the gasless claim edge function. */
 interface GaslessClaimResult {
   success: boolean;
   transactionHash: string;
@@ -8,6 +13,10 @@ interface GaslessClaimResult {
   paymentId?: number;
 }
 
+/**
+ * Hook that submits a claim transaction via a Supabase Edge Function,
+ * allowing the user to claim without paying gas fees.
+ */
 export function useGaslessClaim() {
   const claimGaslessly = useCallback(async (
     paymentId: number,

@@ -1,3 +1,8 @@
+/**
+ * DocsLayout - Two-column (desktop) / single-column (mobile) layout for
+ * developer documentation. Includes a collapsible sidebar nav, table of
+ * contents with active heading tracking, and a progress indicator.
+ */
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -174,6 +179,12 @@ const pageHeadings: Record<string, { id: string; label: string }[]> = {
   ],
 };
 
+/**
+ * useActiveHeading - Tracks which section heading is currently visible
+ * in the viewport using IntersectionObserver.
+ * @param headings - Array of { id, label } heading objects to observe.
+ * @returns The id of the currently active (most top-visible) heading.
+ */
 function useActiveHeading(headings: { id: string; label: string }[]) {
   const [activeId, setActiveId] = useState<string>("");
 
@@ -206,6 +217,11 @@ function useActiveHeading(headings: { id: string; label: string }[]) {
   return activeId;
 }
 
+/**
+ * Sidebar - Navigation sidebar listing documentation sections with
+ * expandable/collapsible groups and active-page highlighting.
+ * @param props.onClose - Callback to close the sidebar (used on mobile).
+ */
 function Sidebar({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
@@ -218,6 +234,10 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
     return expanded;
   });
 
+  /**
+   * toggleSection - Expands or collapses a sidebar section.
+   * @param section - The section name key.
+   */
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -274,6 +294,12 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
   );
 }
 
+/**
+ * DocsLayout - Renders the full documentation page shell: AppHeader, left
+ * sidebar nav, main content area, and right "On This Page" table of contents
+ * with scroll-spy and progress bar.
+ * @param props.children - The page content rendered in the main area.
+ */
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -281,6 +307,10 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   const currentHeadings = pageHeadings[location.pathname] || [];
   const activeHeading = useActiveHeading(currentHeadings);
 
+  /**
+   * scrollToHeading - Smooth-scrolls the page to the element with the given id.
+   * @param id - The DOM element id to scroll to.
+   */
   const scrollToHeading = (id: string) => {
     const element = document.getElementById(id);
     if (element) {

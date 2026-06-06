@@ -1,3 +1,8 @@
+/**
+ * QuickActionsBar - Floating action button on mobile that expands into
+ * a radial menu of quick actions (Send, Scan, Balance, Alerts).
+ * Also renders a balance summary bottom sheet when triggered.
+ */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, QrCode, Bell, Wallet, Plus, X } from "lucide-react";
@@ -6,6 +11,10 @@ import { useApp } from "@/contexts/AppContext";
 import { GD_PRICE_IN_USD } from "@/constants/blockchain";
 import { toast } from "sonner";
 
+/**
+ * QuickActionsBar - Renders a FAB that expands to show action shortcuts
+ * and a modal balance overview.
+ */
 export default function QuickActionsBar() {
   const [expanded, setExpanded] = useState(false);
   const [showBalance, setShowBalance] = useState(false);

@@ -1,3 +1,8 @@
+/**
+ * ReceiveModal - Bottom-sheet modal for receiving funds via three methods:
+ * Crypto (wallet address), Payment Link (email), or Fiat (virtual bank account).
+ * Integrates with Flutterwave for virtual account creation.
+ */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Check, QrCode, Mail, Wallet, Building2, ExternalLink, Loader2 } from "lucide-react";
@@ -31,6 +36,12 @@ const SUPPORTED_FIAT_CURRENCIES = [
   { code: "ETB", name: "Ethiopia", flag: "🇪🇹" },
 ];
 
+/**
+ * ReceiveModal - Renders the receive funds modal with tabbed method selection.
+ * @param props.open - Whether the modal is visible.
+ * @param props.onClose - Callback to close the modal.
+ * @param props.walletAddress - The user's wallet address for crypto receipts.
+ */
 export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveModalProps) {
   const [method, setMethod] = useState<ReceiveMethod>("wallet");
   const [copied, setCopied] = useState<string | null>(null);
@@ -59,6 +70,9 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   }, [open, walletAddress]);
 
+  /**
+   * fetchUserEmail - Retrieves the authenticated user's email from Supabase Auth.
+   */
   const fetchUserEmail = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.email) {
@@ -66,6 +80,10 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   };
 
+  /**
+   * fetchUserProfile - Loads the user's profile (name, email, phone) from
+   * the Supabase profiles table.
+   */
   const fetchUserProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -90,6 +108,10 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   };
 
+  /**
+   * fetchVirtualAccounts - Loads the user's active virtual bank accounts
+   * from Supabase for fiat receipt display.
+   */
   const fetchVirtualAccounts = async () => {
     setLoading(true);
     try {
@@ -112,6 +134,10 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   };
 
+  /**
+   * handleCreateVirtualAccount - Calls the create-virtual-account Supabase
+   * Edge Function to generate a new Flutterwave virtual account for fiat deposits.
+   */
   const handleCreateVirtualAccount = async () => {
     if (!userProfile?.email) {
       toast.error("Please complete your profile first");
@@ -154,6 +180,11 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   };
 
+  /**
+   * copyToClipboard - Copies text to clipboard with user feedback.
+   * @param text - The string to copy.
+   * @param id - Identifier for the copy button (tracks copied state).
+   */
   const copyToClipboard = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(id);
@@ -161,6 +192,10 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     setTimeout(() => setCopied(null), 2000);
   };
 
+  /**
+   * createPaymentLink - Generates a payment request link for USDC,
+   * saves it to Supabase, and copies it to the clipboard.
+   */
   const createPaymentLink = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       toast.error("Please enter an amount");
@@ -202,6 +237,10 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   };
 
+  /**
+   * sendPaymentLinkEmail - Emails the created payment link to a specified
+   * recipient via the send-payment-link Edge Function.
+   */
   const sendPaymentLinkEmail = async () => {
     if (!createdPaymentLink || !shareEmail) return;
 
@@ -228,6 +267,12 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
     }
   };
 
+  /**
+   * getNetworkAddress - Returns the wallet address for a given network.
+   * Currently uses the same address for all networks.
+   * @param networkId - The network identifier.
+   * @returns The wallet address string.
+   */
   const getNetworkAddress = (networkId: string) => {
     return walletAddress;
   };
@@ -616,6 +661,10 @@ export default function ReceiveModal({ open, onClose, walletAddress }: ReceiveMo
   );
 }
 
+/**
+ * Plus - Inline SVG Plus icon component used in the fiat section.
+ * @param props.className - Optional CSS classes.
+ */
 function Plus({ className }: { className?: string }) {
   return (
     <svg

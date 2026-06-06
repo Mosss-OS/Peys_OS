@@ -1,3 +1,4 @@
+/** LoyaltyPage - Points balance, reward redemption, transaction history, and tier progression. */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Gift, Star, History, Award, Clock, TrendingUp, ChevronRight, Copy, Check, Loader2, Zap, Crown, Shield, Sparkles, AlertTriangle } from "lucide-react";
@@ -32,6 +33,7 @@ interface Tier {
   color: string;
 }
 
+/** Loyalty rewards page with points balance, reward redemption, history, and tier progression. */
 export default function LoyaltyPage() {
   const { isLoggedIn, login } = useApp();
   const [activeTab, setActiveTab] = useState<"rewards" | "history" | "tiers">("rewards");

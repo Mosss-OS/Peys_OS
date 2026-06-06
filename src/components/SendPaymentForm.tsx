@@ -1,4 +1,9 @@
-// Send Payment Form — wired to Supabase
+/**
+ * SendPaymentForm - Multi-step form for creating and sending crypto payments.
+ * Supports sending USDC/USDT/G$ via email, phone, or wallet address.
+ * Integrates with Supabase for persistence, on-chain escrow for claims,
+ * and includes gas estimation, draft saving, contacts autocomplete, and Fiat on-ramp.
+ */
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Copy, Check, ArrowLeft, Download, X, Share2, Users, Loader2, Network, AlertCircle, Mail, Phone, Wallet, MessageCircle, CreditCard, Zap } from "lucide-react";
@@ -41,6 +46,11 @@ const networks: NetworkOption[] = [
   { id: 84532, name: "Base Sepolia", shortName: "Base", color: "#0056FF", blockExplorer: "https://sepolia.basescan.org" },
 ];
 
+/**
+ * SendPaymentForm - Main component that renders the send payment flow.
+ * Handles form input, confirmation, on-chain transaction submission,
+ * and the post-payment share/QR step.
+ */
 export default function SendPaymentForm() {
   const { isLoggedIn, login, wallet, walletAddress } = useApp();
   const { playSound } = useSound();
@@ -240,6 +250,11 @@ export default function SendPaymentForm() {
   const currentNetwork = networks.find(n => n.id === selectedNetwork) || networks[0];
   const config = getChainConfig(selectedNetwork);
 
+  /**
+   * handleNetworkChange - Switches the selected network and attempts to
+   * switch the wallet's active chain if it differs from the chosen network.
+   * @param networkId - The chain ID of the target network.
+   */
   const handleNetworkChange = async (networkId: number) => {
     setSelectedNetwork(networkId);
     setShowNetworkSelector(false);
@@ -252,6 +267,14 @@ export default function SendPaymentForm() {
     }
   };
 
+  /**
+   * handleSend - Orchestrates the entire send flow:
+   * 1) Form validation (recipient, amount, balance checks).
+   * 2) Transitions to confirmation step.
+   * 3) On confirm: inserts payment record in Supabase, creates on-chain
+   *    escrow payment, waits for receipt, updates DB, sends notifications.
+   * @returns A promise that resolves when the flow completes or errors.
+   */
   const handleSend = async () => {
     if (!isLoggedIn) { login(); return; }
     playSound("send");
@@ -546,6 +569,9 @@ export default function SendPaymentForm() {
     }
   };
 
+  /**
+   * copyLink - Copies the payment claim link to the clipboard.
+   */
   const copyLink = () => {
     navigator.clipboard.writeText(fullLink);
     setLinkCopied(true);
@@ -553,6 +579,10 @@ export default function SendPaymentForm() {
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
+  /**
+   * shareLink - Attempts to use the Web Share API to share the payment link.
+   * Falls back to copying the link if the API is unavailable.
+   */
   const shareLink = async () => {
     const shareData = {
       title: `Payment of ${amount} ${token} on Peys`,
@@ -570,6 +600,10 @@ export default function SendPaymentForm() {
 
   // Get balance for selected network
   const networkBalance = wallet.networkBalances?.find(nb => nb.chainId === selectedNetwork);
+  /**
+   * getBalance - Returns the current token balance for the selected network.
+   * @returns The numeric balance for the active token.
+   */
   const getBalance = () => {
     if (token === "USDC") {
       return networkBalance ? networkBalance.usdc : wallet.balanceUSDC;

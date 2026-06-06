@@ -1,3 +1,4 @@
+/** FAQSection - Accordion-style FAQ list with animated expand/collapse for common questions */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";

@@ -1,4 +1,9 @@
-/// Generated ABI matching contracts/src/PeysEscrow.sol (UUPS + simplified claim)
+/**
+ * Contract ABIs for PeysEscrow and ERC-20 tokens.
+ * Generated ABI matching contracts/src/PeysEscrow.sol (UUPS + simplified claim).
+ */
+
+/** ABI for the PeysEscrow contract including createPayment, claimPayment, refundPayment, and getPayment. */
 export const ESCROW_ABI = [
   {
     type: "function",
@@ -124,6 +129,7 @@ export const ESCROW_ABI = [
   },
 ] as const;
 
+/** Minimal ERC-20 ABI with approve, balanceOf, transferFrom, and allowance. */
 export const ERC20_ABI = [
   {
     type: "function",

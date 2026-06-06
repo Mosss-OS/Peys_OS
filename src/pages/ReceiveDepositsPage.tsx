@@ -1,3 +1,4 @@
+/** ReceiveDepositsPage - Virtual bank account management for receiving fiat deposits converted to USDC */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -42,6 +43,7 @@ interface Deposit {
   reference: string;
 }
 
+/** ReceiveDepositsPage component - Manages virtual accounts creation, deposit history, and account copy/deletion */
 export default function ReceiveDepositsPage() {
   const { isLoggedIn, login, walletAddress } = useApp();
   const [virtualAccounts, setVirtualAccounts] = useState<VirtualAccount[]>([]);

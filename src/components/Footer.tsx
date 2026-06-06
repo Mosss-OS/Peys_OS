@@ -1,7 +1,14 @@
+/**
+ * Footer - Site-wide footer with logo, social links, and navigation columns
+ * for Personal, Organization, Legal, and Developers resources.
+ */
 import { Link } from "react-router-dom";
 import { Github, X, MessageCircle, Code } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
+/**
+ * Footer - Renders the page footer with branding, social icons, and link groups.
+ */
 export default function Footer() {
   const { theme } = useTheme();
   

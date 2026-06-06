@@ -1,3 +1,4 @@
+/** TimeLockPage - Create and manage time-locked vaults with early withdrawal penalties. */
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -37,6 +38,7 @@ const LOCK_PERIODS: LockPeriod[] = [
   { id: "365d", label: "1 Year", days: 365, penalty: 12 },
 ];
 
+/** Time-lock vault page for creating locked savings with configurable periods and early withdrawal penalties. */
 export default function TimeLockPage() {
   const { isLoggedIn, login } = useApp();
   const [loading, setLoading] = useState(true);

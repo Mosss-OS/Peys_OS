@@ -1,3 +1,4 @@
+/** BuyCryptoPage - Purchase USDC with fiat via card, USSD, mobile money, or QR code */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -44,6 +45,7 @@ interface MobileMoneyAccount {
   isDefault: boolean;
 }
 
+/** BuyCryptoPage component - Handles fiat-to-crypto purchase flow with payment method selection, amount entry, and transaction history */
 export default function BuyCryptoPage() {
   const { isLoggedIn, login, walletAddress } = useApp();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");

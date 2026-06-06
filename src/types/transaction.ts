@@ -1,3 +1,8 @@
+/**
+ * Core transaction types used to represent on-chain and off-chain payment activity.
+ */
+
+/** Represents a single payment transaction across any supported token or chain. */
 export interface Transaction {
   id: string;
   type: "sent" | "claimed" | "pending";

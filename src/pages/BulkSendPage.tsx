@@ -1,3 +1,4 @@
+/** BulkSendPage - Send USDC to multiple recipients at once with CSV import and manual entry */
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Users, Upload, Plus, Trash2, DollarSign, Check, Loader2, AlertCircle, FileText, Send, X } from "lucide-react";
@@ -13,6 +14,7 @@ interface Recipient {
   label?: string;
 }
 
+/** BulkSendPage component - Manages recipient list, CSV upload, even-split, and sends to all recipients */
 export default function BulkSendPage() {
   const { isLoggedIn, login } = useApp();
   const [recipients, setRecipients] = useState<Recipient[]>([

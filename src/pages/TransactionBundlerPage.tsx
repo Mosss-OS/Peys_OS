@@ -1,3 +1,4 @@
+/** TransactionBundlerPage - Bundle multiple sent transactions into a single batch with PIN verification. */
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, Check, X, Lock, ArrowLeft, Trash2, Send, Eye, EyeOff } from "lucide-react";
@@ -25,6 +26,7 @@ function formatTime(date: Date) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+/** Page for selecting and bundling multiple sent transactions with PIN confirmation. */
 export default function TransactionBundlerPage() {
   const { isLoggedIn, login, transactions } = useApp();
   const { playSound } = useSound();
