@@ -42,8 +42,11 @@ interface NetworkOption {
   blockExplorer: string;
 }
 
+const NETWORK_CELO_MAINNET = 42220;
+
 const networks: NetworkOption[] = [
   { id: 84532, name: "Base Sepolia", shortName: "Base", color: "#0056FF", blockExplorer: "https://sepolia.basescan.org" },
+  { id: NETWORK_CELO_MAINNET, name: "Celo Mainnet", shortName: "Celo", color: "#35D07F", blockExplorer: "https://celoscan.io" },
 ];
 
 /**
@@ -161,11 +164,6 @@ export default function SendPaymentForm() {
       setSelectedNetwork(connectedChain.id);
     }
   }, [connectedChain]);
-
-  // Set default token based on network
-  useEffect(() => {
-    setToken("USDC");
-  }, [selectedNetwork]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -414,7 +412,8 @@ export default function SendPaymentForm() {
             () => {
               // Approval confirmed, now creating the payment
               setSendingPhase("creating");
-            }
+            },
+            selectedNetwork
           );
         } catch (txError: unknown) {
           console.error("Transaction error:", txError);
@@ -687,7 +686,12 @@ export default function SendPaymentForm() {
                     .map((t) => (
                     <button
                       key={t}
-                      onClick={() => setToken(t)}
+                      onClick={() => {
+                        setToken(t);
+                        if (t === "G$") {
+                          setSelectedNetwork(NETWORK_CELO_MAINNET);
+                        }
+                      }}
                       className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all ${
                         token === t
                           ? "bg-primary text-primary-foreground shadow-glow"

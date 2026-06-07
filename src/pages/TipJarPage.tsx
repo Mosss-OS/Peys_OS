@@ -92,7 +92,7 @@ export default function TipJarPage() {
       const claimHash = claimSecret; // Will be hashed on-chain
       const newClaimId = `tip_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
-      const chainId = 44787; // Celo Alfajores (G$ lives here)
+      const chainId = 42220; // Celo Mainnet (G$ lives here)
       const chainConfig = getChainConfig(chainId);
       const tokenAddress = token === "G$" ? chainConfig.gdAddress : chainConfig.usdcAddress;
 
@@ -127,6 +127,9 @@ export default function TipJarPage() {
         claimSecret,
         message || "",
         7,
+        undefined,
+        undefined,
+        chainId,
       );
 
       await supabase

@@ -58,7 +58,7 @@ export function getG$Address(chainId?: number): string {
     84532: Deno.env.get("GDOLLAR_BASE_SEPOLIA") || "",
     44787: Deno.env.get("GDOLLAR_CELO_ALFAJORES") || "",
     8453: Deno.env.get("GDOLLAR_BASE") || "",
-    42220: Deno.env.get("GDOLLAR_CELO_MAINNET") || "",
+    42220: Deno.env.get("GDOLLAR_CELO_MAINNET") || "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A",
   };
   return addresses[chainId || 84532] || addresses[84532]!;
 }

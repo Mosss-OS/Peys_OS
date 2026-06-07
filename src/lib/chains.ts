@@ -50,6 +50,20 @@ export const chainConfigs: Record<number, ChainConfig> = {
     blockExplorer: "https://alfajores.celoscan.io",
     nativeSymbol: "CELO",
   },
+  // Celo Mainnet
+  42220: {
+    id: 42220,
+    name: "Celo Mainnet",
+    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO_MAINNET || "") as Address,
+    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO_MAINNET || "") as Address,
+    usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_CELO_MAINNET || "") as Address,
+    gdAddress: (import.meta.env.VITE_GDOLLAR_ADDRESS_CELO_MAINNET || "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A") as Address,
+    identityAddress: "" as Address,
+    passAddress: "" as Address,
+    rpcUrl: import.meta.env.VITE_RPC_URL_CELO_MAINNET || "https://celo-mainnet.g.alchemy.com/v2/7sXxdzivaO6JR4KsfNEqI",
+    blockExplorer: "https://celoscan.io",
+    nativeSymbol: "CELO",
+  },
 };
 
 /** Returns the configuration for a given chain ID, falling back to Base Sepolia if the chain is not configured. */

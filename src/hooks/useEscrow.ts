@@ -225,18 +225,28 @@ export function useEscrow() {
     memo: string,
     expiryDays: number = 7,
     onApprovalRequested?: () => void,
-    onCreatingPayment?: () => void
+    onCreatingPayment?: () => void,
+    targetChainId?: number
   ): Promise<Hex | undefined> => {
     if (!address || !activeWallet) {
       throw new Error("Wallet not connected. Please connect your wallet first.");
     }
 
+    // Use targetChainId for config if provided (for auto-switch scenarios)
+    const activeChainId = targetChainId || chainId;
+    const activeConfig = getChainConfig(activeChainId);
+
+    // Auto-switch to target chain if specified
+    if (targetChainId && targetChainId !== chainId) {
+      await switchWalletNetwork(activeWallet, targetChainId);
+    }
+
     // Hash the secret to produce the on-chain claim hash
     const claimHash = keccak256(toBytes(secret));
     const expiry = BigInt(expiryDays * 24 * 60 * 60);
-    const { escrowContract } = getContractAddresses();
+    const escrowContract = activeConfig.escrowContract;
 
-    console.log("createPayment called", { tokenAddress, amount, escrowContract, chainId });
+    console.log("createPayment called", { tokenAddress, amount, escrowContract, chainId: activeChainId });
     
     // Check if the token is the chain's native asset (no ERC-20 approval required)
     const isNativeToken = tokenAddress.startsWith("0x00000001") || tokenAddress.startsWith("0x0000000100000000");
@@ -267,7 +277,7 @@ export function useEscrow() {
             to: tokenAddress,
             data: approvalData,
             value: BigInt(0),
-          }, chainId);
+          }, activeChainId);
 
           if (result.hash && pc) {
             await pc.waitForTransactionReceipt({ hash: result.hash });
@@ -299,7 +309,7 @@ export function useEscrow() {
         to: escrowContract,
         data: createPaymentData,
         value: BigInt(0),
-      }, chainId);
+      }, activeChainId);
 
       if (!result.hash) {
         throw new Error("Transaction was submitted but no hash was returned");
