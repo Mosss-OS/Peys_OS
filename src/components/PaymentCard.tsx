@@ -40,11 +40,11 @@ interface PaymentCardProps {
  */
 export default function PaymentCard({ payment, sender, amount, token, memo, claimId, link, onClose }: PaymentCardProps) {
   const { theme } = useTheme();
-  const pAmount = payment?.amount ?? amount ?? 0;
-  const pToken = payment?.token ?? token ?? "USDC";
-  const pMemo = payment?.memo ?? memo ?? "";
-  const pClaimId = payment?.id ?? claimId ?? "";
-  
+  const isInIframe = window !== window.parent;
+  const logoSrc = theme === "light"
+    ? "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780854543/peys_white_cropped.png"
+    : "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png";
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -57,7 +57,7 @@ export default function PaymentCard({ payment, sender, amount, token, memo, clai
       <div className="p-6 sm:p-8">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-6">
-          <img src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" alt="Peys" className="h-10 w-10 rounded-lg" />
+          <img src={logoSrc} alt="Peys" className="h-10 w-10 rounded-lg" />
           <span className="text-sm font-semibold text-foreground">Peys</span>
           <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             Payment Link

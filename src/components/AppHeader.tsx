@@ -20,6 +20,9 @@ export default function AppHeader() {
   const { isLoggedIn, login, logout, wallet } = useApp();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const logoSrc = theme === "light"
+    ? "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780854543/peys_white_cropped.png"
+    : "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [personalOpen, setPersonalOpen] = useState(false);
   const [orgOpen, setOrgOpen] = useState(false);
@@ -73,7 +76,7 @@ export default function AppHeader() {
         <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:h-16 lg:px-8">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
-              src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png"
+              src={logoSrc}
               alt="Peys"
               className="h-10 w-10 rounded-lg sm:h-11 sm:w-11"
             />

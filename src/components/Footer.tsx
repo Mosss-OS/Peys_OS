@@ -62,6 +62,9 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
  */
 export default function Footer() {
   const { theme } = useTheme();
+  const logoSrc = theme === "light"
+    ? "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780854543/peys_white_cropped.png"
+    : "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png";
   
   return (
     <footer className="border-t border-border py-12 pb-24 sm:py-16 xl:pb-16">
@@ -69,7 +72,7 @@ export default function Footer() {
         <div className="flex flex-col gap-10 sm:flex-row sm:justify-between">
           <div className="max-w-xs">
             <div className="flex items-center gap-2">
-              <img src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" alt="Peys" className="h-10 w-10 rounded-lg" />
+              <img src={logoSrc} alt="Peys" className="h-10 w-10 rounded-lg" />
               <span className="text-base font-semibold text-foreground">Peys</span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
