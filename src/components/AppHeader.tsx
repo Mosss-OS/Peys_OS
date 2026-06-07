@@ -11,7 +11,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import NotificationBell from "@/components/NotificationBell";
-import { isDisabledRoute, getDisabledRouteInfo, isCoreRoute } from "@/config/coreRoutes";
 
 /**
  * AppHeader - Renders the site-wide header with responsive navigation,
@@ -125,35 +124,48 @@ export default function AppHeader() {
                       <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Individuals
                       </p>
-                       {personalItems.map((item) => {
-                         const Icon = item.icon;
-                         const disabled = item.disabled;
-                         return (
-                           <Link
-                             key={item.to}
-                             to={disabled ? "#" : item.to}
-                             onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setPersonalOpen(false); } }}
-                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                               disabled
-                                 ? "text-muted-foreground/50 cursor-not-allowed"
-                                 : location.pathname === item.to
-                                   ? "bg-primary/10 text-primary font-medium"
-                                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                             }`}
-                           >
-                             <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
-                               <Icon className="h-4 w-4" />
-                             </div>
-                             <div>
-                               <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
-                               <div className="text-xs text-muted-foreground">{item.desc}</div>
-                             </div>
-                             {disabled && (
-                               <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
-                             )}
-                           </Link>
-                         );
-                       })}
+                        {personalItems.map((item) => {
+                          const Icon = item.icon;
+                          const disabled = item.disabled;
+                          if (disabled) {
+                            return (
+                              <div
+                                key={item.to}
+                                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 cursor-not-allowed"
+                                onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                  <Icon className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-muted-foreground/50">{item.label}</div>
+                                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                </div>
+                                <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                              </div>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={item.to}
+                              to={item.to}
+                              onClick={() => setPersonalOpen(false)}
+                              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                                location.pathname === item.to
+                                  ? "bg-primary/10 text-primary font-medium"
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              }`}
+                            >
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                                <Icon className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <div className="font-medium text-foreground">{item.label}</div>
+                                <div className="text-xs text-muted-foreground">{item.desc}</div>
+                              </div>
+                            </Link>
+                          );
+                        })}
                     </div>
                   </motion.div>
                 )}
@@ -190,35 +202,48 @@ export default function AppHeader() {
                       <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Teams & Business
                       </p>
-                       {orgItems.map((item) => {
-                         const Icon = item.icon;
-                         const disabled = item.disabled;
-                         return (
-                           <Link
-                             key={item.to}
-                             to={disabled ? "#" : item.to}
-                             onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setOrgOpen(false); } }}
-                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                               disabled
-                                 ? "text-muted-foreground/50 cursor-not-allowed"
-                                 : location.pathname === item.to
-                                   ? "bg-primary/10 text-primary font-medium"
-                                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                             }`}
-                           >
-                             <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
-                               <Icon className="h-4 w-4" />
-                             </div>
-                             <div>
-                               <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
-                               <div className="text-xs text-muted-foreground">{item.desc}</div>
-                             </div>
-                             {disabled && (
-                               <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
-                             )}
-                           </Link>
-                         );
-                       })}
+                        {orgItems.map((item) => {
+                          const Icon = item.icon;
+                          const disabled = item.disabled;
+                          if (disabled) {
+                            return (
+                              <div
+                                key={item.to}
+                                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 cursor-not-allowed"
+                                onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                  <Icon className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-muted-foreground/50">{item.label}</div>
+                                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                </div>
+                                <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                              </div>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={item.to}
+                              to={item.to}
+                              onClick={() => setOrgOpen(false)}
+                              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                                location.pathname === item.to
+                                  ? "bg-primary/10 text-primary font-medium"
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              }`}
+                            >
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                                <Icon className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <div className="font-medium text-foreground">{item.label}</div>
+                                <div className="text-xs text-muted-foreground">{item.desc}</div>
+                              </div>
+                            </Link>
+                          );
+                        })}
                     </div>
                   </motion.div>
                 )}
@@ -257,47 +282,51 @@ export default function AppHeader() {
                           For Developers
                         </p>
                       </div>
-                       {devItems.map((item) => {
-                         const Icon = item.icon;
-                         const disabled = item.disabled;
-                         const handleClick = (e: React.MouseEvent) => {
-                           if (disabled) {
-                             e.preventDefault();
-                             toast.info("This feature is disabled for MVP. Core send→claim flow only.");
-                           }
-                           setDevOpen(false);
-                         };
-                         return (
-                           <Link
-                             key={item.to}
-                             to={disabled ? "#" : item.to}
-                             onClick={handleClick}
-                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                               disabled
-                                 ? "text-muted-foreground/50 cursor-not-allowed"
-                                 : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                             }`}
-                           >
-                             <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
-                               <Icon className="h-4 w-4" />
-                             </div>
-                             <div>
-                               <div className={`font-medium flex items-center gap-2 ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>
-                                 {item.label}
-                                 {disabled && (
-                                   <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                                     Disabled
-                                   </span>
-                                 )}
-                               </div>
-                               <div className="text-xs text-muted-foreground">{item.desc}</div>
-                             </div>
-                             {disabled && (
-                               <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
-                             )}
-                           </Link>
-                        );
-                      })}
+                        {devItems.map((item) => {
+                          const Icon = item.icon;
+                          const disabled = item.disabled;
+                          if (disabled) {
+                            return (
+                              <div
+                                key={item.to}
+                                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 cursor-not-allowed"
+                                onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                  <Icon className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <div className="font-medium flex items-center gap-2 text-muted-foreground/50">
+                                    {item.label}
+                                    <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                                      Disabled
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                </div>
+                                <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                              </div>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={item.to}
+                              to={item.to}
+                              onClick={() => setDevOpen(false)}
+                              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            >
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                                <Icon className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <div className="font-medium flex items-center gap-2 text-foreground">
+                                  {item.label}
+                                </div>
+                                <div className="text-xs text-muted-foreground">{item.desc}</div>
+                              </div>
+                            </Link>
+                         );
+                       })}
                     </div>
                   </motion.div>
                 )}
@@ -431,34 +460,47 @@ export default function AppHeader() {
                       className="overflow-hidden"
                     >
                        <div className="grid grid-cols-1 gap-1 p-1">
-                         {personalItems.map((item) => {
-                           const disabled = item.disabled;
-                           return (
-                             <Link
-                               key={item.to}
-                               to={disabled ? "#" : item.to}
-                               onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setMobileOpen(false); setPersonalOpen(false); } }}
-                               className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                                 disabled
-                                   ? "text-muted-foreground/50 cursor-not-allowed"
-                                   : location.pathname === item.to 
-                                     ? "bg-primary/10 text-primary" 
-                                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                               }`}
-                             >
-                               <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
-                                 <item.icon className="h-4 w-4" />
-                               </div>
-                               <div>
-                                 <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
-                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
-                               </div>
-                               {disabled && (
-                                 <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
-                               )}
-                             </Link>
-                           );
-                         })}
+                          {personalItems.map((item) => {
+                            const disabled = item.disabled;
+                            if (disabled) {
+                              return (
+                                <div
+                                  key={item.to}
+                                  className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground/50 cursor-not-allowed"
+                                  onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
+                                >
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                    <item.icon className="h-4 w-4" />
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-muted-foreground/50">{item.label}</div>
+                                    <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                  </div>
+                                  <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                                </div>
+                              );
+                            }
+                            return (
+                              <Link
+                                key={item.to}
+                                to={item.to}
+                                onClick={() => { setMobileOpen(false); setPersonalOpen(false); }}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                  location.pathname === item.to 
+                                    ? "bg-primary/10 text-primary" 
+                                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                }`}
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                                  <item.icon className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-foreground">{item.label}</div>
+                                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                </div>
+                              </Link>
+                            );
+                          })}
                        </div>
                     </motion.div>
                   )}
@@ -481,34 +523,47 @@ export default function AppHeader() {
                       className="overflow-hidden"
                     >
                        <div className="grid grid-cols-1 gap-1 p-1">
-                         {orgItems.map((item) => {
-                           const disabled = item.disabled;
-                           return (
-                             <Link
-                               key={item.to}
-                               to={disabled ? "#" : item.to}
-                               onClick={(e) => { if (disabled) { e.preventDefault(); toast.info("This feature is disabled for MVP. Core send→claim flow only."); } else { setMobileOpen(false); setOrgOpen(false); } }}
-                               className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                                 disabled
-                                   ? "text-muted-foreground/50 cursor-not-allowed"
-                                   : location.pathname === item.to 
-                                     ? "bg-primary/10 text-primary" 
-                                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                               }`}
-                             >
-                               <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
-                                 <item.icon className="h-4 w-4" />
-                               </div>
-                               <div>
-                                 <div className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</div>
-                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
-                               </div>
-                               {disabled && (
-                                 <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
-                               )}
-                             </Link>
-                           );
-                         })}
+                          {orgItems.map((item) => {
+                            const disabled = item.disabled;
+                            if (disabled) {
+                              return (
+                                <div
+                                  key={item.to}
+                                  className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground/50 cursor-not-allowed"
+                                  onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
+                                >
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                    <item.icon className="h-4 w-4" />
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-muted-foreground/50">{item.label}</div>
+                                    <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                  </div>
+                                  <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                                </div>
+                              );
+                            }
+                            return (
+                              <Link
+                                key={item.to}
+                                to={item.to}
+                                onClick={() => { setMobileOpen(false); setOrgOpen(false); }}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                  location.pathname === item.to 
+                                    ? "bg-primary/10 text-primary" 
+                                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                }`}
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                                  <item.icon className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-foreground">{item.label}</div>
+                                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                </div>
+                              </Link>
+                            );
+                          })}
                        </div>
                     </motion.div>
                   )}
@@ -531,47 +586,53 @@ export default function AppHeader() {
                       className="overflow-hidden"
                     >
                        <div className="grid grid-cols-1 gap-1 p-1">
-                         {devItems.map((item) => {
-                           const Icon = item.icon;
-                           const disabled = item.disabled;
-                           const handleClick = (e: React.MouseEvent) => {
-                             if (disabled) {
-                               e.preventDefault();
-                               toast.info("This feature is disabled for MVP. Core send→claim flow only.");
-                               return;
-                             }
-                             setMobileOpen(false);
-                             setDevOpen(false);
-                           };
-                           return (
-                             <Link
-                               key={item.to}
-                               to={disabled ? "#" : item.to}
-                               onClick={handleClick}
-                               className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                                 disabled
-                                   ? "text-muted-foreground/50 cursor-not-allowed" 
-                                   : location.pathname === item.to 
-                                     ? "bg-primary/10 text-primary" 
-                                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                               }`}
-                             >
-                               <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-secondary ${disabled ? "opacity-50" : ""}`}>
-                                 <Icon className="h-4 w-4" />
-                              </div>
-                               <div className="flex flex-col">
-                                 <div className="flex items-center gap-2">
-                                   <span className={`font-medium ${disabled ? "text-muted-foreground/50" : "text-foreground"}`}>{item.label}</span>
-                                   {disabled && <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Disabled</span>}
-                                 </div>
-                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
-                               </div>
-                               {disabled && (
-                                 <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
-                               )}
-                            </Link>
-                          );
-                        })}
+                          {devItems.map((item) => {
+                            const Icon = item.icon;
+                            const disabled = item.disabled;
+                            if (disabled) {
+                              return (
+                                <div
+                                  key={item.to}
+                                  className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground/50 cursor-not-allowed"
+                                  onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
+                                >
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                    <Icon className="h-4 w-4" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium text-muted-foreground/50">{item.label}</span>
+                                      <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Disabled</span>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                  </div>
+                                  <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                                </div>
+                              );
+                            }
+                            return (
+                              <Link
+                                key={item.to}
+                                to={item.to}
+                                onClick={() => { setMobileOpen(false); setDevOpen(false); }}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                  location.pathname === item.to 
+                                    ? "bg-primary/10 text-primary" 
+                                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                }`}
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                                  <Icon className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-foreground">{item.label}</span>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                                </div>
+                              </Link>
+                           );
+                         })}
                       </div>
                     </motion.div>
                   )}

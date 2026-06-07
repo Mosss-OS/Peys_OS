@@ -11,7 +11,7 @@ via_ir = false
 polygonAmoy = "https://polygon-amoy.g.alchemy.com/v2/***REMOVED***"
 baseSepolia = "https://base-sepolia.g.alchemy.com/v2/***REMOVED***"
 celoAlfajores = "https://celo-sepolia.g.alchemy.com/v2/***REMOVED***"
-celo = "https://celo-mainnet.g.alchemy.com/v2/***REMOVED***"
+celo = "https://celo-mainnet.g.alchemy.com/v2/7sXxdzivaO6JR4KsfNEqI"
 
 [etherscan]
 polygonAmoy = { key = "DEZFUW3ZGA5S9989B9PU1JGECZE9GT5AZ5" }

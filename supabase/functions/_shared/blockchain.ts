@@ -28,7 +28,7 @@ export function getRpcUrl(chainId?: number): string {
     84532: Deno.env.get("VITE_RPC_URL_BASE_SEPOLIA") || "https://sepolia.base.org",
     44787: Deno.env.get("VITE_RPC_URL_CELO") || "https://alfajores-forno.celo-testnet.org",
     8453: Deno.env.get("VITE_RPC_URL_BASE") || "https://mainnet.base.org",
-    42220: Deno.env.get("VITE_RPC_URL_CELO_MAINNET") || "https://forno.celo.org",
+    42220: Deno.env.get("VITE_RPC_URL_CELO_MAINNET") || "https://celo-mainnet.g.alchemy.com/v2/7sXxdzivaO6JR4KsfNEqI",
   };
   return rpcUrls[chainId] || rpcUrls[84532]!;
 }
