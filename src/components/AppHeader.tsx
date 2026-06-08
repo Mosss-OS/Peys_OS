@@ -5,7 +5,7 @@
  */
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock, Key, Webhook, AlertCircle } from "lucide-react";
+import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock, Key, Webhook, AlertCircle, Coffee } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,8 +29,17 @@ export default function AppHeader() {
   const [devOpen, setDevOpen] = useState(false);
 
   const personalItems = [
-    { to: "/pay", label: "Pay Someone", desc: "Pay without account", icon: Send, disabled: true },
     { to: "/send", label: "Send Money", desc: "Send via link or address", icon: Send, disabled: false },
+    { to: "/tipjar", label: "Tip Jar", desc: "Receive G$ tips", icon: Coffee, disabled: false },
+    { to: "/collective", label: "GoodCollective", desc: "Community governance", icon: Users, disabled: false },
+    { to: "/request", label: "Request", desc: "Create payment request", icon: FileText, disabled: true },
+    { to: "/contacts", label: "Contacts", desc: "Manage recipients", icon: Users, disabled: true },
+  ];
+
+  const mobilePersonalItems = [
+    { to: "/send", label: "Send Money", desc: "Send via link or address", icon: Send, disabled: false },
+    { to: "/tipjar", label: "Tip Jar", desc: "Receive G$ tips", icon: Coffee, disabled: false },
+    { to: "/collective", label: "GoodCollective", desc: "Community governance", icon: Users, disabled: false },
     { to: "/request", label: "Request", desc: "Create payment request", icon: FileText, disabled: true },
     { to: "/contacts", label: "Contacts", desc: "Manage recipients", icon: Users, disabled: true },
   ];
