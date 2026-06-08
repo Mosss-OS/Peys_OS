@@ -13,6 +13,7 @@ import { useEscrow, getChainConfig } from "@/hooks/useEscrow";
 import { useGaslessClaim } from "@/hooks/useGaslessClaim";
 import { useAccount } from "wagmi";
 import { sanitizeString } from "@/utils/sanitize";
+import { toHex } from "viem";
 
 interface PaymentData {
   id: string;
@@ -147,6 +148,9 @@ export default function ClaimPage() {
         throw new Error("Payment not found on blockchain - no blockchain_payment_id");
       }
 
+      // blockchain_payment_id is stored as decimal string — convert to hex for on-chain calls
+      const paymentIdHex = toHex(BigInt(payment.blockchain_payment_id));
+
       // Switch to the chain the payment was created on
       if (payment.chain_id) {
         try {
@@ -156,7 +160,7 @@ export default function ClaimPage() {
         }
       }
 
-      const onChainPayment = await getPayment(payment.blockchain_payment_id as `0x${string}`);
+      const onChainPayment = await getPayment(paymentIdHex);
 
       if (!onChainPayment) {
         throw new Error("Payment not found on blockchain. It may have been created on a different network.");
@@ -179,7 +183,7 @@ export default function ClaimPage() {
         console.log("Gasless claim successful, tx:", txHash);
       } catch (gaslessErr) {
         console.warn("Gasless claim failed, falling back to client-side claim:", gaslessErr);
-        txHash = await claimPayment(payment.blockchain_payment_id as `0x${string}`, payment.claim_secret || "");
+        txHash = await claimPayment(paymentIdHex, payment.claim_secret || "");
       }
 
       if (!txHash) throw new Error("Failed to claim transaction");
