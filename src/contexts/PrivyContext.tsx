@@ -5,12 +5,21 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { PrivyProvider as PrivyReactProvider, usePrivy, useWallets } from '@privy-io/react-auth';
 import { defineChain } from 'viem';
-import { baseSepolia } from 'viem/chains';
+import { baseSepolia, celoAlfajores, celo } from 'viem/chains';
 
 /** Base Sepolia chain definition used as the default chain. */
 const baseSepoliaChain = defineChain({
   ...baseSepolia,
   testnet: true,
+});
+
+const celoAlfajoresChain = defineChain({
+  ...celoAlfajores,
+  testnet: true,
+});
+
+const celoMainnetChain = defineChain({
+  ...celo,
 });
 
 const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID;
@@ -138,7 +147,7 @@ export function PrivyAppProvider({ children }: { children: ReactNode }) {
           },
         },
         defaultChain: baseSepoliaChain,
-        supportedChains: [baseSepoliaChain],
+        supportedChains: [baseSepoliaChain, celoAlfajoresChain, celoMainnetChain],
       }}
     >
       <PrivyAuthInner>{children}</PrivyAuthInner>
