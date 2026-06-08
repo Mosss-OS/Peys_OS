@@ -10,6 +10,7 @@ import { Send, Copy, Check, ArrowLeft, Download, X, Share2, Users, Loader2, Netw
 import { QRCodeSVG } from "qrcode.react";
 import { useApp } from "@/contexts/AppContext";
 import { fireBurst } from "@/utils/confetti";
+import { parseTxError } from "@/utils/parseTxError";
 import { Link, useSearchParams } from "react-router-dom";
 import PaymentCard from "@/components/PaymentCard";
 import { toast } from "sonner";
@@ -552,18 +553,12 @@ export default function SendPaymentForm() {
         toast.success("Payment created! Share the link to get paid 🎉");
       } catch (err: unknown) {
         console.error("Payment creation failed:", err);
-        const errorMessage = (err as Error).message || "Failed to create payment";
+        const parsed = parseTxError(err);
         playSound("error");
         triggerHaptic("error");
         releaseWakeLock();
-        
-        // Check for nonce-related errors
-        if (errorMessage.includes('nonce') || errorMessage.includes('Nonce too low')) {
-          toast.error("Nonce error: Please check MetaMask for pending transactions. You can cancel or speed up the stuck transaction, then try again.");
-        } else {
-          toast.error(errorMessage);
-        }
-        setStep("confirm");
+        toast.error(parsed.message);
+        setStep(parsed.canRetry ? "confirm" : "form");
       }
     }
   };
