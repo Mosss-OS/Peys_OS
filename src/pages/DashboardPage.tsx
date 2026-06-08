@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ArrowDownLeft, Clock, Copy, ExternalLink, Send, Search, Filter, BarChart3, Zap, FileText, Users, RefreshCw, Loader2, QrCode, UserCircle, Wallet, Plus, Star } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
+import { usePrivyAuth } from "@/contexts/PrivyContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import type { Transaction } from "@/types/transaction";
 import AppHeader from "@/components/AppHeader";
@@ -34,6 +35,7 @@ type TokenFilter = "all" | "USDC" | "USDT" | "G$";
 /** Main wallet dashboard showing balance, quick actions, filters, and transaction list. */
 export default function DashboardPage() {
   const { isLoggedIn, login, wallet, walletAddress, transactions, transactionsLoading, refreshTransactions } = useApp();
+  const { linkExternalWallet } = usePrivyAuth();
   const { isTransactionStarred, toggleStarTransaction } = useFavorites();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [tokenFilter, setTokenFilter] = useState<TokenFilter>("all");
@@ -209,6 +211,31 @@ export default function DashboardPage() {
             ))}
           </div>
         </motion.div>
+
+        {/* Empty wallet banner */}
+        {isLoggedIn && wallet.totalBalanceUSD === 0 && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-4 overflow-hidden rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4 sm:p-5"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-500/20">
+                <Wallet className="h-4 w-4 text-yellow-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Your wallet is empty</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Connect an external wallet with funds to start sending and receiving payments.
+                </p>
+                <button
+                  onClick={linkExternalWallet}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
+                >
+                  <Wallet className="h-3.5 w-3.5" /> Connect External Wallet
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Receive Modal */}
         <ReceiveModal 

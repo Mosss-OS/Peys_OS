@@ -47,23 +47,31 @@ interface PrivyAuthContextType {
   loginWithEmailOnly: (prefillEmail?: string) => void;
   logout: () => Promise<void>;
   walletAddress: string;
+  linkExternalWallet: () => void;
 }
 
 const PrivyAuthContext = createContext<PrivyAuthContextType | null>(null);
 
 /** Internal component that bridges Privy hooks into the app's auth context. */
 function PrivyAuthInner({ children }: { children: ReactNode }) {
-  const { login, logout: privyLogout, user: privyUser, ready, authenticated } = usePrivy();
+  const { login, logout: privyLogout, user: privyUser, ready, authenticated, linkWallet } = usePrivy();
   const { wallets } = useWallets();
 
   const [isLoading, setIsLoading] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
 
-  // Sync wallet address from Privy wallets array whenever it changes
+  // Sync wallet address from Privy wallets array whenever it changes.
+  // Prefer external (non-embedded) wallets over the embedded Privy wallet so
+  // users who connect MetaMask/Rabby see their funded wallet automatically.
   useEffect(() => {
-    const eoaWallet = wallets.find(w => w.type === 'ethereum');
-    if (eoaWallet) {
-      setWalletAddress(eoaWallet.address);
+    const externalWallet = wallets.find(w => w.type === 'ethereum' && w.walletClientType !== 'privy');
+    if (externalWallet) {
+      setWalletAddress(externalWallet.address);
+      return;
+    }
+    const embeddedWallet = wallets.find(w => w.type === 'ethereum');
+    if (embeddedWallet) {
+      setWalletAddress(embeddedWallet.address);
     } else if (wallets.length > 0) {
       setWalletAddress(wallets[0].address);
     } else {
@@ -89,6 +97,10 @@ function PrivyAuthInner({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (ready) setIsLoading(false);
   }, [authenticated, ready]);
+
+  const handleLinkExternalWallet = useCallback(() => {
+    linkWallet();
+  }, [linkWallet]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -119,6 +131,7 @@ function PrivyAuthInner({ children }: { children: ReactNode }) {
         loginWithEmailOnly: handleLoginWithEmailOnly,
         logout: handleLogout,
         walletAddress,
+        linkExternalWallet: handleLinkExternalWallet,
       }}
     >
       {children}
