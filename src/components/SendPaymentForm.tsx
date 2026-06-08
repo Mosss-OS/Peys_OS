@@ -46,6 +46,7 @@ const NETWORK_CELO_MAINNET = 42220;
 
 const networks: NetworkOption[] = [
   { id: 84532, name: "Base Sepolia", shortName: "Base", color: "#0056FF", blockExplorer: "https://sepolia.basescan.org" },
+  { id: 44787, name: "Celo Alfajores", shortName: "Celo Testnet", color: "#35D07F", blockExplorer: "https://alfajores.celoscan.io" },
   { id: NETWORK_CELO_MAINNET, name: "Celo Mainnet", shortName: "Celo", color: "#35D07F", blockExplorer: "https://celoscan.io" },
 ];
 
@@ -702,7 +703,73 @@ export default function SendPaymentForm() {
                     </button>
                   ))}
                 </div>
-                
+
+                {/* Network Selector for USDC */}
+                {token === "USDC" && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Select network for USDC</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {networks
+                        .filter((n) => {
+                          const cfg = getChainConfig(n.id);
+                          return cfg.usdcAddress && cfg.usdcAddress !== "0x0000000000000000000000000000000000000000" && cfg.usdcAddress !== "";
+                        })
+                        .map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={() => handleNetworkChange(n.id)}
+                          className={`rounded-lg py-2.5 text-sm font-semibold transition-all border-2 ${
+                            selectedNetwork === n.id
+                              ? "bg-primary/10 border-primary text-primary shadow-glow"
+                              : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                          }`}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            <div 
+                              className="h-3 w-3 rounded-full"
+                              style={{ backgroundColor: n.color }}
+                            />
+                            <span>{n.shortName}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Network Selector for G$ */}
+                {token === "G$" && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">G$ available on Celo networks</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {networks
+                        .filter((n) => {
+                          const cfg = getChainConfig(n.id);
+                          return cfg.gdAddress && cfg.gdAddress !== "0x0000000000000000000000000000000000000000" && cfg.gdAddress !== "";
+                        })
+                        .map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={() => handleNetworkChange(n.id)}
+                          className={`rounded-lg py-2.5 text-sm font-semibold transition-all border-2 ${
+                            selectedNetwork === n.id
+                              ? "bg-primary/10 border-primary text-primary shadow-glow"
+                              : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                          }`}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            <div 
+                              className="h-3 w-3 rounded-full"
+                              style={{ backgroundColor: n.color }}
+                            />
+                            <span>{n.shortName}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {isLoggedIn && (
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">

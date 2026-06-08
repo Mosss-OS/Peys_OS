@@ -1,11 +1,11 @@
 import { parseAbi } from "npm:viem";
 
 export const ESCROW_ABI = parseAbi([
-  "function createPaymentWithPermit(address _sender, address _recipient, uint256 _amount, bytes32 _secretHash, uint256 _duration, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) external returns (uint256)",
+  "function createPaymentWithPermit(address _sender, address _recipient, uint256 _amount, address _token, bytes32 _secretHash, uint256 _duration, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) external returns (uint256)",
   "function claimPayment(uint256 _paymentId, string calldata _secret) external",
   "function getPayment(uint256 _paymentId) view returns (tuple(address sender, address recipient, uint256 amount, address token, bytes32 secretHash, uint8 status, uint256 createdAt, uint256 expiresAt, uint256 claimedAt))",
   "function paymentExists(uint256 _paymentId) view returns (bool)",
-  "function getContractBalance() view returns (uint256)",
+  "function getContractBalance(address _token) view returns (uint256)",
 ]);
 
 export const ERC20_ABI = parseAbi([

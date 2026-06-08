@@ -4,12 +4,34 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { usePrivyAuth } from "@/contexts/PrivyContext";
-import { createPublicClient, http, formatUnits, type Address, type PublicClient } from "viem";
+import { createPublicClient, http, formatUnits, type Address, type PublicClient, defineChain } from "viem";
 import { baseSepolia } from "viem/chains";
 import { ERC20_ABI, GD_PRICE_IN_USD } from "@/constants/blockchain";
 import { chainConfigs } from "@/lib/chains";
 import { supabase } from "@/integrations/supabase/client";
 import type { Transaction } from "@/types/transaction";
+
+const celoAlfajores = defineChain({
+  id: 44787,
+  name: "Celo Alfajores",
+  nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+  rpcUrls: { default: { http: ["https://alfajores-forno.celo-testnet.org"] } },
+  blockExplorers: { default: { name: "Celoscan", url: "https://alfajores.celoscan.io" } },
+});
+
+const celoMainnet = defineChain({
+  id: 42220,
+  name: "Celo",
+  nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+  rpcUrls: { default: { http: ["https://celo-mainnet.g.alchemy.com/v2/7sXxdzivaO6JR4KsfNEqI"] } },
+  blockExplorers: { default: { name: "Celoscan", url: "https://celoscan.io" } },
+});
+
+const chainObjects: Record<number, ReturnType<typeof defineChain>> = {
+  84532: baseSepolia,
+  44787: celoAlfajores,
+  42220: celoMainnet,
+};
 
 /** Token and native-coin balances for a single blockchain network. */
 export interface NetworkBalance {
@@ -52,8 +74,9 @@ const AppContext = createContext<AppContextType | null>(null);
 
 /** Pre-built viem public clients keyed by chain ID for reading on-chain data. */
 const publicClients = Object.entries(chainConfigs).reduce((acc, [chainId, config]) => {
-  acc[Number(chainId)] = createPublicClient({
-    chain: baseSepolia,
+  const id = Number(chainId);
+  acc[id] = createPublicClient({
+    chain: chainObjects[id] || baseSepolia,
     transport: http(config.rpcUrl),
   });
   return acc;

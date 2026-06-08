@@ -5,12 +5,9 @@ import "forge-std/Script.sol";
 import "../src/PeysEscrow.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-/**
- * @title DeployCeloAlfajores
- * @notice Deploys PeysEscrow (UUPS proxy) to Celo Alfajores testnet
- */
 contract DeployCeloAlfajores is Script {
-    address constant USDC_ADDRESS = 0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B;
+    address constant USDC = 0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B;
+    address constant GDOLLAR = 0x03d3daB843e6c03b3d271eff9178e6A96c28D25f;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_CELO");
@@ -18,18 +15,17 @@ contract DeployCeloAlfajores is Script {
 
         console.log("Deploying PeysEscrow to Celo Alfajores...");
         console.log("Deployer address:", deployer);
-        console.log("USDC address:", USDC_ADDRESS);
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = USDC;
+        tokens[1] = GDOLLAR;
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy implementation contract (no constructor args)
         PeysEscrow implementation = new PeysEscrow();
         console.log("Implementation deployed at:", address(implementation));
 
-        // Encode initialize() call
-        bytes memory initData = abi.encodeCall(PeysEscrow.initialize, (USDC_ADDRESS));
-
-        // Deploy ERC1967 proxy pointing to implementation
+        bytes memory initData = abi.encodeCall(PeysEscrow.initialize, (tokens));
         ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), initData);
         console.log("Proxy deployed at:", address(proxy));
 
@@ -40,7 +36,7 @@ contract DeployCeloAlfajores is Script {
         console.log("Network: Celo Alfajores (Chain ID: 44787)");
         console.log("Proxy (use this as Escrow Contract):", address(proxy));
         console.log("Implementation:", address(implementation));
-        console.log("USDC Token:", USDC_ADDRESS);
+        console.log("Tokens:", USDC, GDOLLAR);
         console.log("===========================");
         console.log("");
         console.log("Add these to your .env file:");

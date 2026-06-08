@@ -1,9 +1,3 @@
-/**
- * Contract ABIs for PeysEscrow and ERC-20 tokens.
- * Generated ABI matching contracts/src/PeysEscrow.sol (UUPS + simplified claim).
- */
-
-/** ABI for the PeysEscrow contract including createPayment, claimPayment, refundPayment, and getPayment. */
 export const ESCROW_ABI = [
   {
     type: "function",
@@ -16,7 +10,7 @@ export const ESCROW_ABI = [
       { name: "_duration", type: "uint256", internalType: "uint256" },
     ],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
   },
   {
     type: "function",
@@ -25,6 +19,7 @@ export const ESCROW_ABI = [
       { name: "_sender", type: "address", internalType: "address" },
       { name: "_recipient", type: "address", internalType: "address" },
       { name: "_amount", type: "uint256", internalType: "uint256" },
+      { name: "_token", type: "address", internalType: "address" },
       { name: "_secretHash", type: "bytes32", internalType: "bytes32" },
       { name: "_duration", type: "uint256", internalType: "uint256" },
       { name: "_deadline", type: "uint256", internalType: "uint256" },
@@ -62,7 +57,7 @@ export const ESCROW_ABI = [
       { name: "amount", type: "uint256", internalType: "uint256" },
       { name: "token", type: "address", internalType: "address" },
       { name: "secretHash", type: "bytes32", internalType: "bytes32" },
-      { name: "status", type: "uint8", internalType: "PeysEscrow.PaymentStatus" },
+      { name: "status", type: "uint8", internalType: "uint8" },
       { name: "createdAt", type: "uint256", internalType: "uint256" },
       { name: "expiresAt", type: "uint256", internalType: "uint256" },
       { name: "claimedAt", type: "uint256", internalType: "uint256" },
@@ -79,18 +74,44 @@ export const ESCROW_ABI = [
   {
     type: "function",
     name: "getContractBalance",
-    inputs: [],
+    inputs: [{ name: "_token", type: "address", internalType: "address" }],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
   {
     type: "function",
     name: "getPendingPaymentsForRecipient",
-    inputs: [
-      { name: "_recipient", type: "address", internalType: "address" },
-    ],
+    inputs: [{ name: "_recipient", type: "address", internalType: "address" }],
     outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
     stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getSupportedTokens",
+    inputs: [],
+    outputs: [{ name: "", type: "address[]", internalType: "address[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "supportedTokens",
+    inputs: [{ name: "", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "addSupportedToken",
+    inputs: [{ name: "_token", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "removeSupportedToken",
+    inputs: [{ name: "_token", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "event",
@@ -127,9 +148,24 @@ export const ESCROW_ABI = [
     ],
     anonymous: false,
   },
+  {
+    type: "event",
+    name: "TokenAdded",
+    inputs: [
+      { name: "token", type: "address", indexed: true, internalType: "address" },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "TokenRemoved",
+    inputs: [
+      { name: "token", type: "address", indexed: true, internalType: "address" },
+    ],
+    anonymous: false,
+  },
 ] as const;
 
-/** Minimal ERC-20 ABI with approve, balanceOf, transferFrom, and allowance. */
 export const ERC20_ABI = [
   {
     type: "function",
@@ -167,6 +203,13 @@ export const ERC20_ABI = [
       { name: "spender", type: "address", internalType: "address" },
     ],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "decimals",
+    inputs: [],
+    outputs: [{ name: "", type: "uint8", internalType: "uint8" }],
     stateMutability: "view",
   },
 ] as const;

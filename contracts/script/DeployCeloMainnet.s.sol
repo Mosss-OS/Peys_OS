@@ -5,18 +5,24 @@ import "forge-std/Script.sol";
 import "../src/PeysEscrow.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-contract DeployBaseSepolia is Script {
-    address constant USDC = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
-
+contract DeployCeloMainnet is Script {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_BASE");
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_CELO");
         address deployer = vm.addr(deployerPrivateKey);
 
-        console.log("Deploying PeysEscrow to Base Sepolia...");
-        console.log("Deployer address:", deployer);
+        string memory usdcStr = vm.envString("USDC_CELO_MAINNET");
+        string memory gdStr = vm.envString("GDOLLAR_CELO_MAINNET");
+        address usdc = vm.parseAddress(usdcStr);
+        address gd = vm.parseAddress(gdStr);
 
-        address[] memory tokens = new address[](1);
-        tokens[0] = USDC;
+        console.log("Deploying PeysEscrow to Celo Mainnet...");
+        console.log("Deployer address:", deployer);
+        console.log("USDC:", usdc);
+        console.log("G$:", gd);
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = usdc;
+        tokens[1] = gd;
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -31,13 +37,13 @@ contract DeployBaseSepolia is Script {
 
         console.log("");
         console.log("=== DEPLOYMENT SUMMARY ===");
-        console.log("Network: Base Sepolia (Chain ID: 84532)");
+        console.log("Network: Celo Mainnet (Chain ID: 42220)");
         console.log("Proxy (use this as Escrow Contract):", address(proxy));
         console.log("Implementation:", address(implementation));
-        console.log("Tokens:", USDC);
+        console.log("Tokens: USDC=", usdc, " G$=", gd);
         console.log("===========================");
         console.log("");
         console.log("Add these to your .env file:");
-        console.log("VITE_ESCROW_CONTRACT_ADDRESS_BASE_SEPOLIA=", vm.toString(address(proxy)));
+        console.log("VITE_ESCROW_CONTRACT_ADDRESS_CELO_MAINNET=", vm.toString(address(proxy)));
     }
 }
