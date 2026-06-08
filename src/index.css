@@ -167,6 +167,11 @@
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* Make footer stick to bottom on pages with min-h-screen and footer */

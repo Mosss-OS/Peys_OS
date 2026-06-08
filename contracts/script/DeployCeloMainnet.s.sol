@@ -10,10 +10,9 @@ contract DeployCeloMainnet is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_CELO");
         address deployer = vm.addr(deployerPrivateKey);
 
-        string memory usdcStr = vm.envString("USDC_CELO_MAINNET");
-        string memory gdStr = vm.envString("GDOLLAR_CELO_MAINNET");
-        address usdc = vm.parseAddress(usdcStr);
-        address gd = vm.parseAddress(gdStr);
+        // Hardcoded to avoid vm.parseAddress bug (odd number of digits error)
+        address usdc = 0x0CEba9300F2b948710D2653dD7f07B3Ff9F7Fa88;
+        address gd = 0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A;
 
         console.log("Deploying PeysEscrow to Celo Mainnet...");
         console.log("Deployer address:", deployer);

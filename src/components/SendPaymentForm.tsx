@@ -615,7 +615,7 @@ export default function SendPaymentForm() {
   const balance = getBalance();
 
   return (
-    <div className="relative mx-auto max-w-2xl px-4 pt-20 pb-12 sm:pt-24 sm:pb-16">
+    <div className="relative mx-auto max-w-2xl px-4 pt-16 pb-8 sm:pt-20 sm:pb-12 lg:pt-24 lg:pb-16">
       {/* Login overlay when not signed in */}
       {!isLoggedIn && (
         <motion.div
@@ -623,12 +623,12 @@ export default function SendPaymentForm() {
           animate={{ opacity: 1 }}
           className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/60 backdrop-blur-sm"
         >
-          <div className="text-center">
-            <h3 className="mb-2 font-display text-lg text-foreground">Sign in to send payments</h3>
+          <div className="text-center px-4">
+            <h3 className="mb-2 font-display text-base sm:text-lg text-foreground">Sign in to send payments</h3>
             <p className="mb-4 text-sm text-muted-foreground">Connect your wallet to start sending money.</p>
             <button
               onClick={login}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90 touch-target"
             >
               Sign In
             </button>
@@ -639,23 +639,23 @@ export default function SendPaymentForm() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`overflow-hidden rounded-xl border border-border bg-card shadow-card sm:rounded-2xl ${!isLoggedIn ? "pointer-events-none select-none opacity-40" : ""}`}
+        className={`overflow-hidden rounded-xl border border-border bg-card shadow-card ${!isLoggedIn ? "pointer-events-none select-none opacity-40" : ""}`}
       >
         <div className="border-b border-border px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
             {step !== "form" && step !== "sending" && (
-              <button onClick={() => setStep("form")} className="text-muted-foreground hover:text-foreground transition-colors">
-                <ArrowLeft className="h-4 w-4" />
+              <button onClick={() => setStep("form")} className="text-muted-foreground hover:text-foreground transition-colors p-2 touch-target">
+                <ArrowLeft className="h-5 w-5" />
               </button>
             )}
-            <h2 className="font-display text-lg text-foreground sm:text-xl">Send Payment</h2>
+            <h2 className="font-display text-base sm:text-lg text-foreground">Send Payment</h2>
           </div>
         </div>
 
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-5 lg:p-6">
           <AnimatePresence mode="wait">
             {step === "form" && (
-              <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3 sm:space-y-4">
+              <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 sm:space-y-5">
                 
                 {/* Network Info */}
                 <div className="flex w-full items-center gap-3 rounded-xl border border-border bg-secondary/50 px-4 py-3">
@@ -693,7 +693,7 @@ export default function SendPaymentForm() {
                           setSelectedNetwork(NETWORK_CELO_MAINNET);
                         }
                       }}
-                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                      className={`flex-1 rounded-lg py-3 text-sm font-semibold transition-all touch-target ${
                         token === t
                           ? "bg-primary text-primary-foreground shadow-glow"
                           : "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -718,7 +718,7 @@ export default function SendPaymentForm() {
                         <button
                           key={n.id}
                           onClick={() => handleNetworkChange(n.id)}
-                          className={`rounded-lg py-2.5 text-sm font-semibold transition-all border-2 ${
+                          className={`rounded-lg py-3 text-sm font-semibold transition-all border-2 touch-target ${
                             selectedNetwork === n.id
                               ? "bg-primary/10 border-primary text-primary shadow-glow"
                               : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -751,7 +751,7 @@ export default function SendPaymentForm() {
                         <button
                           key={n.id}
                           onClick={() => handleNetworkChange(n.id)}
-                          className={`rounded-lg py-2.5 text-sm font-semibold transition-all border-2 ${
+                          className={`rounded-lg py-3 text-sm font-semibold transition-all border-2 touch-target ${
                             selectedNetwork === n.id
                               ? "bg-primary/10 border-primary text-primary shadow-glow"
                               : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -771,16 +771,16 @@ export default function SendPaymentForm() {
                 )}
 
                 {isLoggedIn && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
-                      Balance: {balance.toFixed(2)} {token} on {currentNetwork.shortName}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Balance: <span className="font-medium text-foreground">{balance.toFixed(2)}</span> {token} on {currentNetwork.shortName}
                     </p>
                     <button
                       type="button"
                       onClick={() => setShowOnRamp(true)}
-                      className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                      className="flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20 touch-target"
                     >
-                      <CreditCard className="h-3 w-3" />
+                      <CreditCard className="h-4 w-4" />
                       Add Funds
                     </button>
                   </div>
@@ -793,7 +793,8 @@ export default function SendPaymentForm() {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className="w-full rounded-xl border border-border bg-background py-3 pl-9 pr-4 text-2xl font-bold text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-ring sm:py-4 sm:pl-10 sm:text-3xl"
+                    className="w-full rounded-xl border border-border bg-background py-4 pl-10 pr-4 text-2xl font-bold text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-ring sm:py-5 sm:text-3xl touch-target"
+                    inputMode="decimal"
                   />
                 </div>
                 
@@ -802,7 +803,7 @@ export default function SendPaymentForm() {
                   <button
                     type="button"
                     onClick={() => setRecipientType("email")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all touch-target ${
                       recipientType === "email"
                         ? "bg-primary text-primary-foreground shadow-glow"
                         : "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -814,7 +815,7 @@ export default function SendPaymentForm() {
                   <button
                     type="button"
                     onClick={() => setRecipientType("phone")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all touch-target ${
                       recipientType === "phone"
                         ? "bg-primary text-primary-foreground shadow-glow"
                         : "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -826,7 +827,7 @@ export default function SendPaymentForm() {
                   <button
                     type="button"
                     onClick={() => setRecipientType("wallet")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all touch-target ${
                       recipientType === "wallet"
                         ? "bg-primary text-primary-foreground shadow-glow"
                         : "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -850,7 +851,9 @@ export default function SendPaymentForm() {
                       }
                       type="text"
                       maxLength={recipientType === "email" ? 254 : recipientType === "phone" ? 20 : 42}
-                      className="w-full rounded-xl border border-border bg-background px-4 py-2.5 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring sm:py-3"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3.5 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring sm:py-4 touch-target"
+                      autoComplete={recipientType === "email" ? "email" : recipientType === "phone" ? "tel" : "off"}
+                      inputMode={recipientType === "email" ? "email" : recipientType === "phone" ? "tel" : "text"}
                     />
                     <button
                       type="button"
@@ -938,7 +941,7 @@ export default function SendPaymentForm() {
                   onChange={(e) => setMemo(e.target.value)}
                   placeholder="Add a note (optional)"
                   maxLength={500}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring sm:py-3"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring sm:py-4 touch-target"
                 />
 
                 <div className="flex flex-wrap gap-2">
@@ -946,7 +949,7 @@ export default function SendPaymentForm() {
                     <button
                       key={template}
                       onClick={() => setMemo(template)}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                      className={`text-sm px-4 py-2 rounded-full border transition-colors touch-target ${
                         memo === template
                           ? "bg-primary/10 border-primary text-primary"
                           : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
@@ -957,7 +960,7 @@ export default function SendPaymentForm() {
                   ))}
                   <button
                     onClick={() => setShowMemoTemplates(!showMemoTemplates)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-dashed border-muted-foreground/50 text-muted-foreground hover:border-muted-foreground"
+                    className="text-sm px-4 py-2 rounded-full border border-dashed border-muted-foreground/50 text-muted-foreground hover:border-muted-foreground touch-target"
                   >
                     + More
                   </button>
@@ -965,7 +968,7 @@ export default function SendPaymentForm() {
 
                 {showMemoTemplates && (
                   <div className="p-3 rounded-xl border border-border bg-card">
-                    <p className="text-xs text-muted-foreground mb-2">More templates:</p>
+                    <p className="text-sm text-muted-foreground mb-2">More templates:</p>
                     <div className="flex flex-wrap gap-2">
                       {memoTemplates.slice(4).map((template) => (
                         <button
@@ -974,7 +977,7 @@ export default function SendPaymentForm() {
                             setMemo(template);
                             setShowMemoTemplates(false);
                           }}
-                          className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors"
+                          className="text-sm px-4 py-2 rounded-full border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors touch-target"
                         >
                           {template}
                         </button>
@@ -990,9 +993,9 @@ export default function SendPaymentForm() {
                 <button
                   onClick={handleSend}
                   disabled={!amount || Number(amount) <= 0 || !recipient}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50 sm:py-3.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50 touch-target"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                   {isLoggedIn ? "Review Payment" : "Sign In to Send"}
                 </button>
               </motion.div>
