@@ -7,7 +7,16 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ExternalLink, ArrowRight, Check, Wallet, Building2, Search, Zap, Loader2, AlertCircle, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { encodeFunctionData, type Address, type Hex } from "viem";
+import { useWallets } from "@privy-io/react-auth";
+import { usePrivyAuth } from "@/contexts/PrivyContext";
+import { ERC20_ABI } from "@/constants/blockchain";
+import { chainConfigs } from "@/lib/chains";
 import { flutterwaveService, SUPPORTED_COUNTRIES, CURRENCY_SYMBOLS } from "@/services/flutterwaveService";
+
+type EIP1193Provider = {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+};
 
 interface WithdrawModalProps {
   open: boolean;
@@ -35,12 +44,17 @@ interface Bank {
  * @param props.balanceG$ - User's G$ balance.
  */
 export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT }: WithdrawModalProps) {
+  const { walletAddress } = usePrivyAuth();
+  const { wallets } = useWallets();
+  const activeWallet = wallets.find(w => w.type === 'ethereum');
+
   const [step, setStep] = useState<"form" | "confirm" | "done">("form");
   const [method, setMethod] = useState<WithdrawMethod>("wallet");
   const [token, setToken] = useState<Token>("USDC");
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [txHash, setTxHash] = useState("");
   
   // Bank withdrawal states
   const [country, setCountry] = useState("NG");
@@ -159,14 +173,70 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
   };
 
   /**
-   * handleConfirm - Simulates processing the withdrawal and transitions
-   * to the success (done) step.
+   * handleConfirm - Executes the on-chain token transfer to the specified
+   * external wallet address using the connected wallet's EIP-1193 provider.
+   * Falls back to Base Sepolia for token address resolution.
    */
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (!activeWallet || !walletAddress) {
+      toast.error("Wallet not connected");
+      return;
+    }
+    if (!address || !address.startsWith("0x") || address.length < 40) {
+      toast.error("Enter a valid wallet address");
+      return;
+    }
+
     setProcessing(true);
-    setProcessing(false);
-    setStep("done");
-    toast.success("Withdrawal successful! Money sent to your bank.");
+
+    try {
+      // Resolve token contract address from chain config (default to Base Sepolia)
+      const chainId = 84532;
+      const config = chainConfigs[chainId];
+      const tokenAddress = token === "USDC" ? config.usdcAddress
+        : token === "USDT" ? config.usdtAddress
+        : config.gdAddress;
+
+      if (!tokenAddress || !tokenAddress.startsWith("0x")) {
+        throw new Error(`No ${token} contract address configured for this network`);
+      }
+
+      const decimals = token === "G$" ? 18 : 6;
+      const rawAmount = BigInt(Math.floor(Number(amount) * 10 ** decimals));
+
+      // Encode the ERC-20 transfer call
+      const data = encodeFunctionData({
+        abi: ERC20_ABI,
+        functionName: "transfer",
+        args: [address as Address, rawAmount],
+      });
+
+      const provider = await activeWallet.getEthereumProvider() as EIP1193Provider;
+
+      const hash = await provider.request({
+        method: "eth_sendTransaction",
+        params: [{
+          from: walletAddress,
+          to: tokenAddress,
+          data,
+          value: "0x0",
+        }],
+      }) as Hex;
+
+      setTxHash(hash);
+      setStep("done");
+      toast.success("Withdrawal submitted! Transaction pending.");
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message || "";
+      if (msg.includes("user rejected") || msg.includes("cancelled")) {
+        toast.error("Transaction cancelled");
+      } else {
+        toast.error(msg || "Withdrawal failed");
+      }
+      setStep("form");
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const fee = 0.50;
@@ -373,6 +443,20 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
                       </div>
                     </div>
 
+                    {/* Destination address for wallet withdrawals */}
+                    {method === "wallet" && (
+                      <div>
+                        <label className="mb-1.5 block text-xs text-muted-foreground">Destination Address</label>
+                        <input
+                          type="text"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          placeholder="0x..."
+                          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
+                    )}
+
                     {/* USD to Fiat conversion for bank */}
                     {method === "bank" && numAmount > 0 && (
                       <div className="rounded-lg bg-muted p-3 space-y-2 text-sm">
@@ -399,6 +483,9 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
                       onClick={() => {
                         if (!amount || numAmount <= 0) { toast.error("Enter a valid amount"); return; }
                         if (numAmount > balance) { toast.error("Insufficient balance"); return; }
+                        if (method === "wallet" && (!address || !address.startsWith("0x") || address.length < 40)) {
+                          toast.error("Enter a valid wallet address"); return;
+                        }
                         if (method === "bank" && !accountVerified) { 
                           toast.error("Please verify your bank account first"); 
                           return; 
@@ -490,16 +577,23 @@ export default function WithdrawModal({ open, onClose, balanceUSDC, balanceUSDT 
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-500/10">
                       <Check className="h-7 w-7 text-green-500" />
                     </div>
-                    <h3 className="font-display text-lg text-foreground">Withdrawal Successful!</h3>
+                    <h3 className="font-display text-lg text-foreground">Withdrawal Submitted!</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      {method === "bank" 
+                      {method === "bank"
                         ? `${CURRENCY_SYMBOLS[currency]}${((numAmount - numAmount * 0.01) * exchangeRate).toFixed(2)} sent to ${accountName}`
-                        : `$${(numAmount - fee).toFixed(2)} ${token} is on its way`
+                        : `$${(numAmount - fee).toFixed(2)} ${token} sent to ${address.slice(0, 6)}...${address.slice(-4)}`
                       }
                     </p>
-                    <p className="mt-2 text-sm font-medium text-green-500">
-                      {method === "bank" ? "✓ Instant delivery to your bank account!" : "✓ Estimated arrival: ~2 minutes"}
-                    </p>
+                    {txHash && (
+                      <a
+                        href={`https://sepolia.basescan.org/tx/${txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" /> View on BaseScan
+                      </a>
+                    )}
                     <button onClick={handleClose} className="mt-5 w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">
                       Done
                     </button>
