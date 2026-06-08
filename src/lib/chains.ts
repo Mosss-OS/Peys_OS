@@ -40,8 +40,8 @@ export const chainConfigs: Record<number, ChainConfig> = {
   44787: {
     id: 44787,
     name: "Celo Alfajores Testnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO || "") as Address,
-    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO || "") as Address,
+    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO || "0x0b4e459faa79a52a28e9776bc5a0402fc0328544480b4ca4257f7f10973e5562") as Address,
+    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO || "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B") as Address,
     usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_CELO || "") as Address,
     gdAddress: (import.meta.env.VITE_GDOLLAR_ADDRESS_CELO || "0x03d3daB843e6c03b3d271eff9178e6A96c28D25f") as Address,
     identityAddress: (import.meta.env.VITE_GDOLLAR_IDENTITY_ADDRESS || "0x6dB189E677EEaB0833C6693DFeaa979e37447eee") as Address,
@@ -54,8 +54,8 @@ export const chainConfigs: Record<number, ChainConfig> = {
   42220: {
     id: 42220,
     name: "Celo Mainnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO_MAINNET || "") as Address,
-    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO_MAINNET || "") as Address,
+    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO_MAINNET || "0x9F50a6a0464C590d6ED48AEc36690Efd3752F5E1") as Address,
+    usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO_MAINNET || "0xcebA9300f2b948710d2653dD7f07b3Ff9F7fA88") as Address,
     usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_CELO_MAINNET || "") as Address,
     gdAddress: (import.meta.env.VITE_GDOLLAR_ADDRESS_CELO_MAINNET || "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A") as Address,
     identityAddress: "" as Address,
