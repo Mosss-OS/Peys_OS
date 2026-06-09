@@ -37,3 +37,4 @@ whatsapp/.wwebjs_cache/
 *.sw?
 .vercel
 .env*.local
+.env.vercel
