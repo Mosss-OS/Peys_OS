@@ -32,7 +32,7 @@ export const chainConfigs: Record<number, ChainConfig> = {
     usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_BASE_SEPOLIA || "") as Address,
     gdAddress: (import.meta.env.VITE_GDOLLAR_ADDRESS_BASE_SEPOLIA || "") as Address,
     passAddress: "" as Address,
-    rpcUrl: import.meta.env.VITE_RPC_URL_BASE_SEPOLIA || "https://sepolia.base.org",
+    rpcUrl: import.meta.env.VITE_RPC_URL_BASE_SEPOLIA || "https://base-sepolia.g.alchemy.com/v2/H3-pV1jNnbXq7-6JEW8Gt",
     blockExplorer: "https://sepolia.basescan.org",
     nativeSymbol: "ETH",
   },
@@ -40,7 +40,7 @@ export const chainConfigs: Record<number, ChainConfig> = {
   44787: {
     id: 44787,
     name: "Celo Alfajores Testnet",
-    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO || "0x0b4e459faa79a52a28e9776bc5a0402fc0328544480b4ca4257f7f10973e5562") as Address,
+    escrowContract: (import.meta.env.VITE_ESCROW_CONTRACT_ADDRESS_CELO || "0x0b4e459faa79a52a28e9776bc5a0402fc0328544") as Address,
     usdcAddress: (import.meta.env.VITE_USDC_ADDRESS_CELO || "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B") as Address,
     usdtAddress: (import.meta.env.VITE_USDT_ADDRESS_CELO || "") as Address,
     gdAddress: (import.meta.env.VITE_GDOLLAR_ADDRESS_CELO || "0x03d3daB843e6c03b3d271eff9178e6A96c28D25f") as Address,
