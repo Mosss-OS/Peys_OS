@@ -107,6 +107,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
    */
   const fetchBalances = useCallback(async () => {
     if (!walletAddress || !isLoggedIn) {
+      console.log('[DEBUG] fetchBalances skipped — wallet:', !!walletAddress, 'loggedIn:', isLoggedIn);
       setBalanceUSDC(0);
       setBalanceUSDT(0);
       setBalanceG$(0);
@@ -115,6 +116,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    console.log('[DEBUG] fetchBalances starting for wallet:', walletAddress);
     const addr = walletAddress as Address;
     const netBalances: NetworkBalance[] = [];
     let totalUSDC = 0;
@@ -143,7 +145,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }),
         ]);
         if (!raw || raw === 0n) return 0;
-        return Number(formatUnits(raw as bigint, decimals));
+        const formatted = Number(formatUnits(raw as bigint, decimals));
+        console.log(`[DEBUG] readBalance: ${tokenAddr.slice(0,10)} → ${formatted} (raw=${raw})`);
+        return formatted;
       } catch (err) {
         console.error('Error reading token balance:', err);
         return 0;
@@ -154,7 +158,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const readNativeBalance = async (client: PublicClient) => {
       try {
         const balance = await client.getBalance({ address: addr });
-        return Number(formatUnits(balance, 18));
+        const formatted = Number(formatUnits(balance, 18));
+        console.log(`[DEBUG] nativeBalance: ${formatted} ETH`);
+        return formatted;
       } catch (err) {
         console.error('Error reading native balance:', err);
         return 0;
@@ -164,13 +170,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await Promise.all(
       Object.entries(chainConfigs).map(async ([chainId, config]) => {
         const client = publicClients[Number(chainId)];
-        
+        console.log(`[DEBUG] chain ${chainId}: client exists = ${!!client}, rpc = ${config.rpcUrl?.slice(0,40)}...`);
+
         const [usdcBalance, usdtBalance, g$Balance, nativeBalance] = await Promise.all([
           readBalance(client, config.usdcAddress, 6),
           readBalance(client, config.usdtAddress, 6),
           readBalance(client, config.gdAddress, 18),
           readNativeBalance(client),
         ]);
+
+        console.log(`[DEBUG] ${config.name}: USDC=${usdcBalance} USDT=${usdtBalance} G$${g$Balance} NATIVE=${nativeBalance} ${config.nativeSymbol}`);
 
         netBalances.push({
           chainId: Number(chainId),
@@ -189,6 +198,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
 
     netBalances.sort((a, b) => (b.usdc + b.usdt) - (a.usdc + a.usdt));
+
+    console.log('[DEBUG] fetchBalances complete — total USDC:', totalUSDC, 'total G$:', totalG$);
 
     setBalanceUSDC(totalUSDC);
     setBalanceUSDT(totalUSDT);
