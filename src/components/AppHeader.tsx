@@ -136,18 +136,15 @@ export default function AppHeader() {
               <AnimatePresence>
                 {personalOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, x: "-50%" }}
-                    animate={{ opacity: 1, y: 0, x: "-50%" }}
-                    exit={{ opacity: 0, y: 8, x: "-50%" }}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed left-1/2 top-16 pt-2 z-50"
+                    className="fixed left-0 right-0 mx-auto top-16 pt-2 z-50 w-[90vw] max-w-5xl"
                     onMouseEnter={() => handleHoverEnter(setPersonalOpen)}
                     onMouseLeave={() => handleHoverLeave(setPersonalOpen)}
                   >
-                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-4 shadow-elevated">
-                      <p className="mb-3 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                        For Individuals
-                      </p>
+                    <div className="rounded-xl border border-border bg-card p-4 shadow-elevated">
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                         {personalItems.map((item) => {
                           const Icon = item.icon;
@@ -218,15 +215,15 @@ export default function AppHeader() {
               <AnimatePresence>
                 {orgOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, x: "-50%" }}
-                    animate={{ opacity: 1, y: 0, x: "-50%" }}
-                    exit={{ opacity: 0, y: 8, x: "-50%" }}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed left-1/2 top-16 pt-2 z-50"
+                    className="fixed left-0 right-0 mx-auto top-16 pt-2 z-50 w-[90vw] max-w-5xl"
                     onMouseEnter={() => handleHoverEnter(setOrgOpen)}
                     onMouseLeave={() => handleHoverLeave(setOrgOpen)}
                   >
-                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-4 shadow-elevated">
+                    <div className="rounded-xl border border-border bg-card p-4 shadow-elevated">
                       <p className="mb-3 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Teams & Business
                       </p>
@@ -300,15 +297,15 @@ export default function AppHeader() {
               <AnimatePresence>
                 {devOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, x: "-50%" }}
-                    animate={{ opacity: 1, y: 0, x: "-50%" }}
-                    exit={{ opacity: 0, y: 8, x: "-50%" }}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed left-1/2 top-16 pt-2 z-50"
+                    className="fixed left-0 right-0 mx-auto top-16 pt-2 z-50 w-[90vw] max-w-5xl"
                     onMouseEnter={() => handleHoverEnter(setDevOpen)}
                     onMouseLeave={() => handleHoverLeave(setDevOpen)}
                   >
-                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-4 shadow-elevated">
+                    <div className="rounded-xl border border-border bg-card p-4 shadow-elevated">
                       <div className="mb-3 px-3 py-1">
                         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                           For Developers
