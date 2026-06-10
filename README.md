@@ -1,6 +1,6 @@
 # Peys — Send Stablecoins to Anyone, Instantly. No Wallet Required.
 
-Send USDC, USDT, or PASS with a single magic link. Your recipient clicks to claim directly to their wallet — no app, no crypto knowledge, nothing required on their end. Built on Base, Celo, and Polkadot.
+Send USDC, USDT, or PASS with a single magic link. No wallet needed — your recipient claims with zero crypto knowledge required. Built on Base, Celo, and Polygon.
 
 ## 🏗️ Architecture Overview
 
@@ -38,9 +38,8 @@ flowchart TB
     subgraph Blockchain["Blockchain Networks"]
         Base[Base Sepolia]
         Celo[Celo Alfajores]
-        Polkadot[Polkadot]
     end
-
+    
     UI --> Auth
     UI --> Wallet
     UI --> EdgeFuncs
@@ -48,7 +47,6 @@ flowchart TB
     Wallet --> RPC
     Wallet --> Base
     Wallet --> Celo
-    Wallet --> Polkadot
     EdgeFuncs --> DB
     EdgeFuncs --> Storage
     EdgeFuncs --> Email
@@ -211,7 +209,6 @@ graph TB
     subgraph "Blockchain Infrastructure"
         Base_RPC[Alchemy/Base RPC]
         Celo_RPC[Alchemy/Celo RPC]
-        Polkadot_RPC[Polkadot RPC]
         Smart_Contracts[Deployed Escrow Contracts]
     end
     
@@ -228,12 +225,10 @@ graph TB
     WhatsApp_Server --> Redis_Cache
     Supabase_Edge --> Base_RPC
     Supabase_Edge --> Celo_RPC
-    Supabase_Edge --> Polkadot_RPC
     Supabase_Edge --> Resend_API
     Supabase_Edge --> Privy_API
     Base_RPC --> Smart_Contracts
     Celo_RPC --> Smart_Contracts
-    Polkadot_RPC --> Smart_Contracts
 ```
 
 ## 📁 Project Structure
@@ -259,7 +254,6 @@ peydot-magic-links/
 │   │   └── ...
 │   ├── lib/                  # Utility libraries
 │   │   ├── chains.ts
-│   │   └── polkadotPvm.ts
 │   └── utils/                # Helper functions
 │       └── confetti.ts
 ├── 📱 whatsapp/               # WhatsApp bot (Meta Cloud API) — deploy separately
@@ -272,7 +266,6 @@ peydot-magic-links/
 │   │   ├── PeysEscrow.sol
 │   │   └── ...
 │   ├── script/                # Deployment scripts
-│   │   ├── DeployPolkadot.s.sol
 │   │   ├── DeployBaseSepolia.s.sol
 │   │   └── DeployCeloAlfajores.s.sol
 │   └── test/                 # Contract tests
@@ -301,7 +294,7 @@ peydot-magic-links/
 - **Framer Motion** - Smooth animations and transitions
 - **shadcn/ui** - Modern component library
 - **React Router** - Client-side routing
-- **Wagmi + Viem** - Ethereum/Polkadot wallet integration
+- **Wagmi + Viem** - Ethereum wallet integration
 - **Privy** - Embedded wallet authentication
 
 ### Backend
@@ -319,7 +312,6 @@ peydot-magic-links/
 - **Multi-chain Support**:
   - Base Sepolia (Ethereum L2)
   - Celo Alfajores (EVM-compatible)
-  - Polkadot Asset Hub (Substrate + EVM)
 
 ### Infrastructure
 - **Vercel** - Frontend hosting
@@ -433,7 +425,6 @@ npm start
 ```bash
 cd contracts
 forge build
-forge script script/DeployPolkadot.s.sol --rpc-url $VITE_RPC_URL_POLKADOT --broadcast --verify
 forge script script/DeployBaseSepolia.s.sol --rpc-url $VITE_RPC_URL_BASE_SEPOLIA --broadcast --verify
 forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --broadcast --verify
 ```
@@ -453,7 +444,6 @@ forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --bro
 
 | Network | Chain ID | RPC URL | Escrow Contract |
 |---|---|---|---|
-| Polkadot Asset Hub | 420420417 | `https://eth-asset-hub-paseo.dotters.network` | `***REMOVED***` |
 | Base Sepolia | 84532 | `https://base-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x7bcf32C1ef45aFfd38e2A11E48b6d373bDdfb7af` |
 | Polygon Amoy | 80002 | `https://polygon-amoy.g.alchemy.com/v2/***REMOVED***` | `0xbe3ace4f8ce1ded010123d927a752c7ade17eaba1da07bdc078c5eba494478b7` |
 | Celo Alfajores | 44787 | `https://celo-sepolia.g.alchemy.com/v2/***REMOVED***` | `0x0b4e459faa79a52a28e9776bc5a0402fc0328544480b4ca4257f7f10973e5562` |
@@ -464,7 +454,6 @@ forge script script/DeployCeloAlfajores.s.sol --rpc-url $VITE_RPC_URL_CELO --bro
 
 | Network | USDC | USDT | PASS |
 |---|---|---|---|
-| Polkadot | `0x0000000000000000000000000000000000000D39` | Not available | Native token |
 | Base Sepolia | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | Not available | Not available |
 | Polygon Amoy | `0x41E94EB09554da6d1DE6384F89b8c2C5B2c7f3f7` | Not available | Not available |
 | Celo Alfajores | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` | Not available | Not available |
@@ -510,7 +499,6 @@ npm run test:watch       # Run tests in watch mode
 # Smart Contracts
 npm run contract:build   # Build contracts
 npm run contract:test     # Test contracts
-npm run contract:deploy:polkadot    # Deploy to Polkadot
 npm run contract:deploy:base-sepolia   # Deploy to Base Sepolia
 npm run contract:deploy:celo-alfajores  # Deploy to Celo
 
@@ -556,33 +544,7 @@ npm run lint             # Run ESLint
 
 ## 🌍 Multi-Chain Strategy
 
-### Chain Selection Logic
 
-```mermaid
-flowchart TD
-    A[User Selects Network] --> B{Chain Type}
-    B -->|EVM Compatible| C[Base/Celo]
-    B -->|Substrate + EVM| P[Polkadot]
-    
-    C --> D[Standard ERC20 Flow]
-    P --> E[Precompile System]
-    
-    D --> F[Token Approval → Escrow]
-    E --> G[Asset ID → Precompile → Escrow]
-    
-    F --> H[Standard Claim Process]
-    G --> H
-```
-
-### Asset Handling Differences
-
-| Feature | Ethereum L2s | Polkadot Asset Hub |
-|---|---|---|
-| **Token Model** | ERC-20 contracts | Asset IDs + precompiles |
-| **Native Token** | ETH (wrapped) | PAS (native) |
-| **Gas Token** | ETH | PAS |
-| **Cross-chain** | Bridges | XCM built-in |
-| **Finality** | ~2 seconds | ~6 seconds |
 
 ## 🚀 API Documentation
 
@@ -648,7 +610,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **Supabase** - Backend-as-a-Service platform
 - **Privy** - Embedded wallet infrastructure
 - **OpenZeppelin** - Secure smart contract library
-- **Wagmi/Viem** - Modern Ethereum/Polkadot libraries
+- **Wagmi/Viem** - Modern Ethereum libraries
 - **Meta Cloud API** - WhatsApp messaging API
 - **Foundry** - Smart contract development framework
 
