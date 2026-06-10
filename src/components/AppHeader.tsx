@@ -136,11 +136,11 @@ export default function AppHeader() {
               <AnimatePresence>
                 {personalOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 8, x: "-50%" }}
+                    animate={{ opacity: 1, y: 0, x: "-50%" }}
+                    exit={{ opacity: 0, y: 8, x: "-50%" }}
                     transition={{ duration: 0.15 }}
-                    className="fixed left-1/2 -translate-x-1/2 top-16 pt-2 z-50"
+                    className="fixed left-1/2 top-16 pt-2 z-50"
                     onMouseEnter={() => handleHoverEnter(setPersonalOpen)}
                     onMouseLeave={() => handleHoverLeave(setPersonalOpen)}
                   >
@@ -218,11 +218,11 @@ export default function AppHeader() {
               <AnimatePresence>
                 {orgOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 8, x: "-50%" }}
+                    animate={{ opacity: 1, y: 0, x: "-50%" }}
+                    exit={{ opacity: 0, y: 8, x: "-50%" }}
                     transition={{ duration: 0.15 }}
-                    className="fixed left-1/2 -translate-x-1/2 top-16 pt-2 z-50"
+                    className="fixed left-1/2 top-16 pt-2 z-50"
                     onMouseEnter={() => handleHoverEnter(setOrgOpen)}
                     onMouseLeave={() => handleHoverLeave(setOrgOpen)}
                   >
@@ -300,11 +300,11 @@ export default function AppHeader() {
               <AnimatePresence>
                 {devOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 8, x: "-50%" }}
+                    animate={{ opacity: 1, y: 0, x: "-50%" }}
+                    exit={{ opacity: 0, y: 8, x: "-50%" }}
                     transition={{ duration: 0.15 }}
-                    className="fixed left-1/2 -translate-x-1/2 top-16 pt-2 z-50"
+                    className="fixed left-1/2 top-16 pt-2 z-50"
                     onMouseEnter={() => handleHoverEnter(setDevOpen)}
                     onMouseLeave={() => handleHoverLeave(setDevOpen)}
                   >
