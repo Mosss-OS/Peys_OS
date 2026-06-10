@@ -1,6 +1,6 @@
-# Peys — Stablecoin Payments via Magic Links
+# Peys — Send Stablecoins to Anyone, Instantly. No Wallet Required.
 
-Send USDC/USDT/PASS to anyone using a magic claim link — no wallet required on the recipient's end. Built on Base, Celo, and Polkadot.
+Send USDC, USDT, or PASS with a single magic link. Your recipient clicks to claim directly to their wallet — no app, no crypto knowledge, nothing required on their end. Built on Base, Celo, and Polkadot.
 
 ## 🏗️ Architecture Overview
 
