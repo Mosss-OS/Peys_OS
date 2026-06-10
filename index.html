@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Peys — Stablecoin Payments</title>
+    <meta name="description" content="Send stablecoins to anyone with a magic link. No wallet needed.">
+    <meta name="author" content="Peys Team v2" />
+    <meta name="theme-color" content="#6C3FE4" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780854543/peys_white_cropped.png" />
+    <link id="favicon" rel="icon" href="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" type="image/png" />
+    <script>
+      (function() {
+        const stored = localStorage.getItem('pey-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = stored ? stored === 'dark' : prefersDark;
+        document.getElementById('favicon').href = isDark 
+          ? 'https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png' 
+          : 'https://res.cloudinary.com/dv0tt80vn/image/upload/v1780854543/peys_white_cropped.png';
+      })();
+    </script>
+
+    
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png" />
+    <meta property="og:url" content="https://peys-armj8d0rg-mosss-os-projects.vercel.app" />
+    <meta property="og:site_name" content="Peys" />
+    <meta property="whatsapp:card" content="summary_large_image" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@paboracle" />
+    <meta name="twitter:image" content="https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png">
+    <meta property="og:title" content="Peys — G$ Stablecoin Payments">
+    <meta name="twitter:title" content="Peys — G$ Stablecoin Payments">
+    <meta property="og:description" content="Send G$ to anyone with a magic link. No wallet needed. Gasless claims.">
+    <meta name="twitter:description" content="Send G$ to anyone with a magic link. No wallet needed. Gasless claims.">
+    
+    <!-- WhatsApp Deep Link Support -->
+    <meta property="al:android:package" content="io.peys.app" />
+    <meta property="al:android:app_name" content="Peys" />
+    <meta property="al:ios:app_store_id" content="123456789" />
+    <meta property="al:ios:app_name" content="Peys" />
+    <meta property="al:web:should_fallback" content="true" />
+</head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

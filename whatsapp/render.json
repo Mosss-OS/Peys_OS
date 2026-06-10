@@ -1,0 +1,23 @@
+{
+  "schema": "https://render.com/schema.json",
+  "name": "peys-whatsapp-bot",
+  "region": "oregon",
+  "service": {
+    "type": "web",
+    "startCommand": "node server/index.mjs",
+    "buildCommand": "npm install",
+    "envVars": [
+      {
+        "key": "NODE_ENV",
+        "value": "production"
+      },
+      {
+        "key": "PORT",
+        "value": "3002"
+      }
+    ]
+  },
+  "domains": [
+    "peys-bot.onrender.com"
+  ]
+}

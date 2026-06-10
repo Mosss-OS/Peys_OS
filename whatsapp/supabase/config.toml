@@ -1,0 +1,53 @@
+# Supabase Configuration for WhatsApp Bot
+# This file documents the Supabase setup for the bot
+
+[project]
+# Project ID from main project
+id = "nhxjvhohfgihmrtiytix"
+
+# API URL
+api_url = "https://nhxjvhohfgihmrtiytix.supabase.co"
+
+# Database connection (for direct access if needed)
+# database_url = "postgresql://postgres:[PASSWORD]@db.nhxjvhohfgihmrtiytix.supabase.co:5432/postgres"
+
+# ============================================
+# Environment Variables
+# ============================================
+# These are set in the bot's .env file
+
+# SUPABASE_URL=https://nhxjvhohfgihmrtiytix.supabase.co
+# SUPABASE_ANON_KEY=<from main .env>
+# SUPABASE_SERVICE_ROLE_KEY=<from main .env>
+
+# ============================================
+# Tables Used by Bot
+# ============================================
+
+# profiles (with whatsapp_id, phone_number, passcode_hash, wallet_address)
+# wallets
+# transactions  
+# escrow_payments
+# whatsapp_sessions
+# whatsapp_commands
+# notifications
+
+# ============================================
+# RLS Policies
+# ============================================
+# Bot uses service_role_key which bypasses RLS
+# This is required for:
+# - Creating profiles for WhatsApp users
+# - Logging commands
+# - Creating transactions
+# - Managing escrow payments
+
+# ============================================
+# Migrations
+# ============================================
+# All schema migrations are in the MAIN PROJECT:
+# /supabase/migrations/
+#
+# Run migrations from main project:
+# cd /home/moses/Desktop/Hackathons/peydot-magic-links
+# supabase db push

@@ -1,0 +1,67 @@
+project_id = "ipaiccxjspnzazquknrg"
+
+[functions.peys-create-payment]
+verify_jwt = false
+
+[functions.peys-claim-payment]
+verify_jwt = false
+
+[functions.peys-get-payment]
+verify_jwt = false
+
+[functions.peys-get-user-payments]
+verify_jwt = false
+
+[functions.peys-blockchain-webhook]
+verify_jwt = false
+
+[functions.peys-payment-assistant]
+verify_jwt = false
+
+[functions.peys-send-payment-notification]
+verify_jwt = false
+
+[functions.peys-blockchain-signer]
+verify_jwt = false
+
+[functions.peys-create-virtual-account]
+verify_jwt = false
+
+[functions.peys-flutterwave-exchange]
+verify_jwt = false
+
+[functions.peys-flutterwave-transfer]
+verify_jwt = false
+
+[functions.peys-flutterwave-webhook]
+verify_jwt = false
+
+[functions.peys-get-token-allowance]
+verify_jwt = false
+
+[functions.peys-get-token-balance]
+verify_jwt = false
+
+[functions.peys-organizations]
+verify_jwt = false
+
+[functions.peys-p2p-marketplace]
+verify_jwt = false
+
+[functions.peys-public-api]
+verify_jwt = false
+
+[functions.peys-send-email]
+verify_jwt = false
+
+[functions.peys-send-payment-link]
+verify_jwt = false
+
+[functions.peys-sync-user]
+verify_jwt = false
+
+[functions.peys-webhook-dispatcher]
+verify_jwt = false
+
+[functions.peys-webhook-register]
+verify_jwt = false

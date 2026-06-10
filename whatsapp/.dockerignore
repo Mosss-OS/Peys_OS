@@ -1,0 +1,11 @@
+node_modules
+*.log
+.env.local
+*.md
+*.bak
+*.backup*
+supabase/
+migrations/
+src/
+components/
+.DS_Store

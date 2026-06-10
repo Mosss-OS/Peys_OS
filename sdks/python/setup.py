@@ -1,0 +1,20 @@
+{
+    "name": "peys",
+    "version": "1.0.0",
+    "description": "Peys payment SDK for Python",
+    "author": "Peys",
+    "license": "MIT",
+    "readme": "README.md",
+    "python": ">=3.8",
+    "classifiers": [
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+    ],
+    "dependencies": ["requests>=2.28.0"],
+}

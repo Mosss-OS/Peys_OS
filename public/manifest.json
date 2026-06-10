@@ -1,0 +1,17 @@
+{
+  "name": "Peys — G$ Stablecoin Payments",
+  "short_name": "Peys",
+  "description": "Send G$ to anyone with a magic link. No wallet needed. Gasless claims on Celo Alfajores.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FCFCFD",
+  "theme_color": "#6C3FE4",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dv0tt80vn/image/upload/v1780783511/peys_logo_white_cropped.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
