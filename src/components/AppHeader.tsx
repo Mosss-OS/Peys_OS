@@ -3,7 +3,7 @@
  * (Personal, Organization, Developers), theme toggle, notification bell,
  * login/logout buttons, and a mobile slide-out menu.
  */
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon, ChevronDown, MessageCircle, Send, Wallet, Link2, Users, Zap, BarChart3, FileText, CreditCard, Building2, User, Code, Terminal, Box, Globe, Lock, Key, Webhook, AlertCircle, Coffee } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
@@ -27,6 +27,16 @@ export default function AppHeader() {
   const [personalOpen, setPersonalOpen] = useState(false);
   const [orgOpen, setOrgOpen] = useState(false);
   const [devOpen, setDevOpen] = useState(false);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleHoverEnter = (setter: (v: boolean) => void) => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    setter(true);
+  };
+
+  const handleHoverLeave = (setter: (v: boolean) => void) => {
+    hoverTimeout.current = setTimeout(() => setter(false), 150);
+  };
 
   const personalItems = [
     { to: "/send", label: "Send Money", desc: "Send via link or address", icon: Send, disabled: false },
@@ -109,8 +119,8 @@ export default function AppHeader() {
             {/* Personal dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setPersonalOpen(true)}
-              onMouseLeave={() => setPersonalOpen(false)}
+              onMouseEnter={() => handleHoverEnter(setPersonalOpen)}
+              onMouseLeave={() => handleHoverLeave(setPersonalOpen)}
             >
               <button
                 className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
@@ -130,9 +140,11 @@ export default function AppHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full pt-2 z-50"
+                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+                    onMouseEnter={() => handleHoverEnter(setPersonalOpen)}
+                    onMouseLeave={() => handleHoverLeave(setPersonalOpen)}
                   >
-                    <div className="w-72 rounded-xl border border-border bg-card p-2 shadow-elevated">
+                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-2 shadow-elevated">
                       <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Individuals
                       </p>
@@ -187,8 +199,8 @@ export default function AppHeader() {
             {/* Organization dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setOrgOpen(true)}
-              onMouseLeave={() => setOrgOpen(false)}
+              onMouseEnter={() => handleHoverEnter(setOrgOpen)}
+              onMouseLeave={() => handleHoverLeave(setOrgOpen)}
             >
               <button
                 className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
@@ -208,9 +220,11 @@ export default function AppHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full pt-2 z-50"
+                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+                    onMouseEnter={() => handleHoverEnter(setOrgOpen)}
+                    onMouseLeave={() => handleHoverLeave(setOrgOpen)}
                   >
-                    <div className="w-72 rounded-xl border border-border bg-card p-2 shadow-elevated">
+                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-2 shadow-elevated">
                       <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Teams & Business
                       </p>
@@ -265,8 +279,8 @@ export default function AppHeader() {
             {/* Developers dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setDevOpen(true)}
-              onMouseLeave={() => setDevOpen(false)}
+              onMouseEnter={() => handleHoverEnter(setDevOpen)}
+              onMouseLeave={() => handleHoverLeave(setDevOpen)}
             >
               <button
                 className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
@@ -286,9 +300,11 @@ export default function AppHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full pt-2 z-50"
+                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+                    onMouseEnter={() => handleHoverEnter(setDevOpen)}
+                    onMouseLeave={() => handleHoverLeave(setDevOpen)}
                   >
-                    <div className="w-72 rounded-xl border border-border bg-card p-2 shadow-elevated">
+                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-2 shadow-elevated">
                       <div className="mb-2 px-3 py-1">
                         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                           For Developers
