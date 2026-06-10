@@ -140,14 +140,15 @@ export default function AppHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+                    className="fixed left-1/2 -translate-x-1/2 top-16 pt-2 z-50"
                     onMouseEnter={() => handleHoverEnter(setPersonalOpen)}
                     onMouseLeave={() => handleHoverLeave(setPersonalOpen)}
                   >
-                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-2 shadow-elevated">
-                      <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-4 shadow-elevated">
+                      <p className="mb-3 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Individuals
                       </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                         {personalItems.map((item) => {
                           const Icon = item.icon;
                           const disabled = item.disabled;
@@ -155,17 +156,17 @@ export default function AppHeader() {
                             return (
                               <div
                                 key={item.to}
-                                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 cursor-not-allowed"
+                                className="flex flex-col items-center gap-2 rounded-lg px-3 py-3 text-sm text-muted-foreground/50 cursor-not-allowed text-center"
                                 onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
                               >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
-                                  <Icon className="h-4 w-4" />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                  <Icon className="h-5 w-5" />
                                 </div>
                                 <div>
                                   <div className="font-medium text-muted-foreground/50">{item.label}</div>
                                   <div className="text-xs text-muted-foreground">{item.desc}</div>
                                 </div>
-                                <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                                <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
                               </div>
                             );
                           }
@@ -174,14 +175,14 @@ export default function AppHeader() {
                               key={item.to}
                               to={item.to}
                               onClick={() => setPersonalOpen(false)}
-                              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                              className={`flex flex-col items-center gap-2 rounded-lg px-3 py-3 text-sm transition-colors text-center ${
                                 location.pathname === item.to
                                   ? "bg-primary/10 text-primary font-medium"
                                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                               }`}
                             >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                                <Icon className="h-4 w-4" />
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
+                                <Icon className="h-5 w-5" />
                               </div>
                               <div>
                                 <div className="font-medium text-foreground">{item.label}</div>
@@ -190,6 +191,7 @@ export default function AppHeader() {
                             </Link>
                           );
                         })}
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -220,14 +222,15 @@ export default function AppHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+                    className="fixed left-1/2 -translate-x-1/2 top-16 pt-2 z-50"
                     onMouseEnter={() => handleHoverEnter(setOrgOpen)}
                     onMouseLeave={() => handleHoverLeave(setOrgOpen)}
                   >
-                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-2 shadow-elevated">
-                      <p className="mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-4 shadow-elevated">
+                      <p className="mb-3 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         For Teams & Business
                       </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                         {orgItems.map((item) => {
                           const Icon = item.icon;
                           const disabled = item.disabled;
@@ -235,17 +238,17 @@ export default function AppHeader() {
                             return (
                               <div
                                 key={item.to}
-                                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 cursor-not-allowed"
+                                className="flex flex-col items-center gap-2 rounded-lg px-3 py-3 text-sm text-muted-foreground/50 cursor-not-allowed text-center"
                                 onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
                               >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
-                                  <Icon className="h-4 w-4" />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                  <Icon className="h-5 w-5" />
                                 </div>
                                 <div>
                                   <div className="font-medium text-muted-foreground/50">{item.label}</div>
                                   <div className="text-xs text-muted-foreground">{item.desc}</div>
                                 </div>
-                                <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                                <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
                               </div>
                             );
                           }
@@ -254,14 +257,14 @@ export default function AppHeader() {
                               key={item.to}
                               to={item.to}
                               onClick={() => setOrgOpen(false)}
-                              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                              className={`flex flex-col items-center gap-2 rounded-lg px-3 py-3 text-sm transition-colors text-center ${
                                 location.pathname === item.to
                                   ? "bg-primary/10 text-primary font-medium"
                                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                               }`}
                             >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                                <Icon className="h-4 w-4" />
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
+                                <Icon className="h-5 w-5" />
                               </div>
                               <div>
                                 <div className="font-medium text-foreground">{item.label}</div>
@@ -270,6 +273,7 @@ export default function AppHeader() {
                             </Link>
                           );
                         })}
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -300,16 +304,17 @@ export default function AppHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+                    className="fixed left-1/2 -translate-x-1/2 top-16 pt-2 z-50"
                     onMouseEnter={() => handleHoverEnter(setDevOpen)}
                     onMouseLeave={() => handleHoverLeave(setDevOpen)}
                   >
-                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-2 shadow-elevated">
-                      <div className="mb-2 px-3 py-1">
+                    <div className="w-[90vw] max-w-5xl rounded-xl border border-border bg-card p-4 shadow-elevated">
+                      <div className="mb-3 px-3 py-1">
                         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                           For Developers
                         </p>
                       </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                         {devItems.map((item) => {
                           const Icon = item.icon;
                           const disabled = item.disabled;
@@ -317,14 +322,14 @@ export default function AppHeader() {
                             return (
                               <div
                                 key={item.to}
-                                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 cursor-not-allowed"
+                                className="flex flex-col items-center gap-2 rounded-lg px-3 py-3 text-sm text-muted-foreground/50 cursor-not-allowed text-center"
                                 onClick={() => toast.info("This feature is disabled for MVP. Core send→claim flow only.")}
                               >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary opacity-50">
-                                  <Icon className="h-4 w-4" />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary opacity-50">
+                                  <Icon className="h-5 w-5" />
                                 </div>
                                 <div>
-                                  <div className="font-medium flex items-center gap-2 text-muted-foreground/50">
+                                  <div className="font-medium flex items-center justify-center gap-2 text-muted-foreground/50">
                                     {item.label}
                                     <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
                                       Disabled
@@ -332,7 +337,7 @@ export default function AppHeader() {
                                   </div>
                                   <div className="text-xs text-muted-foreground">{item.desc}</div>
                                 </div>
-                                <AlertCircle className="h-4 w-4 text-muted-foreground/50 ml-auto" />
+                                <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
                               </div>
                             );
                           }
@@ -341,13 +346,13 @@ export default function AppHeader() {
                               key={item.to}
                               to={item.to}
                               onClick={() => setDevOpen(false)}
-                              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              className="flex flex-col items-center gap-2 rounded-lg px-3 py-3 text-sm transition-colors text-center text-muted-foreground hover:bg-secondary hover:text-foreground"
                             >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                                <Icon className="h-4 w-4" />
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
+                                <Icon className="h-5 w-5" />
                               </div>
                               <div>
-                                <div className="font-medium flex items-center gap-2 text-foreground">
+                                <div className="font-medium flex items-center justify-center gap-2 text-foreground">
                                   {item.label}
                                 </div>
                                 <div className="text-xs text-muted-foreground">{item.desc}</div>
@@ -355,6 +360,7 @@ export default function AppHeader() {
                             </Link>
                          );
                        })}
+                      </div>
                     </div>
                   </motion.div>
                 )}
